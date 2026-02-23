@@ -1,0 +1,15 @@
+{
+  "name": "specsview-construcciondetransacciones",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Rafael Recinos",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cypress": "^13.11.0"
+  }
+}
