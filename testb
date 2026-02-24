@@ -1,0 +1,262 @@
+const { defineConfig } = require('cypress');
+const oracledb = require('oracledb');
+const xlsx = require("xlsx");
+const fs = require('fs');
+const path = require('path');
+const filePathA = 'cypress/ReporteExcel/Reporte_transacciones.xlsx';  // Aquí coloca la ruta de la carpeta
+// Función para leer el archivo Excel y obtener los datos
+function obtenerDatosExcel() {
+  const workbook = xlsx.readFile("cypress/fixtures/variables.xlsx");
+  const sheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[sheetName];
+  const jsonData = xlsx.utils.sheet_to_json(sheet);
+  
+  if (jsonData.length > 0) {
+    return jsonData[0];
+  } else {
+    throw new Error("El archivo Excel está vacío o no contiene datos.");
+  }
+}
+
+
+const excelData = obtenerDatosExcel();
+
+module.exports = defineConfig({
+  viewportWidth: 1500,
+  viewportHeight: 900,
+  chromeWebSecurity: false,
+  watchForFileChanges: false,
+  experimentalStudio: true,
+  screenshotOnRunFailure: true,
+  reporter: 'cypress-mochawesome-reporter', // Usar mochawesome como reporter
+  reporterOptions: {
+      reportDir: `cypress/reports`, // Directori de reportes
+      charts: true,
+      reportPageTitle: 'OperationView',
+      embeddedScreenshots: false,
+      inlineAssets: true,
+      saveAllAttempts: true,
+      timestamp: "mmddyyyy_HHMMss",
+      autoOpen: true,  // Abrir el reporte automáticamente
+      overwrite: true, // Sobreescribir reportes previos
+      html: true, // Generar reporte en HTML
+      json: false, // No generar reporte JSON, solo HTML
+  },
+  e2e: {
+      env: {
+          URL_VAR: "https://docs.google.com/spreadsheets/d/1OYnT7JuEha9xT1_KgyU_gIimNihaCpFdSXwWB3c2rnw/export?format=xlsx",
+      },
+      setupNodeEvents(on, config) {
+
+           on('task', {
+              deleteAllFiles(folderPath) {
+                const files = fs.readdirSync(folderPath);
+                files.forEach(file => {
+                  const filePath = path.join(folderPath, file);
+                  // Borrar cada archivo de la carpeta
+                  fs.unlinkSync(filePath);
+                });
+                return null;
+              }
+            });
+        
+            on("task", {
+                guardarReporteExcel(datos) {
+                  const ws = xlsx.utils.aoa_to_sheet(datos); // Convierte array a hoja de Excel
+                  const wb = xlsx.utils.book_new();
+                  xlsx.utils.book_append_sheet(wb, ws, "Reporte");
+            
+                  const filePath = path.join(__dirname, "cypress/reports/ReporteFinal.xlsx");
+                  xlsx.writeFile(wb, filePath); // Guarda el archivo
+            
+                  return null;
+                }
+              });
+            
+              on('task', {
+                ArchivoReporteCarga({ filePathA }) {
+                  if (fs.existsSync(filePathA)) {
+                    return XLSX.readFile(filePathA);
+                  } else {
+                    const LibroTrabajo = XLSX.utils.book_new();
+                    const HojaTrabajo = XLSX.utils.aoa_to_sheet([
+                      ["Transacción", "Código", "Resultado", "Tiempo de ejecución", "Fecha"],
+                    ]);
+                    XLSX.utils.book_append_sheet(LibroTrabajo, HojaTrabajo, sheetName);
+                    XLSX.writeFile(LibroTrabajo, filePathA);
+                    return null; // No devolvemos el libro de trabajo porque se creó vacío
+                  }
+                },
+            
+                GuardarEnReporte({ numeroTx, codigo, estado, tiempoEjecucion }) {
+                  if (!fs.existsSync(filePathA)) {
+                    return 'Error: El archivo de reporte no existe.';
+                  }
+            
+                  const LibroTrabajo = XLSX.readFile(filePathA);
+                  const HojaTrabajo = LibroTrabajo.Sheets[sheetName] || XLSX.utils.aoa_to_sheet([]);
+            
+                  const nuevaFila = [
+                    numeroTx,
+                    codigo,
+                    estado,
+                    tiempoEjecucion,
+                    new Date().toLocaleString(),
+                  ];
+            
+                  XLSX.utils.sheet_add_aoa(HojaTrabajo, [nuevaFila], { origin: -1 });
+                  LibroTrabajo.Sheets[sheetName] = HojaTrabajo;
+                  XLSX.writeFile(LibroTrabajo, filePathA);
+                  cy.task("guardarReporteExcel", ArraryReporteFinal);
+
+                  return `Fila añadida correctamente: ${numeroTx}`;
+                }
+              });
+            
+          
+          
+
+
+          // Otras tareas personalizadas que tengas
+          on('task', {
+              QueryReporte({ transactionId, status}) {
+                  const reportPath = path.join('cypress', 'reports');
+                  if (!fs.existsSync(reportPath)) {
+                      console.log(`Directorio ${reportPath} no existe. Creándolo...`);
+                      fs.mkdirSync(reportPath, { recursive: true });
+                  }
+                  const report = {
+                      transactionId,
+                      status,
+                      timestamp: new Date().toISOString(),
+                    
+                  };
+                  const filePath = path.join(reportPath, `Reporte de la transacción No. ${transactionId}.html`); // Guardar reporte como HTML
+                  // Crear el reporte HTML de la transacción
+                  const htmlReport = `
+                    <html lang="es">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Reporte de Transacción #${transactionId}</title>
+                        <style>
+                            body {
+                                font-family: 'Arial', sans-serif;
+                                background-color: #f4f4f9;
+                                color: #333;
+                                margin: 0;
+                                padding: 0;
+                            }
+                            header {
+                                background-color: #0056b3;
+                                color: white;
+                                text-align: center;
+                                padding: 20px;
+                            }
+                            header h1 {
+                                margin: 0;
+                                font-size: 2.5em;
+                            }
+                            .container {
+                                width: 80%;
+                                margin: 0 auto;
+                                padding: 20px;
+                                background-color: white;
+                                border-radius: 10px;
+                                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                            }
+                            .status {
+                                font-size: 1.2em;
+                                margin-top: 10px;
+                                padding: 10px;
+                                border-radius: 5px;
+                                color: white;
+                            }
+                            .status.success {
+                                background-color: #dc3545;
+                            }
+                            .status.failed {
+                                background-color: #28a745;
+                            }
+                            .screenshot {
+                                margin-top: 20px;
+                                text-align: center;
+                            }
+                            .screenshot img {
+                                max-width: 100%;
+                                border-radius: 10px;
+                            }
+                            footer {
+                                text-align: center;
+                                font-size: 0.9em;
+                                color: #555;
+                                margin-top: 30px;
+                                padding: 10px;
+                                background-color: #f1f1f1;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <header>
+                            <h1>Reporte de Transacción #${transactionId}</h1>
+                        </header>
+                        <div class="container">
+                            <p><strong>Estado:</strong> <span class="status ${status === 'Success' ? 'success' : 'failed'}">${status}</span></p>
+                            <div class="screenshot">
+                                <p><strong>Captura de Pantalla de la Transacción:</strong></p>
+                                <img src="../screenshots/Captura transaccion No. ${transactionId}.png" alt="Captura de Pantalla de la Transacción">
+                            </div>
+                        </div>
+                        <footer>
+                            <p>Reporte generado automáticamente por el sistema.</p>
+                        </footer>
+                    </body>
+                    </html>
+                  `;
+                  fs.writeFileSync(filePath, htmlReport);
+                  console.log(`Reporte guardado en: ${filePath}`);
+                  return null; // No es necesario devolver un valor si no es requerido
+              }
+          });
+
+          on('task', {
+              readExcelToJson({ filePath }) {
+                  const xlsx = require("xlsx");
+                  const workbook = xlsx.readFile(filePath);
+                  const sheetName = workbook.SheetNames[0];
+                  const jsonData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+                  return jsonData;
+              },
+
+              queryDb: async (query) => {
+                  console.log("Conectando a Oracle...");
+                  const connectionConfig = {
+                      user: excelData.User_BD,
+                      password: excelData.Pass_BD,
+                      connectString: excelData.connectString
+                  };
+
+                  let connection;
+                  try {
+                      connection = await oracledb.getConnection(connectionConfig);
+                      console.log("Conexión exitosa a Oracle");
+
+                      const result = await connection.execute(query);
+                      console.log("Datos obtenidos:", result.rows);
+
+                      return result.rows; // Devuelve los datos a Cypress
+                  } catch (error) {
+                      console.error("Error en la conexión:", error);
+                      throw error;
+                  } finally {
+                      if (connection) {
+                          await connection.close();
+                          console.log("Conexión cerrada");
+                      }
+                  }
+              }
+          });
+      },
+      testIsolation: false,
+  },
+});

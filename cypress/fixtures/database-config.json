@@ -1,0 +1,17 @@
+{
+  "oracle": {
+    "jteller": {
+      "user": "jtellerv7",
+      "password": "jtellerv7",
+      "connectString": "172.16.10.139:51521/xe"
+    },
+    "jsigcommon": {
+      "user": "jsigcommon",
+      "password": "jsigcommon",
+      "connectString": "172.16.10.139:51521/xe"
+    }
+  }
+}
+
+
+
