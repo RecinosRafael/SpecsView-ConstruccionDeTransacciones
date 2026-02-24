@@ -1,0 +1,31 @@
+{
+  "agregar": [
+    {
+      "codigo": "777",
+      "nombre": "Prueba 1 reg",
+      "descripcion": "prueba de insertar primer registro con json"
+    },
+    {
+      "codigo": "778",
+      "nombre": "Prueba 2 reg",
+      "descripcion": "prueba de insertar segundo registro con json"
+    },
+    {
+      "codigo": "779",
+      "nombre": "Prueba 3 reg",
+      "descripcion": "prueba de insertar tercer registro con json"
+    }
+  ],
+
+  "modificar": [
+    {
+      "codigo": "",
+      "nombre": "",
+      "descripcion": ""
+    }
+  ],
+
+  "eliminar": [
+
+  ]
+}

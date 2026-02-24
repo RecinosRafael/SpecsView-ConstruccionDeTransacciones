@@ -91,6 +91,16 @@ class MetodosGeneralesPomCy{
             .click({ force: true });
     }
 
+    //Boton para cancelar la insercion del registro.
+    BtnCancelarRegistro() {
+        cy.log('Clic en botón CANCELAR');
+
+        cy.contains('button', 'Cancelar', { timeout: 15000 })
+            .should('exist')
+            .click({ force: true });
+    }
+
+
     //Filtro, Buscar por codigo
     BuscarRegistroCodigo(codigo) {
 
