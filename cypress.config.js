@@ -1,6 +1,7 @@
 const { defineConfig } = require("cypress");
-const fs = require("fs");
-const path = require("path");
+const OracleDatabase = require("./cypress/support/oracle-database");
+const fs = require('fs');
+const path = require('path');
 const oracledb = require("oracledb");
 
 function loadDatabaseConfig() {
@@ -99,16 +100,19 @@ module.exports = defineConfig({
           'distributor': 'distributor',
           'jsignature': 'jsignature',
           'jsigperson_conf': 'jsigperson_conf'
-          
+
           // Añade más si es necesario
         };
 
+        // Obtener la clave correcta del mapa
         const configKey = userMap[userLower];
+
         if (!configKey) {
           throw new Error(`Usuario no reconocido: ${user}. Válidos: ${Object.keys(userMap).join(', ')}`);
         }
 
         const config = dbConfigs[configKey];
+
         if (!config) {
           throw new Error(`Configuración no encontrada para clave: ${configKey}`);
         }
@@ -122,9 +126,9 @@ on("task", {
     console.log(`\n[oracleQuery] ===== INICIANDO TAREA =====`);
     console.log(`[oracleQuery] Usuario: ${user}`);
     console.log(`[oracleQuery] SQL: ${sql.substring(0, 200)}...`);
-    
+
     let connection = null;
-    
+
     try {
       // 1. Obtener configuración
       console.log(`[oracleQuery] Obteniendo configuración para ${user}...`);
@@ -134,11 +138,11 @@ on("task", {
         console.log(`[oracleQuery] Configuración obtenida: ${connectionConfig.user}@${connectionConfig.connectString}`);
       } catch (configError) {
         console.error(`[oracleQuery] ERROR en getConnectionConfig:`, configError.message);
-        return { 
-          success: false, 
+        return {
+          success: false,
           error: `Error de configuración: ${configError.message}`,
           user,
-          sql 
+          sql
         };
       }
 
@@ -149,17 +153,17 @@ on("task", {
         console.log(`[oracleQuery] Conexión exitosa`);
       } catch (connError) {
         console.error(`[oracleQuery] ERROR de conexión:`, connError.message);
-        return { 
-          success: false, 
+        return {
+          success: false,
           error: `Error de conexión: ${connError.message}`,
           user,
-          sql 
+          sql
         };
       }
 
       // 3. Ejecutar query con opciones optimizadas
       console.log(`[oracleQuery] Ejecutando query...`);
-      
+
       // OPCIONES MEJORADAS para manejar grandes volúmenes de datos
       const defaultOptions = {
         outFormat: oracledb.OUT_FORMAT_OBJECT,
@@ -169,12 +173,12 @@ on("task", {
         prefetchRows: 1000,       // Pre-cargar 1000 filas
         ...options
       };
-      
+
       let result;
       try {
         result = await connection.execute(sql, binds, defaultOptions);
         console.log(`[oracleQuery] Query ejecutada. Filas: ${result.rows?.length || 0}, Afectadas: ${result.rowsAffected || 0}`);
-        
+
         // Log adicional si hay muchas filas
         if (result.rows?.length > 500) {
           console.log(`[oracleQuery] ⚠️ Gran volumen de datos: ${result.rows.length} filas`);
@@ -182,8 +186,8 @@ on("task", {
       } catch (execError) {
         console.error(`[oracleQuery] ERROR de ejecución:`, execError.message);
         console.error(`[oracleQuery] Código de error:`, execError.errorNum);
-        return { 
-          success: false, 
+        return {
+          success: false,
           error: execError.message,
           errorCode: execError.errorNum,
           user,
@@ -265,6 +269,7 @@ on("task", {
           }
         }
       };
+
       return config;
     },
 

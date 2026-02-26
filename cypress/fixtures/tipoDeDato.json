@@ -1,31 +1,571 @@
 {
   "agregar": [
-    {
-      "codigo": "777",
-      "nombre": "Prueba 1 reg",
-      "descripcion": "prueba de insertar primer registro con json"
-    },
-    {
-      "codigo": "778",
-      "nombre": "Prueba 2 reg",
-      "descripcion": "prueba de insertar segundo registro con json"
-    },
-    {
-      "codigo": "779",
-      "nombre": "Prueba 3 reg",
-      "descripcion": "prueba de insertar tercer registro con json"
-    }
-  ],
-
-  "modificar": [
-    {
-      "codigo": "",
-      "nombre": "",
-      "descripcion": ""
-    }
-  ],
-
-  "eliminar": [
-
+    [
+      {
+        "codigo": "TA",
+        "nombre": "TASA {recepcion de Host}",
+        "descripcion": "Extrae de la respuesta del Host {trama} un valor con 4 decimales, segun las posiciones indicadas"
+      },
+      {
+        "codigo": "A",
+        "nombre": "ALFA A {recepcion de Host}",
+        "descripcion": "descripcion larga para prueba de visualización"
+      },
+      {
+        "codigo": "LHS",
+        "nombre": "AUTORIZACION TRX. ORIGINAL",
+        "descripcion": "Obtener el número de autorización, de jteller_journal.auth_number"
+      },
+      {
+        "codigo": "ACR",
+        "nombre": "AÑO CERTIFICACION",
+        "descripcion": "Obtener el año en 4 dígitos de la fecha de certificación"
+      },
+      {
+        "codigo": "AC2",
+        "nombre": "AÑO CERTIFICACION DE 2",
+        "descripcion": "Obtiene el año en 2 dígitos, de la fecha de certificación."
+      },
+      {
+        "codigo": "AOP",
+        "nombre": "AÑO OPERACION",
+        "descripcion": "Obtiene el año de operación en 4 dígitos, de la fecha de operación"
+      },
+      {
+        "codigo": "AO2",
+        "nombre": "AÑO OPERACION DE 2",
+        "descripcion": "Obtiene el año de operación de 2 dígitos, de la fecha de operación"
+      },
+      {
+        "codigo": "C",
+        "nombre": "CAMPO",
+        "descripcion": "Obtener el valor del campo; format_detail.read_len_data tiene el correlative del campo de la transacción; con éste se obtiene el dato del campo"
+      },
+      {
+        "codigo": "CL",
+        "nombre": "CANTIDAD EN LETRAS",
+        "descripcion": "Obtener el valor en letras de journal_value.data_value según format_detail.read_len_data"
+      },
+      {
+        "codigo": "CMS",
+        "nombre": "CAMPOS DE LA TRANSACCION",
+        "descripcion": "Obtener todos los campos de la transacción mediante trxCharSpecByStep, con los parámetros jteller_journal_id y type_format"
+      },
+      {
+        "codigo": "CMD",
+        "nombre": "CAMPOS TRX(ENVIO DESCRIPCIÓN TIPO TABLA)",
+        "descripcion": ""
+      },
+      {
+        "codigo": "CA",
+        "nombre": "CODIGO DE AGENCIA",
+        "descripcion": "Obtener el valor de organization_tree.tree_branch y almacena el code de treebranch conforme a printLenData"
+      },
+      {
+        "codigo": "ERR",
+        "nombre": "CODI DE ERROR",
+        "descripcion": ""
+      },
+      {
+        "codigo": "U",
+        "nombre": "CODI DE USUARIO",
+        "descripcion": "Obtener el user.user_code_in_esb a partir del jteller_journal.user_id"
+      },
+      {
+        "codigo": "CDS",
+        "nombre": "CODI DEPARTAMENTO SUPERVISOR",
+        "descripcion": ""
+      },
+      {
+        "codigo": "CDU",
+        "nombre": "CODI DEPARTAMENTO USUSUARIO",
+        "descripcion": ""
+      },
+      {
+        "codigo": "CJ",
+        "nombre": "CODIGO DE JORNADA",
+        "descripcion": "Obtiene el código de jornada de jteller_journal.workday_id"
+      },
+      {
+        "codigo": "CTU",
+        "nombre": "CODI TIPO DE USUARIO",
+        "descripcion": "Obtener el código del tipo de usuario de jteller_journal.user_id {user.type_cashier}"
+      },
+      {
+        "codigo": "K",
+        "nombre": "CONSTANTE",
+        "descripcion": "Obtener el dato definido como constante en format_detail.constant"
+      },
+      {
+        "codigo": "DJ",
+        "nombre": "DESCRIPCION JORNADA",
+        "descripcion": "Obtener la descripción de jornada, de jteller_journal.workday_id {workday.name}"
+      },
+      {
+        "codigo": "DVT",
+        "nombre": "DESCRIPCION CAMPOS USAN TABLA",
+        "descripcion": "En readLenData está el correlativo del campo, pero con el dato recuperado se tiene que recuperar el valor en {characteristic_spec_value.descriptor}"
+      },
+      {
+        "codigo": "DC",
+        "nombre": "DESCRIPCION DE CAMPO",
+        "descripcion": "Obtener la descripción del campo desde characteristic_spec.name usando el correlative"
+      },
+      {
+        "codigo": "DDU",
+        "nombre": "DESCRIPCION DEPARTAMENTO USUARIO",
+        "descripcion": ""
+      },
+      {
+        "codigo": "DTU",
+        "nombre": "DESCRIPCION TIPO DE USUARIO",
+        "descripcion": ""
+      },
+      {
+        "codigo": "DT",
+        "nombre": "DESCRIPCION TRANSACCION",
+        "descripcion": "Obtener el nombre de la transacción de jteller_journal.transaction_spec_id {transaction_spec.name}"
+      },
+      {
+        "codigo": "DDS",
+        "nombre": "DESCRIPCOIN DEPARTAMENTO SUPERVISOR",
+        "descripcion": ""
+      },
+      {
+        "codigo": "DES",
+        "nombre": "DESCRIPTOR",
+        "descripcion": "Recupera dato usando charspec_id definido en constante y el correlative de transaction_spec"
+      },
+      {
+        "codigo": "DEF",
+        "nombre": "DESGLOSE DE EFECTIVO",
+        "descripcion": "Generar una estructura de datos que contiene el desglose de efectivo de la transacción"
+      },
+      {
+        "codigo": "DCR",
+        "nombre": "DIA CERTIFICACION",
+        "descripcion": "Obtener el día de la fecha de certificación"
+      },
+      {
+        "codigo": "DOP",
+        "nombre": "DIA OPERACION",
+        "descripcion": "Obtener el día de operación"
+      },
+      {
+        "codigo": "FC",
+        "nombre": "FECHA CERTIFICACION",
+        "descripcion": "Obtiene la fecha de certificación en formato yyyyMMdd"
+      },
+      {
+        "codigo": "FM",
+        "nombre": "FECHA CON MES ALFANUMREICO AAA",
+        "descripcion": ""
+      },
+      {
+        "codigo": "FCH",
+        "nombre": "FECHA DD DE MMMMMMM DE AAAA",
+        "descripcion": "Obtiene la fecha en formato dd de <mes> de aaaa"
+      },
+      {
+        "codigo": "F",
+        "nombre": "FECHA DDMMAA(AA)",
+        "descripcion": "Obtiene la fecha en formato ddMMyy"
+      },
+      {
+        "codigo": "FCM",
+        "nombre": "FECHA DE CERTIFICACION CON MCARA",
+        "descripcion": "Formato dd-mes-aaaa (mes 3 char)"
+      },
+      {
+        "codigo": "FCI",
+        "nombre": "FECHA INGLES (MONTH DAY, YEAR)",
+        "descripcion": "Formato month day, year"
+      },
+      {
+        "codigo": "FR",
+        "nombre": "FLAG DE REVERSION (1-REVER 0-NORMAL)",
+        "descripcion": ""
+      },
+      {
+        "codigo": "H",
+        "nombre": "HORA",
+        "descripcion": "Recupera hora en formato HH:mm:ss"
+      },
+      {
+        "codigo": "HR",
+        "nombre": "HORA REVERSION",
+        "descripcion": "Recupera hora de reversión en formato HH:mm:ss"
+      },
+      {
+        "codigo": "IDF",
+        "nombre": "IDENTIFICACION FIRMANTE",
+        "descripcion": "Consumir servicio externo usando RestTemplate para obtener datos del firmante"
+      },
+      {
+        "codigo": "IDT",
+        "nombre": "IDENTIFICACION TERMINAL",
+        "descripcion": ""
+      },
+      {
+        "codigo": "STS",
+        "nombre": "INDICADOR DE ESTATUS",
+        "descripcion": ""
+      },
+      {
+        "codigo": "ILR",
+        "nombre": "INDICADOR LT RECORD",
+        "descripcion": ""
+      },
+      {
+        "codigo": "MCR",
+        "nombre": "MES DE CERTIFICACION",
+        "descripcion": "Obtener mes de certificación"
+      },
+      {
+        "codigo": "MOP",
+        "nombre": "MES OPERACION",
+        "descripcion": "Obtener mes de operación"
+      },
+      {
+        "codigo": "NSI",
+        "nombre": "N/MERO DE SERIE IMPRESORA",
+        "descripcion": ""
+      },
+      {
+        "codigo": "NIT",
+        "nombre": "NIT",
+        "descripcion": ""
+      },
+      {
+        "codigo": "NG1",
+        "nombre": "NIVEL GEOGRAFICO 1",
+        "descripcion": "Obtener nombre nivel geográfico 1"
+      },
+      {
+        "codigo": "NG2",
+        "nombre": "NIVEL GEOGRAFICO 2",
+        "descripcion": "Obtener nombre nivel geográfico 2"
+      },
+      {
+        "codigo": "NG3",
+        "nombre": "NIVEL GEOGRAFICO 3",
+        "descripcion": "Obtener nombre nivel geográfico 3"
+      },
+      {
+        "codigo": "OFI",
+        "nombre": "NO IMPLEMENTADO",
+        "descripcion": ""
+      },
+      {
+        "codigo": "PLZ",
+        "nombre": "NO IMPLEMENTADO",
+        "descripcion": ""
+      },
+      {
+        "codigo": "SEC",
+        "nombre": "NO IMPLEMENTADO",
+        "descripcion": ""
+      },
+      {
+        "codigo": "SUC",
+        "nombre": "NO IMPLEMENTADO",
+        "descripcion": ""
+      },
+      {
+        "codigo": "NA",
+        "nombre": "NOMBRE AGENCIA",
+        "descripcion": "Obtener nombre de agencia"
+      },
+      {
+        "codigo": "NEM",
+        "nombre": "NOMBRE DE LA EMPRESA",
+        "descripcion": "Obtener nombre de empresa"
+      },
+      {
+        "codigo": "NOF",
+        "nombre": "NOMBRE FIRMANTE",
+        "descripcion": "Consumir servicio externo para obtener nombre firmante"
+      },
+      {
+        "codigo": "NU",
+        "nombre": "NOMBRE USUARIO",
+        "descripcion": "Obtener nombre completo del usuario"
+      },
+      {
+        "codigo": "NUA",
+        "nombre": "NOMBRE USUARIO AUTORIZO",
+        "descripcion": "Obtener nombre usuario que autorizó"
+      },
+      {
+        "codigo": "NUR",
+        "nombre": "NOMBRE USUARIO REVERSO",
+        "descripcion": "Obtener nombre usuario que reversó"
+      },
+      {
+        "codigo": "N",
+        "nombre": "NUMERO {recepción de Host}",
+        "descripcion": ""
+      },
+      {
+        "codigo": "NAA",
+        "nombre": "NUMERO DE AUTORIZACIO",
+        "descripcion": "Obtener número de autorización"
+      },
+      {
+        "codigo": "NL",
+        "nombre": "NUMERO DE LINEA (LIBRETA)",
+        "descripcion": ""
+      },
+      {
+        "codigo": "PRC",
+        "nombre": "PROTOCOLO",
+        "descripcion": ""
+      },
+      {
+        "codigo": "R",
+        "nombre": "RESULTADO",
+        "descripcion": "Operar valores de campos según operación definida"
+      },
+      {
+        "codigo": "RUT",
+        "nombre": "RUTINA",
+        "descripcion": ""
+      },
+      {
+        "codigo": "S",
+        "nombre": "SECUENCIA",
+        "descripcion": "Obtener secuencia"
+      },
+      {
+        "codigo": "SOR",
+        "nombre": "SECUENCIA ORIGINAL",
+        "descripcion": "Obtener secuencia original o de reversión"
+      },
+      {
+        "codigo": "SEP",
+        "nombre": "SEPARADOR ESPECIAL",
+        "descripcion": ""
+      },
+      {
+        "codigo": "SMO",
+        "nombre": "SUPERVISOR MODULO",
+        "descripcion": "Obtener username del supervisor"
+      },
+      {
+        "codigo": "TER",
+        "nombre": "TERMINAL",
+        "descripcion": "Obtener constante o rellenar con ceros"
+      },
+      {
+        "codigo": "TEQ",
+        "nombre": "TERMINAL EQUIVALENTE",
+        "descripcion": ""
+      },
+      {
+        "codigo": "TXC",
+        "nombre": "TEXTO COPIA",
+        "descripcion": ""
+      },
+      {
+        "codigo": "TIF",
+        "nombre": "TIPO IDENTIFICACION FIRMANTE",
+        "descripcion": "Consumir servicio externo para tipo identificación"
+      },
+      {
+        "codigo": "T",
+        "nombre": "TRANSACCION",
+        "descripcion": "Obtener código de transacción"
+      },
+      {
+        "codigo": "TMU",
+        "nombre": "TRANSACCIONES MULTIPLES",
+        "descripcion": ""
+      },
+      {
+        "codigo": "UA",
+        "nombre": "USUARIO AUTORIZO",
+        "descripcion": "Obtener user_code_in_esb autorizado"
+      },
+      {
+        "codigo": "UE",
+        "nombre": "USUARIO EQUIVALENTE",
+        "descripcion": ""
+      },
+      {
+        "codigo": "UMO",
+        "nombre": "USUARIO MODULO",
+        "descripcion": "Obtener username usuario módulo"
+      },
+      {
+        "codigo": "UR",
+        "nombre": "USUARIO REVERSO",
+        "descripcion": "Obtener username usuario reversó"
+      },
+      {
+        "codigo": "V",
+        "nombre": "VALOR {recepcion de Host}",
+        "descripcion": ""
+      },
+      {
+        "codigo": "VLD",
+        "nombre": "VALOR DOLARES (INGLES)",
+        "descripcion": "Convertir a letras en inglés"
+      },
+      {
+        "codigo": "VL",
+        "nombre": "VALOR EN LETR (MONEDA TIPO CAMPO)",
+        "descripcion": "Convertir a letras incluyendo moneda"
+      },
+      {
+        "codigo": "VA1",
+        "nombre": "VALOR FIJO 1 AGENCIA",
+        "descripcion": ""
+      },
+      {
+        "codigo": "VA2",
+        "nombre": "VALOR FIJO 2 AGENCIA",
+        "descripcion": ""
+      },
+      {
+        "codigo": "VA3",
+        "nombre": "VALOR FIJO 3 AGENCIA",
+        "descripcion": ""
+      },
+      {
+        "codigo": "VA4",
+        "nombre": "VALOR FIJO 4 AGENCIA",
+        "descripcion": ""
+      },
+      {
+        "codigo": "VA5",
+        "nombre": "VALOR FIJO 5 AGENCIA",
+        "descripcion": ""
+      },
+      {
+        "codigo": "VLI",
+        "nombre": "Valor en letras, sin Dollars",
+        "descripcion": "Convertir a letras en inglés sin Dollars"
+      },
+      {
+        "codigo": "AT",
+        "nombre": "NOMBRE CORTO DE LA TRANSACCION",
+        "descripcion": "Obtener label de transaction_spec"
+      },
+      {
+        "codigo": "DM",
+        "nombre": "DESCRIPCION MONEDA",
+        "descripcion": "Obtener descripción de moneda"
+      },
+      {
+        "codigo": "FL",
+        "nombre": "FECHA LOCAL",
+        "descripcion": "Fecha server yyyyMMdd"
+      },
+      {
+        "codigo": "SM",
+        "nombre": "SIMBOLO MONEDA",
+        "descripcion": "Obtener iso3_code"
+      },
+      {
+        "codigo": "VGL",
+        "nombre": "Valor Global",
+        "descripcion": "Obtener valor de variable global"
+      },
+      {
+        "codigo": "CT",
+        "nombre": "Campo Tipo Tabla",
+        "descripcion": "Procesa campo tipo tabla generando variables por registro"
+      },
+      {
+        "codigo": "SC",
+        "nombre": "Sub- campos de un Campo",
+        "descripcion": "Procesa campo con sub-campos"
+      },
+      {
+        "codigo": "FEX",
+        "nombre": "Formulario Extendido",
+        "descripcion": "Genera datos del formulario extendido"
+      },
+      {
+        "codigo": "HV1",
+        "nombre": "Header de Journal, v1",
+        "descripcion": "Genera atributos del encabezado"
+      },
+      {
+        "codigo": "KEY",
+        "nombre": "Key_core",
+        "descripcion": "Llave de cola de datos core byte"
+      },
+      {
+        "codigo": "MOD",
+        "nombre": "Modo_Transacción",
+        "descripcion": "Modo de ejecución de la transacción"
+      },
+      {
+        "codigo": "TES",
+        "nombre": "Testar o Tachar dato",
+        "descripcion": "Permite testar texto rellenando espacios"
+      },
+      {
+        "codigo": "RH",
+        "nombre": "Respuesta de Host",
+        "descripcion": "Retorna certification_message en JSON"
+      },
+      {
+        "codigo": "IDC",
+        "nombre": "ID de Caja Diaria",
+        "descripcion": "Retorna ID del control de cajas abiertas"
+      },
+      {
+        "codigo": "AT2",
+        "nombre": "Autorización 2 de Transacción",
+        "descripcion": "Genera número de autorización secundario"
+      },
+      {
+        "codigo": "COA",
+        "nombre": "Código de Agente Bancario",
+        "descripcion": "Genera código agente bancario"
+      },
+      {
+        "codigo": "NOA",
+        "nombre": "Nombre de Agente Bancario",
+        "descripcion": "Obtiene nombre rama según nivel"
+      },
+      {
+        "codigo": "FUA",
+        "nombre": "Usuario que autorizó la transacción",
+        "descripcion": "Obtener username autorizado"
+      },
+      {
+        "codigo": "REP",
+        "nombre": "Recurso Endpoint",
+        "descripcion": "Extrae recurso endpoint según expresión definida"
+      },
+      {
+        "codigo": "JID",
+        "nombre": "Journal ID",
+        "descripcion": "Asigna jteller_journal.id"
+      },
+      {
+        "codigo": "FAD",
+        "nombre": "Campo adicional entidad",
+        "descripcion": "Retorna dato de campo adicional de entidad"
+      },
+      {
+        "codigo": "FI",
+        "nombre": "Fecha operativa yyyyMMdd",
+        "descripcion": "Fecha operativa yyyyMMdd"
+      },
+      {
+        "codigo": "FIC",
+        "nombre": "Fecha de certificación yyyyMMdd",
+        "descripcion": "Fecha certificación yyyyMMdd"
+      },
+      {
+        "codigo": "DI",
+        "nombre": "Dirección de la agencia",
+        "descripcion": "Genera dirección de la agencia - complemento de dirección"
+      }
+    ]
   ]
 }
