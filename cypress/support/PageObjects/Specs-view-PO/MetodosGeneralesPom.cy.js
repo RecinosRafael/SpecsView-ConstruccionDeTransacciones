@@ -1154,7 +1154,9 @@ class MetodosGeneralesPomCy{
     }
 
 
-
+    espera(){
+    cy.get('.ng-star-inserted', { timeout: 10000 }).should('not.exist')
+    }
 
 
 }
