@@ -59,14 +59,14 @@ describe('CRUD Países que usan moneda', () => {
 
                 // Primer regreso - SALIR DEL SUBNIVEL
                 return cy.then(() => {
-                    cy.wait(2000)
+                    cy.wait(3000)
                     Generales.Regresar()
                     // Verificar que salimos del subnivel (modal cerrado)
                     return cy.get('mat-dialog-container', { timeout: 5000 })
                         .should('not.exist')
                 }).then(() => {
                     // Segundo regreso - SALIR DEL DETALLE DE MONEDA
-                    cy.wait(2000)
+                    cy.wait(3000)
                     Generales.Regresar()
                     // Verificar que estamos en el listado principal
                     return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })

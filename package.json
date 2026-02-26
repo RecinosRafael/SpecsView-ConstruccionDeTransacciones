@@ -12,7 +12,8 @@
   "dependencies": {
     "cypress": "^13.11.0",
     "dependencies": "^0.0.1",
-    "oracledb": "^6.10.0"
+    "oracledb": "^6.10.0",
+    "xpath": "^0.0.34"
   },
   "devDependencies": {
     "cypress-mochawesome-reporter": "^4.0.2"

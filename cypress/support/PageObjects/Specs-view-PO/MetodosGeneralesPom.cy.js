@@ -1064,6 +1064,7 @@ class MetodosGeneralesPomCy{
             .should('exist')
             .parents('button')
             .click({ force: true });
+
     }
 
   /*  RegresarN(veces) {
@@ -1155,14 +1156,8 @@ class MetodosGeneralesPomCy{
 
 
     espera(){
-        cy.get('body').then(($body) => {
-            if ($body.find('.ng-star-inserted').length > 0) {
-                // Solo espera si realmente existe
-                cy.get('.ng-star-inserted', { timeout: 10000 }).should('not.exist')
-            } else {
-                cy.log('✅ El elemento nunca apareció, continuando...')
-            }
-        })
+        cy.xpath("//*[contains(@class, 'ng-star-inserted') and not(contains(@style, 'visibility: hidden'))]", { timeout: 60000 })
+            .should('not.exist')
     }
 
 
