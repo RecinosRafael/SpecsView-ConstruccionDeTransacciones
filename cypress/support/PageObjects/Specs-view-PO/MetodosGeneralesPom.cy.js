@@ -102,12 +102,12 @@ class MetodosGeneralesPomCy{
 
 
     //Filtro, Buscar por codigo
-    BuscarRegistroCodigo(codigo) {
+    /*BuscarRegistroCodigo(codigo) {
 
         // ✅ Intercept real del endpoint correcto
         cy.intercept(
             'GET',
-            '**/api/catalog-service/v1/money*'
+            '**!/api/catalog-service/v1/money*'
         ).as('buscarCodigo')
 
         // 1️⃣ Clic en "Buscar por"
@@ -144,8 +144,43 @@ class MetodosGeneralesPomCy{
             .should('have.length.greaterThan', 0)
             .first()
             .click({ force: true });
-    }
+    }*/
 
+
+    BuscarRegistroCodigo(codigo) {
+
+        // 1️⃣ Clic en "Buscar por"
+        cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
+            .should('exist')
+            .parents('button')
+            .click({ force: true });
+
+        // 2️⃣ Seleccionar opción "Código" del menú
+        cy.get('.cdk-overlay-pane', { timeout: 15000 })
+            .contains('button, li', 'Código')
+            .should('exist')
+            .click({ force: true });
+
+        // 3️⃣ Ingresar código en el input
+        cy.get('#code', { timeout: 15000 })
+            .should('exist')
+            .clear()
+            .type(codigo);
+
+        // 4️⃣ Clic en icono BUSCAR
+        cy.contains('mat-icon', 'search', { timeout: 15000 })
+            .should('exist')
+            .parents('button')
+            .click({ force: true });
+            cy.wait(2000)
+
+        // 5️⃣ Clic en el código encontrado en la tabla
+        cy.get('.mat-row .cdk-column-code', { timeout: 15000 })
+            .first()
+            .should('exist')
+            .click({ force: true });
+
+    }
 
     //Filtro, Buscar por Regla
     /*BuscarRegistroRegla(correlativo, Regla) {
@@ -1030,6 +1065,28 @@ class MetodosGeneralesPomCy{
             .parents('button')
             .click({ force: true });
     }
+
+  /*  RegresarN(veces) {
+
+        let chain = cy.wrap(null)
+
+        for (let i = 0; i < veces; i++) {
+
+            chain = chain.then(() => {
+
+                cy.log(`🔙 Regreso ${i + 1}`)
+
+                cy.get('mat-progress-spinner', { timeout: 15000 })
+                    .should('not.exist')
+
+                return cy.contains('mat-icon', 'arrow_back', { timeout: 10000 })
+                    .should('be.visible')
+                    .click({ force: true })
+            })
+        }
+
+        return chain
+    }*/
 
     //Seleccionar Memu
 
