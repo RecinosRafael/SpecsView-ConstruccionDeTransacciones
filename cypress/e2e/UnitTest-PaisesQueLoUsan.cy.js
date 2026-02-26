@@ -36,7 +36,7 @@ describe('CRUD Países que usan moneda', () => {
         
         cy.wrap(Object.keys(agrupadas)).each((codigoMoneda) => {
 
-            cy.log('Procesando moneda: ' +agrupadas+ codigoMoneda)
+            cy.log('Procesando moneda: ' + codigoMoneda)
 
             // 🔎 Buscar moneda
             Generales.BuscarRegistroCodigo(codigoMoneda)

@@ -102,13 +102,21 @@ class MetodosGeneralesPomCy{
 
 
     //Filtro, Buscar por codigo
-    BuscarRegistroCodigo(codigo) {
+    /*BuscarRegistroCodigo(codigo) {
 
+<<<<<<< HEAD
             // 1️⃣ Clic en "Buscar por"
             cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
                 .should('exist')
                 .parents('button')
                 .click({ force: true });
+=======
+        // ✅ Intercept real del endpoint correcto
+        cy.intercept(
+            'GET',
+            '**!/api/catalog-service/v1/money*'
+        ).as('buscarCodigo')
+>>>>>>> f8fd67d60f339f2d04d2c79240fa5a3170a96dce
 
             // 2️⃣ Seleccionar opción "Código" del menú
             cy.get('.cdk-overlay-pane', { timeout: 15000 })
@@ -135,6 +143,96 @@ class MetodosGeneralesPomCy{
                 .should('exist')
                 .click({ force: true });
 
+<<<<<<< HEAD
+=======
+        // 🔥 Espera REAL a la petición correcta
+        cy.wait('@buscarCodigo', { timeout: 20000 })
+            .its('response.statusCode')
+            .should('eq', 206)
+
+        // 5️⃣ Esperar que la tabla tenga datos
+        cy.get('.mat-row .cdk-column-code', { timeout: 20000 })
+            .should('have.length.greaterThan', 0)
+            .first()
+            .click({ force: true });
+    }*/
+
+
+    BuscarRegistroCodigo(codigo) {
+
+        // 1️⃣ Clic en "Buscar por"
+        cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
+            .should('exist')
+            .parents('button')
+            .click({ force: true });
+
+        // 2️⃣ Seleccionar opción "Código" del menú
+        cy.get('.cdk-overlay-pane', { timeout: 15000 })
+            .contains('button, li', 'Código')
+            .should('exist')
+            .click({ force: true });
+
+        // 3️⃣ Ingresar código en el input
+        cy.get('#code', { timeout: 15000 })
+            .should('exist')
+            .clear()
+            .type(codigo);
+
+        // 4️⃣ Clic en icono BUSCAR
+        cy.contains('mat-icon', 'search', { timeout: 15000 })
+            .should('exist')
+            .parents('button')
+            .click({ force: true });
+            cy.wait(2000)
+
+        // 5️⃣ Clic en el código encontrado en la tabla
+        cy.get('.mat-row .cdk-column-code', { timeout: 15000 })
+            .first()
+            .should('exist')
+            .click({ force: true });
+
+    }
+
+    //Filtro, Buscar por Regla
+    /*BuscarRegistroRegla(correlativo, Regla) {
+
+        // 1️⃣ Clic en "Buscar por"
+        cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
+            .should('exist')
+            .parents('button')
+            .click({ force: true });
+
+        // 2️⃣ Seleccionar opción "Regla" del menú
+        cy.get('.cdk-overlay-pane', { timeout: 15000 })
+            .contains('button, li', 'Regla')
+            .should('exist')
+            .click({ force: true });
+
+        // 3️⃣ Ingresar código en el input
+        cy.xpath("//button[.//span[normalize-space()='Buscar por']]/following::select[1]", { timeout: 15000 })
+            .should('exist')
+            .clear()
+            .type(Regla);
+
+        // 4️⃣ Clic en icono BUSCAR
+        cy.contains('mat-icon', 'search', { timeout: 15000 })
+            .should('exist')
+            .parents('button')
+            .click({ force: true });
+
+        // 5️⃣ Clic en el código encontrado en la tabla
+        cy.xpath("//table[@role='table']//tr[@role='row'][.//td[count(preceding-sibling::td) =count(//th[contains(translate(normalize-space(),'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜÑ','abcdefghijklmnopqrstuvwxyzáéíóúüñ'),'usuario')]/preceding-sibling::th)and contains(translate(normalize-space(),'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜÑ','abcdefghijklmnopqrstuvwxyzáéíóúüñ'),"+valor.toLowerCase()+")]]", { timeout: 15000 })
+            .first()
+            .should('exist')
+            .click({ force: true });
+    }*/
+
+    BuscarRegistroRegla(correlativo, nombreRegla) {
+
+        if (!nombreRegla || nombreRegla.trim() === '') {
+            cy.log('Regla vacía, búsqueda omitida');
+            return;
+>>>>>>> f8fd67d60f339f2d04d2c79240fa5a3170a96dce
         }
 
 
@@ -1052,6 +1150,7 @@ class MetodosGeneralesPomCy{
             cy.get('body').then(($body) => {
                 if ($body.find('#kc-login').length > 0) {
 
+<<<<<<< HEAD
                     cy.log('Se encontró el texto, ejecutando login');
                     //validando campo usuario
                     cy.get("label").then(($label) => {
@@ -1063,6 +1162,119 @@ class MetodosGeneralesPomCy{
                                 console.log("El label no tiene el texto esperado.");
                                 cy.log("El label no tiene el texto esperado.");
                             }
+=======
+            if ($body.find('.cdk-overlay-pane').length > 0) {
+
+                cy.get('.cdk-overlay-pane')
+                    .last()
+                    .within(() => {
+                        cy.contains('button, .mat-menu-item', 'Proceso')
+                            .should('exist')
+                            .click({ force: true });
+                    });
+
+            } else {
+                throw new Error('No se desplegó el menú "Buscar por"');
+            }
+        });
+
+        // 3️⃣ Seleccionar Proceso (select HTML nativo)
+        cy.get('#process', { timeout: 15000 })
+            .should('exist')
+            .should('not.be.disabled')
+            .select(proceso);
+
+        // 4️⃣ Click en BUSCAR
+        cy.contains('mat-icon', 'search', { timeout: 15000 })
+            .closest('button')
+            .should('exist')
+            .click({ force: true });
+
+        // 5️⃣ Click en la fila del resultado (columna Proceso)
+        cy.contains(
+            '.mat-row td, .mat-row .cdk-column-process',
+            proceso,
+            { timeout: 15000 }
+        )
+            .should('exist')
+            .closest('.mat-row')
+            .click({ force: true });
+    }
+
+
+
+    //Regredar
+
+    Regresar(){
+        cy.contains('mat-icon', 'arrow_back', { timeout: 15000 })
+            .should('exist')
+            .parents('button')
+            .click({ force: true });
+    }
+
+  /*  RegresarN(veces) {
+
+        let chain = cy.wrap(null)
+
+        for (let i = 0; i < veces; i++) {
+
+            chain = chain.then(() => {
+
+                cy.log(`🔙 Regreso ${i + 1}`)
+
+                cy.get('mat-progress-spinner', { timeout: 15000 })
+                    .should('not.exist')
+
+                return cy.contains('mat-icon', 'arrow_back', { timeout: 10000 })
+                    .should('be.visible')
+                    .click({ force: true })
+            })
+        }
+
+        return chain
+    }*/
+
+    //Seleccionar Memu
+
+    SelectMenuOpcion(texto) {
+        cy.log(`Clic en menú: ${texto}`);
+
+        cy.contains('.mat-list-item-content', texto, { timeout: 15000 })
+            .filter(":visible:not([disabled])")
+            .first()
+            .scrollIntoView()
+            .should("be.visible")
+            .click({ force: true });
+    }
+
+    IrAPantalla(ruta) {
+        cy.log(`Navegando a: #/${ruta}`);
+        cy.window().then(win => {
+            win.location.hash = `#/${ruta}`;
+            cy.wait(2000)
+        });
+    }
+
+
+    Login(URL, Usuario, Password) {
+        //visitamos la pagina indicada en cypress.config.js
+        cy.visit(URL);
+        cy.wait(4500)
+        //buesca en el cuerpo de la pagina si aparece el selector
+        cy.get('body').then(($body) => {
+            if ($body.find('#kc-login').length > 0) {
+
+                cy.log('Se encontró el texto, ejecutando login');
+                //validando campo usuario
+                cy.get("label").then(($label) => {
+                       // if ($label.text().includes("Usuario o email")) {
+                        if ($label.text().includes("Usuario")) {
+                            cy.get("input").eq(0).should("be.visible").type(Usuario);
+                        } else {
+                            // Si el label no contiene el texto esperado, muestra un log
+                            console.log("El label no tiene el texto esperado.");
+                            cy.log("El label no tiene el texto esperado.");
+>>>>>>> f8fd67d60f339f2d04d2c79240fa5a3170a96dce
                         }
                     )
                     // Validando campo Contraseña

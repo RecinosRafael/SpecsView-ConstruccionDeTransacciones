@@ -43,7 +43,7 @@ describe("Prueba unitaria del Crud Reglas...", () =>{
             cy.log('Procesando Regla con ID: ' + idRegla)
 
             // 🔎 Buscar Regla
-            Generales.BuscarRegistroCodigo(idRegla)
+            Generales.BuscarRegistroNombre(idRegla)
 
 
 
