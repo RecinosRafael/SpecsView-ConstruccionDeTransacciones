@@ -104,37 +104,48 @@ class MetodosGeneralesPomCy{
     //Filtro, Buscar por codigo
     BuscarRegistroCodigo(codigo) {
 
+        // ✅ Intercept real del endpoint correcto
+        cy.intercept(
+            'GET',
+            '**/api/catalog-service/v1/money*'
+        ).as('buscarCodigo')
+
         // 1️⃣ Clic en "Buscar por"
         cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
-            .should('exist')
+            .should('be.visible')
             .parents('button')
             .click({ force: true });
 
-        // 2️⃣ Seleccionar opción "Código" del menú
+        // 2️⃣ Seleccionar opción "Código"
         cy.get('.cdk-overlay-pane', { timeout: 15000 })
             .contains('button, li', 'Código')
-            .should('exist')
+            .should('be.visible')
             .click({ force: true });
 
-        // 3️⃣ Ingresar código en el input
+        // 3️⃣ Ingresar código
         cy.get('#code', { timeout: 15000 })
-            .should('exist')
+            .should('be.visible')
             .clear()
             .type(codigo);
 
-        // 4️⃣ Clic en icono BUSCAR
+        // 4️⃣ Click buscar
         cy.contains('mat-icon', 'search', { timeout: 15000 })
-            .should('exist')
             .parents('button')
             .click({ force: true });
+            cy.wait(5000)
 
-        // 5️⃣ Clic en el código encontrado en la tabla
-        cy.get('.mat-row .cdk-column-code', { timeout: 15000 })
+        // 🔥 Espera REAL a la petición correcta
+        cy.wait('@buscarCodigo', { timeout: 20000 })
+            .its('response.statusCode')
+            .should('eq', 206)
+
+        // 5️⃣ Esperar que la tabla tenga datos
+        cy.get('.mat-row .cdk-column-code', { timeout: 20000 })
+            .should('have.length.greaterThan', 0)
             .first()
-            .should('exist')
             .click({ force: true });
-
     }
+
 
     //Filtro, Buscar por Regla
     /*BuscarRegistroRegla(correlativo, Regla) {

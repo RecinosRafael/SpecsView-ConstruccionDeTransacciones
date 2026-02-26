@@ -48,7 +48,7 @@ class MonedasPomCy {
     }
 
 
-    PaisesQueUsan(valorPais){
+    /*PaisesQueUsan(valorPais){
 
         if (valorPais) {
 
@@ -78,8 +78,55 @@ class MonedasPomCy {
                 });
         }
 
-    }
+    }*/
 
+    PaisesQueUsan(valorPais){
+
+        if (valorPais) {
+
+            cy.get('mat-select', { timeout: 10000 })
+                .filter(':visible')
+                .first()
+                .then($select => {
+
+                    const valorActual = $select
+                        .find('.mat-select-min-line')
+                        .text()
+                        .trim();
+
+                    if (valorActual !== valorPais) {
+
+                        cy.wrap($select)
+                            .should('not.be.disabled')
+                            .click({ force: true });
+
+                        cy.get('.cdk-overlay-pane', { timeout: 10000 })
+                            .then(($overlay) => {
+
+                                const opcion = $overlay.find('.mat-option-text')
+                                    .filter((i, el) => el.innerText.trim() === valorPais)
+
+                                if (opcion.length > 0) {
+
+                                    cy.wrap(opcion).click()
+                                    cy.wrap(true).as('paisExiste')
+
+                                } else {
+
+                                    cy.log('❌ País no encontrado: ' + valorPais)
+                                    cy.wrap(false).as('paisExiste')
+                                }
+
+                            });
+                    } else {
+
+                        cy.wrap(true).as('paisExiste')
+                    }
+
+                });
+        }
+
+    }
 }
 
 export default MonedasPomCy;

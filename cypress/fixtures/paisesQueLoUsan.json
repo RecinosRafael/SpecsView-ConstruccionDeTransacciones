@@ -1,0 +1,24 @@
+{
+  "agregar": [
+    {
+      "codigoMoneda": "GTQ",
+      "valorPais": "Noruega en Guatemala"
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "valorPais": "Honduras"
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "Noruega en Guatemala"
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "Noruega en Guatemala"
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "Noruega en Guatemala"
+    }
+  ]
+}
