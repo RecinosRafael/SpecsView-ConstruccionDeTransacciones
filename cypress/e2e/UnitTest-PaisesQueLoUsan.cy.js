@@ -33,10 +33,10 @@ describe('CRUD Países que usan moneda', () => {
             acc[item.codigoMoneda].push(item)
             return acc
         }, {})
-
+        
         cy.wrap(Object.keys(agrupadas)).each((codigoMoneda) => {
 
-            cy.log('Procesando moneda: ' + codigoMoneda)
+            cy.log('Procesando moneda: ' +agrupadas+ codigoMoneda)
 
             // 🔎 Buscar moneda
             Generales.BuscarRegistroCodigo(codigoMoneda)

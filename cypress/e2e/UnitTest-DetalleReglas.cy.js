@@ -18,16 +18,37 @@ describe("Prueba unitaria del Crud Reglas...", () =>{
             Cypress.env('USER'),
             Cypress.env('PASS')
         )
+        
+        cy.fixture('detalleReglas').as('dataDetalleReglas')
+
     })
 
     beforeEach(() => {
         Generales.IrAPantalla('rulesSpec')
     })
 
-    it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('reglas').then((dataMonedas) => {
-            cy.wrap(dataMonedas.agregar).each((item) => {
-                cy.log(`Insertando código: ${item.codigo}`)
+    it("Agregar registros a sub nivel", () => {
+
+        const datos = this.dataDetalleReglas.agregar
+
+        const agrupadas = datos.reduce((acc, item) => {
+            if (!acc[item.idRegla]) {
+                acc[item.idRegla] = []
+            }
+            acc[item.idRegla].push(item)
+            return acc
+        }, {})
+
+        cy.wrap(Object.keys(agrupadas)).each((idRegla) => {
+            cy.log('Procesando Regla con ID: ' + idRegla)
+
+            // 🔎 Buscar Regla
+            Generales.BuscarRegistroCodigo(idRegla)
+
+
+
+        })
+
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
@@ -35,7 +56,6 @@ describe("Prueba unitaria del Crud Reglas...", () =>{
                         cy.log('Formulario abierto detectado, cerrando...')
                         Generales.BtnCancelarRegistro()
                     }
-                })
 
                 //Abrir formulario
                 Generales.BtnAgregarRegistro()
@@ -45,7 +65,7 @@ describe("Prueba unitaria del Crud Reglas...", () =>{
                     .should('be.visible')
 
                 // Llenar datos
-                Reglas.Reglas(
+                Reglas.DetalleReglas(
                     //codigo, nombre, descripcion, valorCicloVida, desde, hasta
                     item.codigo,
                     item.nombre,

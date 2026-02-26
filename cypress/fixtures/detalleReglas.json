@@ -1,0 +1,58 @@
+{
+  "agregar1": [
+    {
+      "nombreRegla": "1",
+      "correlativo": "15",
+      "exprsion1": "tt_fa("1")",
+      "operador": "",
+      "expresion2": "",
+      "operadorLogico": "AND",
+      "tipoExpresion": "Alfanumérico"
+    },
+    {
+      "nombreRegla": "1",
+      "correlativo": "5",
+      "exprsion1": "CS(5)",
+      "operador": ">",
+      "expresion2": "CT(0)",
+      "operadorLogico": "OR",
+      "tipoExpresion": "Numérico"
+    },
+    {
+      "nombreRegla": "1",
+      "correlativo": "10",
+      "exprsion1": "CS(6)",
+      "operador": ">",
+      "expresion2": "CT(0)",
+      "operadorLogico": "AND",
+      "tipoExpresion": "Numérico"
+    },
+    {
+      "nombreRegla": "2",
+      "correlativo": "15",
+      "exprsion1": "tt_fa("1")",
+      "operador": "",
+      "expresion2": "",
+      "operadorLogico": "AND",
+      "tipoExpresion": "Alfanumérico"
+    },
+    {
+      "nombreRegla": "2",
+      "correlativo": "5",
+      "exprsion1": "CS(5)",
+      "operador": ">",
+      "expresion2": "CT(0)",
+      "operadorLogico": "OR",
+      "tipoExpresion": "Numérico"
+    },
+    {
+      "nombreRegla": "2",
+      "correlativo": "10",
+      "exprsion1": "CS(6)",
+      "operador": ">",
+      "expresion2": "CT(0)",
+      "operadorLogico": "AND",
+      "tipoExpresion": "Numérico"
+    }
+  ]
+}
