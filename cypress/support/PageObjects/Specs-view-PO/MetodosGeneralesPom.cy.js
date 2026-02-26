@@ -1155,7 +1155,14 @@ class MetodosGeneralesPomCy{
 
 
     espera(){
-    cy.get('.ng-star-inserted', { timeout: 10000 }).should('not.exist')
+        cy.get('body').then(($body) => {
+            if ($body.find('.ng-star-inserted').length > 0) {
+                // Solo espera si realmente existe
+                cy.get('.ng-star-inserted', { timeout: 10000 }).should('not.exist')
+            } else {
+                cy.log('✅ El elemento nunca apareció, continuando...')
+            }
+        })
     }
 
 
