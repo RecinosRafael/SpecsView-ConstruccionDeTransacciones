@@ -25,8 +25,8 @@ describe("Prueba unitaria del Crud Reglas...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('reglas').then((dataMonedas) => {
-            cy.wrap(dataMonedas.agregar).each((item) => {
+        cy.fixture('reglas').then((data) => {
+            cy.wrap(data.agregar).each((item) => {
                 cy.log(`Insertando código: ${item.codigo}`)
 
                 //Asegurar estado limpio antes de comenzar

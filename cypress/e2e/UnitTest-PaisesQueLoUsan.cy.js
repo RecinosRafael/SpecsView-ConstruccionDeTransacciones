@@ -23,7 +23,9 @@ describe('CRUD Países que usan moneda', () => {
     })
 
     it('Insertar países agrupados por moneda', function () {
+
         const datos = this.dataPaises.agregar
+
         const agrupadas = datos.reduce((acc, item) => {
             if (!acc[item.codigoMoneda]) {
                 acc[item.codigoMoneda] = []
@@ -31,48 +33,54 @@ describe('CRUD Países que usan moneda', () => {
             acc[item.codigoMoneda].push(item)
             return acc
         }, {})
-
+        
         cy.wrap(Object.keys(agrupadas)).each((codigoMoneda) => {
-            cy.log('💰 Procesando moneda: ' + codigoMoneda)
 
+            cy.log('Procesando moneda: ' + codigoMoneda)
+
+            // 🔎 Buscar moneda
             Generales.BuscarRegistroCodigo(codigoMoneda)
+
+            // 📂 Ir al subnivel
             Generales.NavegacionSubMenu('Paises que la usan')
 
+            // 🔁 Procesar países de esa moneda
             return cy.wrap(agrupadas[codigoMoneda]).each((registro) => {
+
                 Generales.BtnAgregarRegistroSubnivel()
+
                 const pais = registro.valorPais || registro.nombre
+
                 PaisesQueLoUsan.PaisesQueUsan(pais)
 
                 return cy.get('@paisExiste').then((existe) => {
+
                     if (existe) {
                         Generales.BtnAceptarRegistro()
                     } else {
                         Generales.BtnCancelarRegistro()
                     }
-                    // SIEMPRE esperar que el modal desaparezca
-                    return cy.get('mat-dialog-container', { timeout: 10000 })
+
+                    // 🔥 Esperar que modal desaparezca
+                    cy.get('mat-dialog-container', { timeout: 10000 })
                         .should('not.exist')
 
-                })
-            }).then(() => {
-                cy.log('🔙 Regresando al nivel principal')
-
-                // Primer regreso - SALIR DEL SUBNIVEL
-                return cy.then(() => {
-                    cy.wait(2000)
-                    Generales.Regresar()
-                    // Verificar que salimos del subnivel (modal cerrado)
-                    return cy.get('mat-dialog-container', { timeout: 5000 })
-                        .should('not.exist')
-                }).then(() => {
-                    // Segundo regreso - SALIR DEL DETALLE DE MONEDA
-                    cy.wait(2000)
-                    Generales.Regresar()
-                    // Verificar que estamos en el listado principal
-                    return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
-                        .should('be.visible')
                 })
             })
+                .then(() => {
+
+                    // 🔙 Regresar SOLO cuando termine todo el subnivel
+                    Generales.Regresar()
+
+                    Generales.Regresar()
+
+                    cy.url({ timeout: 15000 })
+                        .should('include', '/money')
+
+                    cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
+                        .should('be.visible')
+
+                })
         })
     })
 
