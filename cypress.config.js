@@ -1,5 +1,4 @@
 const { defineConfig } = require("cypress");
-const OracleDatabase = require("./cypress/support/oracle-database");
 const fs = require('fs');
 const path = require('path');
 const oracledb = require("oracledb");
