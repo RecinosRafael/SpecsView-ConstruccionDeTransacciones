@@ -1,9 +1,6 @@
 const { defineConfig } = require("cypress");
 const fs = require("fs");
 const path = require("path");
-const OracleDatabase = require("./cypress/support/oracle-database");
-const fs = require('fs');
-const path = require('path');
 const oracledb = require("oracledb");
 
 function loadDatabaseConfig() {
@@ -26,6 +23,12 @@ function loadDatabaseConfig() {
     console.log('📊 Usuarios disponibles:');
     console.log('   - jteller:', config.oracle.jteller.connectString);
     console.log('   - jsigcommon:', config.oracle.jsigcommon.connectString);
+    console.log('   - jsigperson_data:', config.oracle.jsigperson_data.connectString);
+    console.log('   - logdat:', config.oracle.logdat.connectString);
+    console.log('   - security:', config.oracle.security.connectString);
+    console.log('   - distributor:', config.oracle.distributor.connectString);
+    console.log('   - jsignature:', config.oracle.jsignature.connectString);
+    console.log('   - jsigperson_conf:', config.oracle.jsigperson_conf.connectString);
 
     return config.oracle;
 
@@ -84,91 +87,147 @@ module.exports = defineConfig({
       // Función helper para obtener conexión según usuario
       const getConnectionConfig = (user) => {
         console.log(`🔍 Buscando configuración para usuario solicitado: ${user}`);
-
         const userLower = user.toLowerCase();
 
-        // MAPEO CORREGIDO: convertir los nombres de usuario a las claves correctas
         const userMap = {
-          // Nombres que pueden venir de las pruebas -> claves en dbConfigs
           'jtellerv7': 'jteller',
           'jteller': 'jteller',
           'jsigcommon': 'jsigcommon',
-          'jsigcommon': 'jsigcommon'
+          'jsigperson_data': 'jsigperson_data',
+          'logdat': 'logdat',
+          'security': 'security',
+          'distributor': 'distributor',
+          'jsignature': 'jsignature',
+          'jsigperson_conf': 'jsigperson_conf'
+          
+          // Añade más si es necesario
         };
 
-        // Obtener la clave correcta del mapa
         const configKey = userMap[userLower];
-
         if (!configKey) {
-          console.error(`❌ Usuario no mapeado: ${user}`);
-          throw new Error(`Usuario no reconocido: ${user}. Usa 'jteller' o 'jsigcommon'`);
+          throw new Error(`Usuario no reconocido: ${user}. Válidos: ${Object.keys(userMap).join(', ')}`);
         }
 
         const config = dbConfigs[configKey];
-
         if (!config) {
-          console.error(`❌ Configuración no encontrada para clave: ${configKey}`);
-          throw new Error(`Configuración no encontrada para ${user} (clave: ${configKey})`);
+          throw new Error(`Configuración no encontrada para clave: ${configKey}`);
         }
 
         console.log(`✅ Usando configuración: ${configKey} (${config.user})`);
         return config;
       };
 
-      on("task", {
-        async oracleQuery({ sql, binds = [], options = {}, user = 'jteller' }) {
-          let connection = null;
-          try {
-            const connectionConfig = getConnectionConfig(user);
+on("task", {
+  oracleQuery: async ({ sql, binds = [], options = {}, user = 'jteller' }) => {
+    console.log(`\n[oracleQuery] ===== INICIANDO TAREA =====`);
+    console.log(`[oracleQuery] Usuario: ${user}`);
+    console.log(`[oracleQuery] SQL: ${sql.substring(0, 200)}...`);
+    
+    let connection = null;
+    
+    try {
+      // 1. Obtener configuración
+      console.log(`[oracleQuery] Obteniendo configuración para ${user}...`);
+      let connectionConfig;
+      try {
+        connectionConfig = getConnectionConfig(user);
+        console.log(`[oracleQuery] Configuración obtenida: ${connectionConfig.user}@${connectionConfig.connectString}`);
+      } catch (configError) {
+        console.error(`[oracleQuery] ERROR en getConnectionConfig:`, configError.message);
+        return { 
+          success: false, 
+          error: `Error de configuración: ${configError.message}`,
+          user,
+          sql 
+        };
+      }
 
-            console.log(`🔌 Conectando como ${connectionConfig.user}...`);
-            connection = await oracledb.getConnection(connectionConfig);
+      // 2. Conectar
+      console.log(`[oracleQuery] Conectando a Oracle...`);
+      try {
+        connection = await oracledb.getConnection(connectionConfig);
+        console.log(`[oracleQuery] Conexión exitosa`);
+      } catch (connError) {
+        console.error(`[oracleQuery] ERROR de conexión:`, connError.message);
+        return { 
+          success: false, 
+          error: `Error de conexión: ${connError.message}`,
+          user,
+          sql 
+        };
+      }
 
-            const defaultOptions = {
-              outFormat: oracledb.OUT_FORMAT_OBJECT,
-              autoCommit: true,
-              ...options
-            };
+      // 3. Ejecutar query con opciones optimizadas
+      console.log(`[oracleQuery] Ejecutando query...`);
+      
+      // OPCIONES MEJORADAS para manejar grandes volúmenes de datos
+      const defaultOptions = {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+        autoCommit: true,
+        maxRows: 0,              // 0 = sin límite (todas las filas)
+        fetchArraySize: 1000,     // Traer 1000 filas por lote
+        prefetchRows: 1000,       // Pre-cargar 1000 filas
+        ...options
+      };
+      
+      let result;
+      try {
+        result = await connection.execute(sql, binds, defaultOptions);
+        console.log(`[oracleQuery] Query ejecutada. Filas: ${result.rows?.length || 0}, Afectadas: ${result.rowsAffected || 0}`);
+        
+        // Log adicional si hay muchas filas
+        if (result.rows?.length > 500) {
+          console.log(`[oracleQuery] ⚠️ Gran volumen de datos: ${result.rows.length} filas`);
+        }
+      } catch (execError) {
+        console.error(`[oracleQuery] ERROR de ejecución:`, execError.message);
+        console.error(`[oracleQuery] Código de error:`, execError.errorNum);
+        return { 
+          success: false, 
+          error: execError.message,
+          errorCode: execError.errorNum,
+          user,
+          sql,
+          binds
+        };
+      }
 
-            const result = await connection.execute(sql, binds, defaultOptions);
+      // 4. Éxito
+      return {
+        success: true,
+        rows: result.rows || [],
+        rowsAffected: result.rowsAffected || 0,
+        metaData: result.metaData || [],
+        user,
+        sql
+      };
 
-            return {
-              success: true,
-              rows: result.rows || [],
-              rowsAffected: result.rowsAffected || 0,
-              metaData: result.metaData || [],
-              user: user,
-              sql: sql // Incluir el SQL en el resultado
-            };
-
-          } catch (error) {
-            console.error(`❌ Error en oracleQuery (${user}):`, error.message);
-            console.error('📝 Query que falló:', sql); // Mostrar en consola
-
-            // Devolver información detallada del error incluyendo el SQL
-            return {
-              success: false,
-              error: error.message,
-              errorCode: error.errorNum,
-              user: user,
-              sql: sql, // Incluir el SQL que falló
-              binds: binds,
-              rows: [],
-              rowsAffected: 0,
-              metaData: []
-            };
-          } finally {
-            if (connection) {
-              try {
-                await connection.close();
-              } catch (error) {
-                console.error('Error cerrando conexión:', error);
-              }
-            }
-          }
-        },
-      });
-
+    } catch (error) {
+      // Capturar cualquier error no esperado
+      console.error(`[oracleQuery] ERROR INESPERADO:`, error);
+      console.error(`[oracleQuery] Stack:`, error.stack);
+      return {
+        success: false,
+        error: `Error inesperado: ${error.message}`,
+        user,
+        sql
+      };
+    } finally {
+      // 5. Cerrar conexión (pero sin afectar el return)
+      if (connection) {
+        try {
+          console.log(`[oracleQuery] Cerrando conexión...`);
+          await connection.close();
+          console.log(`[oracleQuery] Conexión cerrada`);
+        } catch (closeError) {
+          console.error(`[oracleQuery] Error cerrando conexión:`, closeError);
+          // No afectamos el resultado, solo logueamos
+        }
+      }
+      console.log(`[oracleQuery] ===== TAREA FINALIZADA =====\n`);
+    }
+  }
+});
       // Pasar configuración a las pruebas
       config.env.database = {
         users: {
@@ -179,10 +238,33 @@ module.exports = defineConfig({
           jsigcommon: {
             user: dbConfigs.jsigcommon.user,
             connectString: dbConfigs.jsigcommon.connectString
+          },
+          jsigperson_data: {
+            user: dbConfigs.jsigperson_data.user,
+            connectString: dbConfigs.jsigperson_data.connectString
+          },
+          logdat: {
+            user: dbConfigs.logdat.user,
+            connectString: dbConfigs.logdat.connectString
+          },
+          security: {
+            user: dbConfigs.security.user,
+            connectString: dbConfigs.security.connectString
+          },
+          distributor: {
+            user: dbConfigs.distributor.user,
+            connectString: dbConfigs.distributor.connectString
+          },
+          jsignature: {
+            user: dbConfigs.jsignature.user,
+            connectString: dbConfigs.jsignature.connectString
+          },
+          jsigperson_conf: {
+            user: dbConfigs.jsigperson_conf.user,
+            connectString: dbConfigs.jsigperson_conf.connectString
           }
         }
       };
-
       return config;
     },
 
