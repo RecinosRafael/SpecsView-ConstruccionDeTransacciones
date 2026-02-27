@@ -1177,6 +1177,192 @@ BtnAgregarRegistros() {
         })
     }
 
+    seleccionarCombo(valor, labelText, opciones = {}) {
+        const {
+            ignorarTildes = true,
+            ignorarMayusculas = true,
+            ignorarEspacios = true,
+            timeout = 10000
+        } = opciones;
+
+        if (!valor) return cy.log(`⚠️ Valor vacío para combo "${labelText}"`);
+
+        cy.log(`🔍 Seleccionando "${valor}" en combo "${labelText}"`);
+
+        // Función para normalizar texto (quitar tildes)
+        const normalizarTexto = (texto) => {
+            if (!texto) return texto;
+            let resultado = String(texto);
+            
+            if (ignorarTildes) {
+                resultado = resultado.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            }
+            
+            if (ignorarMayusculas) {
+                resultado = resultado.toLowerCase();
+            }
+            
+            if (ignorarEspacios) {
+                resultado = resultado.trim().replace(/\s+/g, ' ');
+            }
+            
+            return resultado;
+        };
+
+        // Normalizar el label que buscamos
+        const labelNormalizado = normalizarTexto(labelText);
+        cy.log(`📋 Buscando label normalizado: "${labelNormalizado}"`);
+
+        // Buscar el label de forma flexible
+        cy.get('mat-label, label, .mat-label', { timeout })
+            .filter((index, el) => {
+                const textoElemento = Cypress.$(el).text().trim();
+                const textoNormalizado = normalizarTexto(textoElemento);
+                
+                // Comparación flexible
+                return textoNormalizado === labelNormalizado || 
+                    textoNormalizado.includes(labelNormalizado) ||
+                    labelNormalizado.includes(textoNormalizado);
+            })
+            .first()
+            .should('be.visible')
+            .parents('mat-form-field')
+            .find('mat-select')
+            .should('be.visible')
+            .then($select => {
+                
+                // Obtener valor actual (también normalizado para comparar)
+                const valorActual = $select
+                    .find('.mat-select-value-text, .mat-select-min-line, .mat-select-placeholder')
+                    .first()
+                    .text()
+                    .trim();
+                
+                const valorActualNormalizado = normalizarTexto(valorActual);
+                const valorNormalizado = normalizarTexto(valor);
+                
+                cy.log(`📌 Valor actual: "${valorActual}" | Normalizado: "${valorActualNormalizado}"`);
+                cy.log(`🎯 Valor deseado: "${valor}" | Normalizado: "${valorNormalizado}"`);
+                
+                // Comparar versiones normalizadas
+                if (valorActualNormalizado !== valorNormalizado && 
+                    !valorActualNormalizado.includes(valorNormalizado)) {
+                    
+                    cy.wrap($select)
+                        .should('not.be.disabled')
+                        .click({ force: true });
+                    
+                    // Buscar opción de forma flexible
+                    cy.get('.cdk-overlay-pane', { timeout })
+                        .should('be.visible')
+                        .find('mat-option')
+                        .filter((i, opt) => {
+                            const textoOpcion = Cypress.$(opt).text().trim();
+                            const textoOpcionNormalizado = normalizarTexto(textoOpcion);
+                            
+                            // Comparación flexible
+                            return textoOpcionNormalizado === valorNormalizado ||
+                                textoOpcionNormalizado.includes(valorNormalizado) ||
+                                valorNormalizado.includes(textoOpcionNormalizado);
+                        })
+                        .first()
+                        .should('be.visible')
+                        .click({ force: true });
+                   
+                   
+                    cy.log(`✅ Seleccionado "${valor}" en combo "${labelText}"`);
+                } else {
+                    cy.log(`⏭️ Ya tiene el valor "${valor}", no se requiere cambio`);
+                }
+            });
+    }
+
+    llenarCampo(valor, labelText, opciones = {}) {
+        const {
+            limpiar = true,
+            delay = 50,
+            timeout = 10000,
+            trim = true,
+            normalizarTildes = true,   
+            ignorarTildesEnBusqueda = true,   
+            escribirConTildes = true   // 👈 Nuevo: mantener tildes al escribir
+        } = opciones;
+
+        // Función para normalizar tildes (quitar acentos)
+        const normalizarTexto = (texto) => {
+            if (!texto) return texto;
+            return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        };
+
+        // Validar valor inválido
+        if (valor === null || valor === undefined || (trim && String(valor).trim() === '')) {
+            cy.log(`⏭️ Input "${labelText}" - valor vacío, omitiendo`);
+            return;
+        }
+
+        // Procesar el valor a escribir
+        let valorAEscribir = String(valor);
+        if (trim) valorAEscribir = valorAEscribir.trim();
+        
+        // Guardar el valor original para log
+        const valorOriginal = valorAEscribir;
+        
+        // Normalizar el valor si se requiere para escritura
+        if (!escribirConTildes) {
+            valorAEscribir = normalizarTexto(valorAEscribir);
+        }
+
+        cy.log(`🔍 Original: "${valorOriginal}" | Escribirá: "${valorAEscribir}"`);
+
+        // Buscar el label (con o sin tildes)
+        const buscarLabel = () => {
+            if (ignorarTildesEnBusqueda) {
+                const labelNormalizado = normalizarTexto(labelText);
+                cy.log(`📋 Buscando label normalizado: "${labelNormalizado}"`);
+                
+                // Buscar entre todos los labels
+                return cy.get('label, mat-label, span.label', { timeout })
+                    .filter((index, el) => {
+                        const text = Cypress.$(el).text().trim();
+                        const textNormalizado = normalizarTexto(text);
+                        return textNormalizado === labelNormalizado || 
+                            textNormalizado.includes(labelNormalizado);
+                    })
+                    .first();
+            } else {
+                return cy.contains('label, mat-label, span.label', labelText, { timeout });
+            }
+        };
+
+        buscarLabel()
+            .should('be.visible')
+            .then($label => {
+                const inputId = $label.attr('for');
+                
+                const encontrarInput = () => {
+                    if (inputId) {
+                        return cy.get(`#${inputId}`);
+                    } else {
+                        return cy.wrap($label)
+                            .parents('.mat-form-field, .form-group')
+                            .find('input, textarea')
+                            .first();
+                    }
+                };
+                
+                encontrarInput()
+                    .should('be.visible')
+                    .then($input => {
+                        if (limpiar) {
+                            cy.wrap($input).clear();
+                            cy.wait(100);
+                        }
+                        
+                        cy.wrap($input).type(valorAEscribir, { delay });
+                        cy.log(`✅ Escrito: "${valorAEscribir}" en campo "${labelText}"`);
+                    });
+            });
+    }
 
 }
 

@@ -1,58 +1,47 @@
 {
   "agregar": [
     {
-      "nombreRegla": "1",
-      "correlativo": "Solicitar Autorización",
-      "exprsion1": "",
-      "operador": "Solicitar autorización",
-      "expresion2": "",
-      "operadorLogico": "AND",
-      "tipoExpresion": "Alfanumérico"
+      "codigo": "1",
+      "nombre": "Solicitar Autorización",
+      "descripcion": "",
+      "ValorTipoAccion": "Solicitar autorización"
     },
-    {
-      "nombreRegla": "pagadas",
-      "correlativo": "5",
-      "exprsion1": "CS(5)",
-      "operador": ">",
-      "expresion2": "CT(0)",
-      "operadorLogico": "OR",
-      "tipoExpresion": "Numérico"
+    {	
+      "codigo": "2",
+      "nombre": "Formulario Extendido",
+      "descripcion": "",
+      "ValorTipoAccion": "Formulario Extendido"
+
     },
-    {
-      "nombreRegla": "pagadas",
-      "correlativo": "10",
-      "exprsion1": "CS(6)",
-      "operador": ">",
-      "expresion2": "CT(0)",
-      "operadorLogico": "AND",
-      "tipoExpresion": "Numérico"
+    {	
+      "codigo": "3",
+      "nombre": "Afectar Totales",
+      "descripcion": "",
+      "ValorTipoAccion": "Afecto total"
     },
-    {
-      "nombreRegla": "recibidas",
-      "correlativo": "15",
-      "exprsion1": "tt_fa(\"1\")",
-      "operador": "",
-      "expresion2": "",
-      "operadorLogico": "AND",
-      "tipoExpresion": "Alfanumérico"
+    {	
+      "codigo": "5",
+      "nombre": "Imprimir formatos",
+      "descripcion": "",
+      "ValorTipoAccion": "Imprimir formato"
     },
-    {
-      "nombreRegla": "recibidas",
-      "correlativo": "5",
-      "exprsion1": "CS(5)",
-      "operador": ">",
-      "expresion2": "CT(0)",
-      "operadorLogico": "OR",
-      "tipoExpresion": "Numérico"
+    {	
+      "codigo": "6",
+      "nombre": "Asociar Transacciones",
+      "descripcion": "",
+      "ValorTipoAccion": "Transacción asociada"
     },
-    {
-      "nombreRegla": "recibidas",
-      "correlativo": "10",
-      "exprsion1": "CS(6)",
-      "operador": ">",
-      "expresion2": "CT(0)",
-      "operadorLogico": "AND",
-      "tipoExpresion": "Numérico"
+    {	
+      "codigo": "7",
+      "nombre": "Mensaje a Usuario",
+      "descripcion": "flujo de transacción se interrumpe y se presenta mensaje informativo o bloqueando al usuario",
+      "ValorTipoAccion": "Mensaje a usuario"
+    },
+    {	
+      "codigo": "12",
+      "nombre": "Enviar Codigo Alterno x Condicion",
+      "descripcion": "envia codigo alterno de transaccion, si la regla se cumple",
+      "ValorTipoAccion": "Enviar código por condición"
     }
   ]
-}
+}		
