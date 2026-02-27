@@ -1,0 +1,24 @@
+{
+  "agregar": [
+    {
+      "codigo": "1",
+      "nombre": "Region defecto",
+      "descripcion": "descripcion de region"
+    },
+    {	
+      "codigo": "2",
+      "nombre": "Centro",
+      "descripcion": "Centro"
+    },
+    {	
+      "codigo": "3",
+      "nombre": "Sur",
+      "descripcion": "Sur"
+    },
+    {	
+      "codigo": "4",
+      "nombre": "Norte",
+      "descripcion": "Norte"
+    }
+  ]
+}
