@@ -1,11 +1,11 @@
 import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosGeneralesPom.cy";
-import MonedasPomCy from "../support/PageObjects/Specs-view-PO/MonedasPom.cy";
+import productosPomCy from "../support/PageObjects/Specs-view-PO/ProductosPom.cy";
 
 const Generales = new metodosGeneralesPomCy()
-const Monedas = new MonedasPomCy()
+const Productos = new productosPomCy()
 
 
-describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
+describe("Prueba unitaria del Crud de Productos...", () =>{
 
     Cypress.on('uncaught:exception',(err,Runnable) =>{
         return false
@@ -21,12 +21,12 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
     })
 
     beforeEach(() => {
-        Generales.IrAPantalla('money')
+        Generales.IrAPantalla('products')
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('monedas').then((dataMonedas) => {
-            cy.wrap(dataMonedas.agregar).each((item) => {
+        cy.fixture('productos').then((dataProductos) => {
+            cy.wrap(dataProductos.agregar).each((item) => {
                 cy.log(`Insertando código: ${item.codigo}`)
 
                 //Asegurar estado limpio antes de comenzar
@@ -45,18 +45,19 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                     .should('be.visible')
 
                 // Llenar datos
-                Monedas.Monedas(
-                    //codigo, codigoIso, nombre, codigoNumerico, decimales, puntoFlotante
+                Productos.Productos(
+                    //codigo, nombre, descripcion, valorMoneda, valorDigitoVerificador, longCuenta, mascaraCuenta
                     item.codigo,
-                    item.codigoIso,
                     item.nombre,
-                    item.codigoNumerico,
-                    item.decimales,
-                    item.puntoFlotante
+                    item.descripcion,
+                    item.valorMoneda,
+                    item.valorDigitoVerificador,
+                    item.longCuenta,
+                    item.mascaraCuenta
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/money').as('guardar')
+                cy.intercept('POST', '**/products').as('guardar')
 
                 Generales.BtnAceptarRegistro()
 
