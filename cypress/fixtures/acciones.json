@@ -1,10 +1,10 @@
 {
   "agregar": [
     {
-      "nombreRegla": "pagadas",
-      "correlativo": "15",
-      "exprsion1": "tt_fa(\"1\")",
-      "operador": "",
+      "nombreRegla": "1",
+      "correlativo": "Solicitar Autorización",
+      "exprsion1": "",
+      "operador": "Solicitar autorización",
       "expresion2": "",
       "operadorLogico": "AND",
       "tipoExpresion": "Alfanumérico"

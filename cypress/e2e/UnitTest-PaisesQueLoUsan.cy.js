@@ -71,7 +71,7 @@ describe('CRUD Países que usan moneda', () => {
                     // Verificar que estamos en el listado principal
                     return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
                         .should('be.visible')
-                })
+                }) 
             })
         })
     })
