@@ -1,0 +1,23 @@
+{
+  "agregar": [
+
+    {
+      "codigo": "3",
+      "nombre": "MONETARIOS L Y $ P",
+      "descripcion": "",
+      "valorMoneda": "Lempiras",
+      "valorDigitoVerificador": "",
+      "longCuenta": "",
+      "mascaraCuenta": ""
+    },
+    {
+      "codigo": "4",
+      "nombre": "AHORROS L Y $ P",
+      "descripcion": "",
+      "valorMoneda": "Lempiras",
+      "valorDigitoVerificador": "",
+      "longCuenta": "",
+      "mascaraCuenta": ""
+    }
+  ]
+}
