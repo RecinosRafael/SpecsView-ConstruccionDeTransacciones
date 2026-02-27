@@ -1,16 +1,16 @@
 {
-  "agregar1": [
+  "agregar": [
     {
-      "nombreRegla": "1",
+      "nombreRegla": "pagadas",
       "correlativo": "15",
-      "exprsion1": "tt_fa("1")",
+      "exprsion1": "tt_fa(\"1\")",
       "operador": "",
       "expresion2": "",
       "operadorLogico": "AND",
       "tipoExpresion": "Alfanumérico"
     },
     {
-      "nombreRegla": "1",
+      "nombreRegla": "pagadas",
       "correlativo": "5",
       "exprsion1": "CS(5)",
       "operador": ">",
@@ -19,7 +19,7 @@
       "tipoExpresion": "Numérico"
     },
     {
-      "nombreRegla": "1",
+      "nombreRegla": "pagadas",
       "correlativo": "10",
       "exprsion1": "CS(6)",
       "operador": ">",
@@ -28,16 +28,16 @@
       "tipoExpresion": "Numérico"
     },
     {
-      "nombreRegla": "2",
+      "nombreRegla": "recibidas",
       "correlativo": "15",
-      "exprsion1": "tt_fa("1")",
+      "exprsion1": "tt_fa(\"1\")",
       "operador": "",
       "expresion2": "",
       "operadorLogico": "AND",
       "tipoExpresion": "Alfanumérico"
     },
     {
-      "nombreRegla": "2",
+      "nombreRegla": "recibidas",
       "correlativo": "5",
       "exprsion1": "CS(5)",
       "operador": ">",
@@ -46,7 +46,7 @@
       "tipoExpresion": "Numérico"
     },
     {
-      "nombreRegla": "2",
+      "nombreRegla": "recibidas",
       "correlativo": "10",
       "exprsion1": "CS(6)",
       "operador": ">",
