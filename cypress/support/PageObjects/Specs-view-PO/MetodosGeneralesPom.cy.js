@@ -3,7 +3,7 @@ class MetodosGeneralesPomCy{
     //Boton para agregar registros
     BtnAgregarRegistro(){
         cy.log('Clic en botón ADD');
-
+        cy.wait(1500)
         cy.get('button.mat-fab', { timeout: 15000 })
             .should('exist')
             .then($btn => {
@@ -12,6 +12,19 @@ class MetodosGeneralesPomCy{
                     .click({ force: true });
             });
     }
+BtnAgregarRegistros() {
+    cy.log('Clic en botón ADD');
+    cy.wait(1500);
+    
+    // Buscar el botón que contiene el ícono "add"
+    cy.get('button.mat-fab[color="warn"]', { timeout: 15000 })
+        .should('exist')
+        .filter(':has(mat-icon:contains("add"))')  // Filtra los que tienen ícono "add"
+        .first()  // Toma el primero (por si acaso)
+        .click({ force: true });
+    
+    cy.log('✅ Botón ADD clickeado');
+}
 
     getIframeBody() {
      return cy

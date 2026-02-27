@@ -1,0 +1,58 @@
+{
+  "agregar": [
+    {
+      "nombreRegla": "1",
+      "correlativo": "Solicitar Autorización",
+      "exprsion1": "",
+      "operador": "Solicitar autorización",
+      "expresion2": "",
+      "operadorLogico": "AND",
+      "tipoExpresion": "Alfanumérico"
+    },
+    {
+      "nombreRegla": "pagadas",
+      "correlativo": "5",
+      "exprsion1": "CS(5)",
+      "operador": ">",
+      "expresion2": "CT(0)",
+      "operadorLogico": "OR",
+      "tipoExpresion": "Numérico"
+    },
+    {
+      "nombreRegla": "pagadas",
+      "correlativo": "10",
+      "exprsion1": "CS(6)",
+      "operador": ">",
+      "expresion2": "CT(0)",
+      "operadorLogico": "AND",
+      "tipoExpresion": "Numérico"
+    },
+    {
+      "nombreRegla": "recibidas",
+      "correlativo": "15",
+      "exprsion1": "tt_fa(\"1\")",
+      "operador": "",
+      "expresion2": "",
+      "operadorLogico": "AND",
+      "tipoExpresion": "Alfanumérico"
+    },
+    {
+      "nombreRegla": "recibidas",
+      "correlativo": "5",
+      "exprsion1": "CS(5)",
+      "operador": ">",
+      "expresion2": "CT(0)",
+      "operadorLogico": "OR",
+      "tipoExpresion": "Numérico"
+    },
+    {
+      "nombreRegla": "recibidas",
+      "correlativo": "10",
+      "exprsion1": "CS(6)",
+      "operador": ">",
+      "expresion2": "CT(0)",
+      "operadorLogico": "AND",
+      "tipoExpresion": "Numérico"
+    }
+  ]
+}
