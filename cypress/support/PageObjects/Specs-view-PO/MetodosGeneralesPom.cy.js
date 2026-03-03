@@ -112,53 +112,6 @@ BtnAgregarRegistros() {
             .click({ force: true });
     }
 
-
-    //Filtro, Buscar por codigo
-    /*BuscarRegistroCodigo(codigo) {
-
-        // ✅ Intercept real del endpoint correcto
-        cy.intercept(
-            'GET',
-            '**!/api/catalog-service/v1/money*'
-        ).as('buscarCodigo')
-
-        // 1️⃣ Clic en "Buscar por"
-        cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
-            .should('be.visible')
-            .parents('button')
-            .click({ force: true });
-
-        // 2️⃣ Seleccionar opción "Código"
-        cy.get('.cdk-overlay-pane', { timeout: 15000 })
-            .contains('button, li', 'Código')
-            .should('be.visible')
-            .click({ force: true });
-
-        // 3️⃣ Ingresar código
-        cy.get('#code', { timeout: 15000 })
-            .should('be.visible')
-            .clear()
-            .type(codigo);
-
-        // 4️⃣ Click buscar
-        cy.contains('mat-icon', 'search', { timeout: 15000 })
-            .parents('button')
-            .click({ force: true });
-            cy.wait(5000)
-
-        // 🔥 Espera REAL a la petición correcta
-        cy.wait('@buscarCodigo', { timeout: 20000 })
-            .its('response.statusCode')
-            .should('eq', 206)
-
-        // 5️⃣ Esperar que la tabla tenga datos
-        cy.get('.mat-row .cdk-column-code', { timeout: 20000 })
-            .should('have.length.greaterThan', 0)
-            .first()
-            .click({ force: true });
-    }*/
-
-
     BuscarRegistroCodigo(codigo) {
 
         // 1️⃣ Clic en "Buscar por"
@@ -228,41 +181,155 @@ BtnAgregarRegistros() {
             .click({ force: true });
     }*/
 
-    BuscarRegistroRegla(correlativo, nombreRegla) {
+// En MetodosGeneralesPom.cy.js
+BuscarRegistroEnTabla(criterios) {
+    // criterios: array de objetos con {columna, valor}
+    // Ejemplo: [{columna: 'Regla', valor: 'Afectación efectivo trx pagadas'}, {columna: 'Transacción', valor: ''}]
+    
+    cy.log(`🔍 Buscando en tabla con criterios:`, criterios);
+    
+    // Función para normalizar texto
+    const normalizarTexto = (texto) => {
+        if (!texto) return '';
+        return texto.toString().trim().replace(/\s+/g, ' ');
+    };
 
-        if (!nombreRegla || nombreRegla.trim() === '') {
-            cy.log('Regla vacía, búsqueda omitida');
-            return;
-        }
+    // Variable para controlar si encontramos el registro
+    let registroEncontrado = false;
+    
+    // Función para obtener el índice de una columna por su nombre
+    const obtenerIndiceColumna = (nombreColumna) => {
+        return cy.get('table[role="table"] thead tr th').then(($ths) => {
+            let indice = -1;
+            $ths.each((i, th) => {
+                const textoTh = normalizarTexto(Cypress.$(th).text());
+                // Limpiar el texto (quitar el ícono de ordenamiento si existe)
+                const textoLimpio = textoTh.replace(/⌄|⌃|▲|▼|arrow_drop_down|arrow_drop_up/g, '').trim();
+                
+                if (textoLimpio === nombreColumna) {
+                    indice = i;
+                    return false; // romper el each
+                }
+            });
+            return indice;
+        });
+    };
 
-        // 1️⃣ Clic en "Buscar por"
-        cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 20000 })
-            .parents('button')
-            .click({ force: true });
-
-        // 2️⃣ Seleccionar opción "Regla"
-        cy.get('.cdk-overlay-pane', { timeout: 20000 })
-            .filter(':visible')
-            .contains('button, li', /^Regla$/)
-            .click({ force: true });
-
-        // 3️⃣ Seleccionar la REGLA (NO el correlativo)
-        cy.get('#rulesSpec', { timeout: 20000 })
-            .should('exist')
-            .select(nombreRegla, { force: true });
-
-        // 4️⃣ Click en BUSCAR
-        cy.contains('mat-icon', 'search', { timeout: 20000 })
-            .parents('button')
-            .click({ force: true });
-
-        // 5️⃣ Validar el correlativo en la tabla
-        cy.get('table[role="table"] tbody tr', { timeout: 20000 })
-            .contains('td', new RegExp(`^\\s*${correlativo}\\s*$`))
-            .parents('tr')
-            .should('exist')
-            .click({ force: true });
-    }
+    // Función recursiva para paginar
+    const buscarEnPaginaActual = (indicesColumnas = null) => {
+        return cy.get('table[role="table"] tbody tr', { timeout: 10000 })
+            .should('have.length.gt', 0)
+            .then(($filas) => {
+                // Excluir fila de "No data available"
+                const $filasDatos = $filas.filter((index, row) => {
+                    return !Cypress.$(row).text().includes('No data available') && 
+                           !row.classList.contains('mat-no-data-row');
+                });
+                
+                cy.log(`📊 Revisando ${$filasDatos.length} filas en página actual`);
+                
+                // Si no tenemos los índices, obtenerlos primero
+                if (!indicesColumnas) {
+                    const promesasIndices = [];
+                    const nuevosIndices = {};
+                    
+                    criterios.forEach(criterio => {
+                        promesasIndices.push(
+                            obtenerIndiceColumna(criterio.columna).then(indice => {
+                                if (indice === -1) {
+                                    throw new Error(`❌ Columna "${criterio.columna}" no encontrada en la tabla`);
+                                }
+                                nuevosIndices[criterio.columna] = indice;
+                            })
+                        );
+                    });
+                    
+                    return Cypress.Promise.all(promesasIndices).then(() => {
+                        // Llamar recursivamente con los índices ya obtenidos
+                        return buscarEnPaginaActual(nuevosIndices);
+                    });
+                }
+                
+                // Buscar en cada fila
+                return cy.wrap($filasDatos).each(($fila) => {
+                    if (registroEncontrado) return; // Salir si ya encontramos el registro
+                    
+                    const celdas = Cypress.$($fila).find('td');
+                    
+                    // Mostrar valores de la fila para debug
+                    const valoresFila = {};
+                    cy.log('   📋 Verificando fila:');
+                    
+                    // Verificar TODOS los criterios
+                    let todosCumplen = true;
+                    
+                    for (const criterio of criterios) {
+                        const { columna, valor } = criterio;
+                        const indiceColumna = indicesColumnas[columna];
+                        
+                        // Verificar que la fila tiene suficientes columnas
+                        if (indiceColumna >= celdas.length) {
+                            cy.log(`   ⚠️ Fila no tiene columna ${indiceColumna + 1} (solo tiene ${celdas.length})`);
+                            todosCumplen = false;
+                            break;
+                        }
+                        
+                        const valorCelda = normalizarTexto(celdas.eq(indiceColumna).text());
+                        const valorEsperado = normalizarTexto(valor);
+                        
+                        valoresFila[columna] = valorCelda;
+                        
+                        // Verificar coincidencia
+                        const coincide = valorCelda === valorEsperado;
+                        
+                        cy.log(`      ${columna}: "${valorCelda}" ${coincide ? '✅' : '❌'} "${valorEsperado}"`);
+                        
+                        if (!coincide) {
+                            todosCumplen = false;
+                            break;
+                        }
+                    }
+                    
+                    if (todosCumplen) {
+                        cy.log(`✅ ¡Registro encontrado!`);
+                        registroEncontrado = true;
+                        
+                        // Mostrar todos los valores para referencia
+                        cy.log('   📌 Valores completos:', valoresFila);
+                        
+                        // Hacer click en la fila encontrada
+                        cy.wrap($fila)
+                            .should('be.visible')
+                            .click({ force: true });
+                        
+                        return false; // Romper el each
+                    }
+                }).then(() => {
+                    if (!registroEncontrado) {
+                        // Verificar si hay siguiente página
+                        return cy.get('body').then(($body) => {
+                            const nextButton = $body.find('button.mat-paginator-navigation-next:not(.mat-button-disabled)');
+                            
+                            if (nextButton.length > 0) {
+                                cy.log('📄 Siguiente página encontrada, navegando...');
+                                cy.wrap(nextButton).click({ force: true });
+                                cy.wait(1000); // Esperar a que cargue la siguiente página
+                                return buscarEnPaginaActual(indicesColumnas); // Recursión con los mismos índices
+                            } else {
+                                cy.log(`❌ No se encontró el registro después de revisar todas las páginas`);
+                                throw new Error(`No se encontró el registro con criterios: ${JSON.stringify(criterios)}`);
+                            }
+                        });
+                    }
+                });
+            });
+    };
+    
+    // Iniciar la búsqueda
+    return buscarEnPaginaActual().then(() => {
+        cy.log(`✅ Registro seleccionado exitosamente`);
+    });
+}
 
 
 
@@ -1185,11 +1252,13 @@ BtnAgregarRegistros() {
             timeout = 10000
         } = opciones;
 
-        if (!valor) return cy.log(`⚠️ Valor vacío para combo "${labelText}"`);
+        if (!valor || valor === "") {
+            cy.log(`⏭️ Valor vacío para combo "${labelText}" - se omite la selección`);
+            return;
+        }
 
         cy.log(`🔍 Seleccionando "${valor}" en combo "${labelText}"`);
 
-        // Función para normalizar texto (quitar tildes)
         const normalizarTexto = (texto) => {
             if (!texto) return texto;
             let resultado = String(texto);
@@ -1209,29 +1278,75 @@ BtnAgregarRegistros() {
             return resultado;
         };
 
-        // Normalizar el label que buscamos
         const labelNormalizado = normalizarTexto(labelText);
         cy.log(`📋 Buscando label normalizado: "${labelNormalizado}"`);
 
-        // Buscar el label de forma flexible
-        cy.get('mat-label, label, .mat-label', { timeout })
-            .filter((index, el) => {
-                const textoElemento = Cypress.$(el).text().trim();
-                const textoNormalizado = normalizarTexto(textoElemento);
+        // Buscar todos los form-field con mat-select
+        cy.get('mat-form-field:has(mat-select)', { timeout }).then($formFields => {
+            let $mejorCampo = null;
+            let mejorPuntaje = -1;
+            let mejorCoincidencia = null;
+            
+            // Evaluar cada form-field
+            $formFields.each((index, field) => {
+                const $field = Cypress.$(field);
+                const $label = $field.find('mat-label, label, .mat-label, .mat-form-field-label');
                 
-                // Comparación flexible
-                return textoNormalizado === labelNormalizado || 
-                    textoNormalizado.includes(labelNormalizado) ||
-                    labelNormalizado.includes(textoNormalizado);
-            })
-            .first()
-            .should('be.visible')
-            .parents('mat-form-field')
-            .find('mat-select')
-            .should('be.visible')
-            .then($select => {
-                
-                // Obtener valor actual (también normalizado para comparar)
+                if ($label.length) {
+                    const textoLabel = $label.first().text().trim();
+                    const textoLabelNormalizado = normalizarTexto(textoLabel);
+                    
+                    // Calcular puntaje de coincidencia
+                    let puntaje = 0;
+                    
+                    // Coincidencia exacta (mejor)
+                    if (textoLabelNormalizado === labelNormalizado) {
+                        puntaje = 100;
+                    }
+                    // Coincidencia exacta ignorando el asterisco
+                    else if (textoLabelNormalizado.replace(/\s*\*\s*/g, '') === labelNormalizado) {
+                        puntaje = 90;
+                    }
+                    // Label comienza con el texto buscado
+                    else if (textoLabelNormalizado.startsWith(labelNormalizado + ' ')) {
+                        puntaje = 80;
+                    }
+                    // Label contiene el texto buscado como palabra completa
+                    else if (textoLabelNormalizado.match(new RegExp(`\\b${labelNormalizado}\\b`))) {
+                        puntaje = 70;
+                    }
+                    // Label contiene el texto buscado
+                    else if (textoLabelNormalizado.includes(labelNormalizado)) {
+                        puntaje = 50;
+                    }
+                    // Texto buscado contiene el label (coincidencia parcial baja)
+                    else if (labelNormalizado.includes(textoLabelNormalizado)) {
+                        puntaje = 30;
+                    }
+                    
+                    cy.log(`📝 "${textoLabel}" → puntaje: ${puntaje}`);
+                    
+                    // Si este campo tiene mejor puntaje, es el nuevo candidato
+                    if (puntaje > mejorPuntaje) {
+                        mejorPuntaje = puntaje;
+                        $mejorCampo = $field;
+                        mejorCoincidencia = textoLabel;
+                    }
+                }
+            });
+            
+            // Verificar que encontramos un campo con puntaje mínimo
+            expect($mejorCampo, `No se encontró campo para label "${labelText}"`).to.not.be.null;
+            cy.log(`✅ Mejor coincidencia: "${mejorCoincidencia}" (puntaje: ${mejorPuntaje})`);
+            
+            // Guardar referencia al select antes de cualquier interacción
+            cy.wrap($mejorCampo)
+                .find('mat-select')
+                .should('be.visible')
+                .as('targetSelect');
+            
+            // Obtener valor actual usando la referencia guardada
+            cy.get('@targetSelect').then($select => {
                 const valorActual = $select
                     .find('.mat-select-value-text, .mat-select-min-line, .mat-select-placeholder')
                     .first()
@@ -1244,15 +1359,15 @@ BtnAgregarRegistros() {
                 cy.log(`📌 Valor actual: "${valorActual}" | Normalizado: "${valorActualNormalizado}"`);
                 cy.log(`🎯 Valor deseado: "${valor}" | Normalizado: "${valorNormalizado}"`);
                 
-                // Comparar versiones normalizadas
                 if (valorActualNormalizado !== valorNormalizado && 
                     !valorActualNormalizado.includes(valorNormalizado)) {
                     
-                    cy.wrap($select)
+                    // Click en el select guardado
+                    cy.get('@targetSelect')
                         .should('not.be.disabled')
                         .click({ force: true });
                     
-                    // Buscar opción de forma flexible
+                    // Buscar opción en el panel desplegado
                     cy.get('.cdk-overlay-pane', { timeout })
                         .should('be.visible')
                         .find('mat-option')
@@ -1260,21 +1375,31 @@ BtnAgregarRegistros() {
                             const textoOpcion = Cypress.$(opt).text().trim();
                             const textoOpcionNormalizado = normalizarTexto(textoOpcion);
                             
-                            // Comparación flexible
                             return textoOpcionNormalizado === valorNormalizado ||
                                 textoOpcionNormalizado.includes(valorNormalizado) ||
                                 valorNormalizado.includes(textoOpcionNormalizado);
                         })
                         .first()
-                        .should('be.visible')
-                        .click({ force: true });
-                   
-                   
+                        .then($option => {
+                            // Hacer scroll para que la opción sea visible
+                            cy.wrap($option).scrollIntoView({ 
+                                duration: 200,
+                                easing: 'linear',
+                                ensureScrollable: true
+                            });
+                            
+                            // Ahora hacer click en la opción
+                            cy.wrap($option)
+                                .should('be.visible')
+                                .click({ force: true });
+                        });
+                
                     cy.log(`✅ Seleccionado "${valor}" en combo "${labelText}"`);
                 } else {
                     cy.log(`⏭️ Ya tiene el valor "${valor}", no se requiere cambio`);
                 }
             });
+        });
     }
 
     llenarCampo(valor, labelText, opciones = {}) {
