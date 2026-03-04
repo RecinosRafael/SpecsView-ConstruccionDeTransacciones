@@ -1,96 +1,76 @@
+import metodosGeneralesPomCy from "./MetodosGeneralesPom.cy.js";
+    
 class CamposDeLaTransaccionCy{
 
-    CamposTransaccion(
-        codigo,
-        nombre,
-        etiqueta,
-        tieneDescripcion,
-        descipcionTrx,
-        tieneDatosSensibles,
-        Tipo,
-        typeListaValores,
-        typeEstado,
-        validoDesde,
-        validoHasta
-    ) {
+    constructor() {
+        this.Generales = new metodosGeneralesPomCy();
+    }
+    
+    CamposTransaccion(codigo, nombre, etiqueta, descripcion,  tieneDatosSensibles, Tipo, longitudMin, longitudMax, longitudEnvio, 
+        digitoVerificador, mascara, listaValores, rangoValores, limiteInferior, limiteSuperior, llenadoAutomatico, etiquetaJson, 
+        valorDefecto, ayuda, moneda, rutina, implListaVista, implServicio, endpointAyuda, estado, validoDesde, validoHasta, usaSumadora, 
+        idCampoEscuchar, requiereDetalleEfectivo, archivoYML, datosTachados, caracterVisualizar, esControlEfectivo ) {
+
         cy.log("Entrando a la creacion de campos de transaccion");
-        cy.xpath("//button[.//mat-icon[normalize-space()='add']]", {
-            timeout: 12000,
-        }).click({force: true});
-        cy.get(".mdc-circular-progress", {timeout: 40000}).should("not.exist");
-        cy.xpath("//input[@matinput and @data-placeholder='Código']").type(
-            codigo,
-            {force: true}
-        );
-        cy.xpath("//input[@matinput and @data-placeholder='Nombre']").type(
-            nombre,
-            {force: true}
-        );
-        cy.xpath("//input[@matinput and @data-placeholder='Etiqueta']").type(
-            etiqueta,
-            {force: true}
-        );
-        if (tieneDescripcion.toLowerCase() == "si") {
-            cy.xpath(
-                "//textarea[@matinput and @data-placeholder='Descripción']"
-            ).type(descipcionTrx, {force: true});
-        }
-
-        if (tieneDatosSensibles.toLowerCase() == "si") {
-            cy.xpath(
-                "//mat-checkbox//span[contains(@class,'mat-checkbox-label')]   [contains(normalize-space(.),'Datos sensibles')]   /ancestor::mat-checkbox   //input[@type='checkbox']"
-            ).check({force: true});
-        }
-        cy.xpath("//mat-form-field[.//mat-label[normalize-space()='Tipo']]//mat-select").click({forcce: true})
-        cy.xpath(
-            `//mat-option//span[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),translate('${Tipo}','ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'))]`
-        ).click({force: true});
-        //llenar los demas campos que no son obligatorios.
-
-//
-        cy.xpath("//mat-form-field[.//mat-label[normalize-space()='Lista de Valores']]//mat-select").click({force: true})
-        cy.xpath(
-            `//mat-option//span[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),translate('${typeListaValores}','ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'))]`
-        ).click({force: true});
-
-        cy.xpath("//mat-form-field[.//mat-label[normalize-space()='Estado']]//mat-select").click({force: true})
-        cy.xpath(
-            `//mat-option//span[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),translate('${typeEstado}','ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'))]`
-        ).click({force: true});
-        cy.xpath(
-            "//mat-form-field   [.//label//span[normalize-space()='Válido Desde']]   //button[@aria-label='Open calendar']"
-        ).click({force: true});
-        cy.selectMatDate(validoDesde);
-        if (validoHasta && validoHasta.trim()) {
-            // 1️⃣ Abrir calendario SOLO si hay fecha
-            cy.xpath(
-                "//mat-form-field   [.//label//span[normalize-space()='Válido Hasta']]   //button[@aria-label='Open calendar']"
-            ).click({
-                force: true,
-            });
-
-            cy.selectMatDate(validoHasta);
-        }
-        cy.wait(1500);
-        cy.xpath("//button[.//span[normalize-space(text())='Aceptar']]").click({
-            force: true,
-        });
+        this.Generales.llenarCampo(codigo, "Código")
+        this.Generales.llenarCampo(nombre, "Nombre")
+        this.Generales.llenarCampo(etiqueta, "Etiqueta")
+        this.Generales.llenarCampo(descripcion, "Descripción")
+        this.Generales.checkbox(tieneDatosSensibles, "Datos sensibles")
+        this.Generales.seleccionarCombo(Tipo, "Tipo")
+        this.Generales.llenarCampo(longitudMin, "Longitud Mínima")
+        this.Generales.llenarCampo(longitudMax, "Longitud máxima")
+        this.Generales.llenarCampo(longitudEnvio, "Longitud envío")
+        this.Generales.seleccionarCombo(digitoVerificador, "Dígito verificador")
+        this.Generales.llenarCampo(mascara, "Máscara")
+        this.Generales.seleccionarCombo(listaValores, "Lista de valores")
+        this.Generales.seleccionarCombo(rangoValores, "Rango de valores")
+        this.Generales.llenarCampo(limiteInferior, "Límite inferior")
+        this.Generales.llenarCampo(limiteSuperior, "Límite superior")
+        this.Generales.seleccionarCombo(llenadoAutomatico, "Llenado automático")
+        this.Generales.llenarCampo(etiquetaJson, "Etiqueta en JSON")
+        this.Generales.llenarCampo(valorDefecto, ["Valor Numérico Defecto", "valor defecto"])
+//      this.Generales.llenarCampo(ayuda, "Ayuda")
+        this.Generales.seleccionarCombo(moneda, "Moneda")    
+        this.Generales.seleccionarCombo(rutina, "Rutina")
+        this.Generales.llenarCampo(implListaVista, "Implementación de Lista en Vista")
+        this.Generales.llenarCampo(implServicio, "Implementación de servicio")
+        this.Generales.llenarCampo(endpointAyuda, "Endpoint de ayuda")
+        this.Generales.seleccionarCombo(estado, "Estado")
+        this.Generales.IngresarFecha(validoDesde, "Válido desde")
+        this.Generales.IngresarFecha(validoHasta, "Válido hasta")
+        this.Generales.checkbox(usaSumadora, "Usa sumadora") 
+        this.Generales.llenarCampo(idCampoEscuchar, "IDs de Campos a Escuchar")
+        this.Generales.checkbox(requiereDetalleEfectivo, "Requiere detalle de efectivo")
+        this.Generales.llenarCampo(archivoYML, "Archivo YML define Campo Tabla")
+        this.Generales.checkbox(datosTachados, "Datos tachados")
+        this.Generales.llenarCampo(caracterVisualizar, "Caracteres a visualizar")
+        this.Generales.seleccionarCombo(esControlEfectivo, "Es control de efectivo")
 
     }
 
-    buscarCamposTransaccion(buscaPor, elementoBuscar) {
-        cy.log("Buscar por:")
-        cy.xpath("//button[.//span[normalize-space()='Buscar por']]").click({force: true})
-        cy.xpath(`//button[@mat-menu-item and   contains(     translate(normalize-space(.),       'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),translate('${buscaPor}','ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz') ) ]`).click({force: true})
-        cy.xpath("//input[@type='text' and @id='code']")
-            .type(elementoBuscar, {force: true})
-            .type('{enter}', {force: true})
-        cy.xpath("//tr[@mat-row]")
-            .first()
-            .click({force: true})
-        cy.get(".mdc-circular-progress", {timeout: 40000}).should(
-            "not.exist"
-        );
+    ValoresDeCaracteristica(valor, valorDefecto, descriptor, descriptor2, descriptor3, descriptor4){
+
+        this.Generales.llenarCampo(valor, "Valor")
+        this.Generales.checkbox(valorDefecto, "Valor Defecto")
+        this.Generales.llenarCampo(descriptor, "Descriptor")
+        this.Generales.llenarCampo(descriptor2,  "Descriptor 2")
+        this.Generales.llenarCampo(descriptor3, "Descriptor 3")
+        this.Generales.llenarCampo(descriptor4, "Descriptor 4")
+
+    }
+
+    SubCaracteristicas(correlativo, subCaracteristica, campoTotalizable, TipoOperacion, campoMandatorio, campoVisualizable, campoProtegido){
+
+        this.Generales.llenarCampo(correlativo, "Correlativo")
+        this.Generales.seleccionarCombo(subCaracteristica, "Sub-característica")
+        this.Generales.seleccionarCombo(campoTotalizable, "Campo totalizable")
+        this.Generales.seleccionarCombo(TipoOperacion, "Tipo de operación")
+        this.Generales.seleccionarCombo(campoMandatorio, "Campo madatorio") 
+        this.Generales.seleccionarCombo(campoVisualizable, "Campo visualizable")
+        this.Generales.seleccionarCombo(campoProtegido, "Campo protegido")
+
+
     }
 
     eliminarCamposTransaccion() {

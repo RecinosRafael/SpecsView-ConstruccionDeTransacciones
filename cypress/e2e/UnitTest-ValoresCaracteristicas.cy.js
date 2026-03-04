@@ -1,8 +1,8 @@
 import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosGeneralesPom.cy";
-import ReglasPomCy from "../support/PageObjects/Specs-view-PO/ReglasPom.cy";
+import CamposDeLaTransaccionPomCy from "../support/PageObjects/Specs-view-PO/CamposDeLaTransaccion.cy";
 
 const Generales = new metodosGeneralesPomCy()
-const Reglas = new ReglasPomCy()
+const CamposDeLaTransaccion = new CamposDeLaTransaccionPomCy()
 
 
 describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
@@ -19,44 +19,44 @@ describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
             Cypress.env('PASS')
         )
         
-        cy.fixture('detalleReglas').as('dataDetalleReglas')
+        cy.fixture('valoresCaracteristicas').as('valoresCaracteristicas')
 
     })
 
     beforeEach(() => {
-        Generales.IrAPantalla('rulesSpec')
+        Generales.IrAPantalla('characteristicSpec')
     })
 
     it("Agregar registros a sub nivel", function () {
 
-        const datos = this.dataDetalleReglas.agregar
+        const datos = this.valoresCaracteristicas.agregar
 
         const agrupadas = datos.reduce((acc, item) => {
-            if (!acc[item.nombreRegla]) {
-                acc[item.nombreRegla] = []
+            if (!acc[item.codigo]) {
+                acc[item.codigo] = []
             }
-            acc[item.nombreRegla].push(item)
+            acc[item.codigo].push(item)
             return acc
         }, {})
 
-        cy.wrap(Object.keys(agrupadas)).each((nombreRegla) => {
-            cy.log('Procesando Regla con nombre: ' + nombreRegla)
+        cy.wrap(Object.keys(agrupadas)).each((codigo) => {
+            cy.log('Procesando Regla con nombre: ' + codigo)
 
             // 🔎 Buscar Regla
-            Generales.BuscarRegistroNombre(nombreRegla)
-            Generales.NavegacionSubMenu('Detalle de reglas')
+            Generales.BuscarRegistroCodigo(codigo)
+            Generales.NavegacionSubMenu('Valores de Característica')
 
-            return cy.wrap(agrupadas[nombreRegla]).each((registro) => {
+            return cy.wrap(agrupadas[codigo]).each((registro) => {
                 Generales.BtnAgregarRegistroSubnivel()
-                cy.log("y el agregar que pedo")
-              //  const pais = registro.valorPais || registro.nombre
-                Reglas.DetalleReglas(
-                    registro.correlativo, 
-                    registro.exprsion1, 
-                    registro.operador, 
-                    registro.expresion2, 
-                    registro.operadorLogico, 
-                    registro.tipoExpresion )
+                CamposDeLaTransaccion.ValoresDeCaracteristica(
+                    //valor, valorDefecto, descriptor, descriptor2, descriptor3, descriptor4
+                    registro.valor, 
+                    registro.valorDefecto,  
+                    registro.descriptor, 
+                    registro.descriptor2, 
+                    registro.descriptor3,  
+                    registro.descriptor4
+                )
 
             Generales.BtnAceptarRegistro();
             cy.wait(2000)

@@ -1,0 +1,31 @@
+{
+  "agregar": [
+    {
+      "nombreReglaAC": "siempre se cumple",
+      "transaccionAC": "Solicitud de efectivo a bóveda",
+      "txAsociada": "Entrega de efectivo a cajero",
+      "correlativo": "1",
+      "tipoAsociacion": "Automático - Completada",
+      "tipoAccion": "Continuar",
+      "descripcion": "",
+      "acumular": true,
+      "permiteRechazo": true,
+      "modoInverso": "Bloque",
+      "permiteCanacelacion": "Permite"
+
+    },
+    {
+      "nombreReglaAC": "siempre se cumple",
+      "transaccionAC": "Entrega de efectivo a bóveda",     
+      "txAsociada": "Efectivo recibido de cajero",
+      "correlativo": "1",
+      "tipoAsociacion": "Automático - Completada",
+      "tipoAccion": "Continuar",
+      "descripcion": "",
+      "acumular": true,
+      "permiteRechazo": true,
+      "modoInverso": "Bloque",
+      "permiteCanacelacion": "No permite"
+    }
+  ]
+}

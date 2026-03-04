@@ -1,4 +1,10 @@
+import metodosGeneralesPomCy from "./MetodosGeneralesPom.cy.js";
+
 class ReglasPomCy{
+
+    constructor() {
+        this.Generales = new metodosGeneralesPomCy();
+    }
 
     Reglas(codigo, nombre, descripcion, valorCicloVida, desde, hasta){
 
@@ -99,60 +105,13 @@ class ReglasPomCy{
             }
         });
 
-        this.seleccionarCombo(operador, "Operador");
-        this.seleccionarCombo(operadorLogico, "Operador lógico");
-        this.seleccionarCombo(tipoExpresion, "Tipo de Expresión");
+        this.Generales.seleccionarCombo(operador, "Operador");
+        this.Generales.seleccionarCombo(operadorLogico, "Operador lógico");
+        this.Generales.seleccionarCombo(tipoExpresion, "Tipo de Expresión");
 
     }
 
-    seleccionarCombo(valor, labelText) {
-        if (!valor) return cy.log(`⚠️ Valor vacío para combo "${labelText}"`);
-        
-        cy.log(`🔍 Seleccionando "${valor}" en combo "${labelText}"`);
-        
-        // Buscar el campo por su etiqueta label
-        cy.contains('mat-label', labelText, { timeout: 10000 })
-            .should('be.visible')
-            .parents('mat-form-field')  // Sube al contenedor del campo
-            .find('mat-select')  // Encuentra el select dentro de ese contenedor
-            .should('be.visible')
-            .then($select => {
-                
-                // Obtener el valor actual mostrado
-                const valorActual = $select
-                    .find('.mat-select-value-text, .mat-select-min-line, .mat-select-placeholder')
-                    .first()
-                    .text()
-                    .trim();
-                
-                cy.log(`📌 Valor actual: "${valorActual || 'vacío'}"`);
-                
-                // Solo cambiar si es diferente
-                if (valorActual !== valor && !valorActual.includes(valor)) {
-                    
-                    cy.wrap($select)
-                        .should('not.be.disabled')
-                        .click({ force: true });
-                    
-                    // Buscar la opción en el panel desplegable
-                    cy.get('.cdk-overlay-pane', { timeout: 10000 })
-                        .should('be.visible')
-                        .find('mat-option')
-                        .contains(valor)
-                        .should('be.visible')
-                        .click({ force: true });
-                    
-                    // Verificar que se seleccionó correctamente
-                    cy.wrap($select)
-                        .find('.mat-select-value-text, .mat-select-min-line')
-                        .should('contain', valor);
-                    
-                    cy.log(`✅ Seleccionado "${valor}" en combo "${labelText}"`);
-                } else {
-                    cy.log(`⏭️ Ya tiene el valor "${valor}", no se requiere cambio`);
-                }
-            });
-    }
+    
 
 }
 export default ReglasPomCy;

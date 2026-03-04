@@ -1,0 +1,14 @@
+{
+  "agregar": [
+    {
+      "codigo": "11",
+      "nombre": "Solicitud de cliente",
+      "descripcion": "Cliente se equivoca en monto de transacción"
+    },
+    {	
+      "codigo": "22",
+      "nombre": "Error operativo",
+      "descripcion": "Error operativo de entidad"
+    }
+  ]
+}
