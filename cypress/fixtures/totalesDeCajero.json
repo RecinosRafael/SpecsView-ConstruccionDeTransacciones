@@ -1,0 +1,24 @@
+{
+  "agregar": [
+
+    {
+      "codigo": "7766",
+      "arbolRaiz": "QAR-Rutinas con cypress",
+      "nombre": "",
+      "nombreCorto": "https://jtellerqa-108.bytesw.cloud:30000/aml-fe/dynamic-flow",
+      "descripcion": "DE CAMPO",
+      "validaMontos": "BackEnd",
+      "minimoRequiereAutorizacion": "QAR-Pruebas de rutinas con cypress",
+      "maximoRequiereAutorizacion": "",
+      "correlativoImpreso": "GET",
+      "enviarHost": "No",
+      "cicloVida": "",
+      "validoDesde": "",
+      "validoHasta": "",
+      "totalMonitoreado": "",
+      "rutinaCalculamontoConciliar": "",
+      "rutinacalculaMontoConciliado": "",
+      "esControlEfectivo": ""
+    }
+  ]
+}

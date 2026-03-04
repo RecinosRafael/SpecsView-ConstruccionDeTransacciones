@@ -1,0 +1,21 @@
+{
+  "agregar": [
+
+    {
+      "codigo": "8",
+      "nombre": "Comprobante posteos cypress",
+      "nombreAbreviado": "comprobantePost",
+      "descripcion": "Comprobante para posteos de libretas",
+      "plantilla": "comprobante-posteos",
+      "extencion": "docx",
+      "valorDatosTachados": "No aplica",
+      "valorIncluirImagen": "",
+      "posicion": "",
+      "tamanioImagen": "",
+      "valorParaCatalogos": "Formato de posteo",
+      "codigoPlantillaAlternativa": "",
+      "poscEtiquetaComprobante": "565,765",
+      "poscEtiquetaReimprimir": ""
+    }
+  ]
+}

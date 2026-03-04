@@ -1,3 +1,4 @@
+require('cypress-xpath');
 class RutinasPomCy{
 
     Rutinas(codigo, nombre, nombreRecurso, endpointRutinaRutaComponenteAngular, tipoRutina, capaEjecucion, descripcion, parametros, tipoOperacion, esLogin, formatoEnvio,
@@ -107,39 +108,37 @@ class RutinasPomCy{
 
     checkBoxWOS(valor, textoLabel) {
 
-        // 🔹 No tocar si no viene el parámetro
-        if (valor === undefined || valor === null) {
-            cy.log(`Checkbox omitido: ${textoLabel}`);
+        // 🔹 VALIDACIÓN MEJORADA - No tocar si no viene el parámetro
+        if (valor === undefined ||
+            valor === null ||
+            valor === '' ||
+            valor.toString().trim() === '') {
+
+            cy.log(`✅ Checkbox omitido correctamente: ${textoLabel} (valor: ${valor})`);
             return;
         }
 
-        cy.xpath(
-            "//mat-checkbox[.//span[contains(normalize-space(),'" + textoLabel + "')]]",
-            {timeout: 20000}
-        )
+        cy.log(`☑️ Procesando checkbox "${textoLabel}" = ${valor}`);
+
+        // Convertir a booleano (por si viene como string "true"/"false")
+        const valorBooleano = valor.toString().toLowerCase() === 'true' ? true : false;
+
+        cy.contains('span', textoLabel, { timeout: 15000 })
+            .should('be.visible')
+            .parents('mat-checkbox')
             .should('exist')
             .then($checkbox => {
+                const estaMarcado = $checkbox.find('input[type="checkbox"]').prop('checked');
 
-                const $input = $checkbox.find('input[type="checkbox"]');
-                const marcado = $input.prop('checked');
-
-                cy.log(`${textoLabel} | actual: ${marcado} | esperado: ${valor}`);
-
-                // 🔒 Si no necesita cambio → salir
-                if (marcado === valor) {
-                    cy.log(`Checkbox ya en estado correcto: ${textoLabel}`);
-                    return;
+                if (estaMarcado !== valorBooleano) {
+                    cy.wrap($checkbox).find('.mat-checkbox-layout').click();
+                    cy.wrap($checkbox)
+                        .find('input[type="checkbox"]')
+                        .should(valorBooleano ? 'be.checked' : 'not.be.checked');
+                    cy.log(`✅ Checkbox "${textoLabel}" actualizado a ${valorBooleano}`);
+                } else {
+                    cy.log(`ℹ️ Checkbox "${textoLabel}" ya está en estado correcto`);
                 }
-
-                // ✅ CLICK REAL (Angular escucha esto)
-                cy.wrap($checkbox)
-                    .find('.mat-checkbox-layout')   // 🔥 ESTE ES EL CLAVE
-                    .click({force: true});
-
-                // 🔁 Validar que sí cambió
-                cy.wrap($checkbox)
-                    .find('input[type="checkbox"]')
-                    .should(valor ? 'be.checked' : 'not.be.checked');
             });
     }
 

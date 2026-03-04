@@ -1,0 +1,19 @@
+{
+  "agregar": [
+
+    {
+      "codigo": "420",
+      "mensajeError": "Error en Automatizacion",
+      "descripcion": "QAR.Se agrega un mensaje de error desde cypress con pruebas automatizadas",
+      "valorTipoMensaje": "Recomendación",
+      "valorAccion": "Salir del flujo de transacción"
+    },
+    {
+      "codigo": "421",
+      "mensajeError": "Error en Automatizacion #2",
+      "descripcion": "",
+      "valorTipoMensaje": "Recomendación",
+      "valorAccion": "Salir del flujo de transacción"
+    }
+  ]
+}

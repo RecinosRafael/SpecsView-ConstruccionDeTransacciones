@@ -1,0 +1,28 @@
+{
+  "agregar": [
+
+    {
+      "codigo": "7766",
+      "nombre": "QAR-Rutinas con cypress",
+      "nombreRecurso": "",
+      "endpointRutinaRutaComponenteAngular": "https://jtellerqa-108.bytesw.cloud:30000/aml-fe/dynamic-flow",
+      "tipoRutina": "DE CAMPO",
+      "capaEjecucion": "BackEnd",
+      "descripcion": "QAR-Pruebas de rutinas con cypress",
+      "parametros": "",
+      "tipoOperacion": "GET",
+      "esLogin": "No",
+      "formatoEnvio": "",
+      "formatoRecibido": "",
+      "expresion1": "",
+      "operacion": "",
+      "expresion2": "",
+      "tipoExpresion": "",
+      "endpointRutinaSecundario": "",
+      "enviarListaRecursos": "true",
+      "ofline": "true",
+      "online": "",
+      "noGuardarLOG": "true"
+    }
+  ]
+}

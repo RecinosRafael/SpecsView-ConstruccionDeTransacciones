@@ -1,12 +1,11 @@
 import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosGeneralesPom.cy";
-import tipoDeDatoCy from "../support/PageObjects/Specs-view-PO/TipoDeDatoPom.cy";
-require('cypress-xpath');
+import formatosPomCy from "../support/PageObjects/Specs-view-PO/FormatosPom.cy";
 
 const Generales = new metodosGeneralesPomCy()
-const TipoDato = new tipoDeDatoCy()
+const Formatos = new formatosPomCy()
 
 
-describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
+describe("Prueba unitaria del Crud de Productos...", () =>{
 
     Cypress.on('uncaught:exception',(err,Runnable) =>{
         return false
@@ -22,12 +21,12 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
     })
 
     beforeEach(() => {
-        Generales.IrAPantalla('dataType')
+        Generales.IrAPantalla('format')
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('tipoDeDato').then((dataTipoDato) => {
-            cy.wrap(dataTipoDato.agregar).each((item) => {
+        cy.fixture('formatos').then((dataFormatos) => {
+            cy.wrap(dataFormatos.agregar).each((item) => {
                 cy.log(`Insertando código: ${item.codigo}`)
 
                 //Asegurar estado limpio antes de comenzar
@@ -39,21 +38,33 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                 })
 
                 //Abrir formulario
-                Generales.BtnAgregarRegistro()
+                Generales.BtnAgregarRegistroSubnivel()
 
                 //Validar que el modal realmente abrió
                 cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
                     .should('be.visible')
 
                 // Llenar datos
-                TipoDato.TipoDato(
+                Formatos.Formato(
+
                     item.codigo,
                     item.nombre,
-                    item.descripcion
+                    item.nombreAbreviado,
+                    item.descripcion,
+                    item.plantilla,
+                    item.extencion,
+                    item.valorDatosTachados,
+                    item.valorIncluirImagen,
+                    item.posicion,
+                    item.tamanioImagen,
+                    item.valorParaCatalogos,
+                    item.codigoPlantillaAlternativa,
+                    item.poscEtiquetaComprobante,
+                    item.poscEtiquetaReimprimir
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/dataType').as('guardar')
+                cy.intercept('POST', '**/format').as('guardar')
 
                 Generales.BtnAceptarRegistro()
 

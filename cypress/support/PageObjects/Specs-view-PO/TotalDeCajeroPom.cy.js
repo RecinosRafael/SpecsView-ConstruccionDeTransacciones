@@ -144,5 +144,156 @@ class TotalDeCajeroPomCy{
 
     }
 
+
+    checkBoxWOS(valor, textoLabel) {
+
+        // 🔹 VALIDACIÓN MEJORADA - No tocar si no viene el parámetro
+        if (valor === undefined ||
+            valor === null ||
+            valor === '' ||
+            valor.toString().trim() === '') {
+
+            cy.log(`✅ Checkbox omitido correctamente: ${textoLabel} (valor: ${valor})`);
+            return;
+        }
+
+        cy.log(`☑️ Procesando checkbox "${textoLabel}" = ${valor}`);
+
+        // Convertir a booleano (por si viene como string "true"/"false")
+        const valorBooleano = valor.toString().toLowerCase() === 'true' ? true : false;
+
+        cy.contains('span', textoLabel, { timeout: 15000 })
+            .should('be.visible')
+            .parents('mat-checkbox')
+            .should('exist')
+            .then($checkbox => {
+                const estaMarcado = $checkbox.find('input[type="checkbox"]').prop('checked');
+
+                if (estaMarcado !== valorBooleano) {
+                    cy.wrap($checkbox).find('.mat-checkbox-layout').click();
+                    cy.wrap($checkbox)
+                        .find('input[type="checkbox"]')
+                        .should(valorBooleano ? 'be.checked' : 'not.be.checked');
+                    cy.log(`✅ Checkbox "${textoLabel}" actualizado a ${valorBooleano}`);
+                } else {
+                    cy.log(`ℹ️ Checkbox "${textoLabel}" ya está en estado correcto`);
+                }
+            });
+    }
+
+    seleccionarFecha(selector, fecha, obligatoria = false) {
+
+        // =====================================================
+        // 🔹 1️⃣ Validación inicial
+        // =====================================================
+        if (!fecha || fecha.toString().trim() === '') {
+
+            if (obligatoria) {
+                throw new Error(`La fecha es obligatoria y no fue enviada (${selector})`);
+            }
+
+            cy.log(`🟡 Fecha omitida (opcional): ${selector}`);
+            return;
+        }
+
+        // =====================================================
+        // 🔹 2️⃣ Parsear fecha D/M/YYYY o DD/MM/YYYY
+        // =====================================================
+        const partes = fecha.toString().trim().split('/');
+
+        if (partes.length !== 3) {
+            throw new Error(`Formato de fecha inválido: ${fecha}`);
+        }
+
+        let [day, month, year] = partes.map(p => parseInt(p, 10));
+
+        if (
+            isNaN(day) ||
+            isNaN(month) ||
+            isNaN(year) ||
+            year < 1900
+        ) {
+            throw new Error(`Fecha inválida: ${fecha}`);
+        }
+
+        // =====================================================
+        // 🔹 3️⃣ Crear Date REAL (CLAVE)
+        // =====================================================
+        const dateObj = new Date(year, month - 1, day);
+
+        // =====================================================
+        // 🔹 4️⃣ Setear fecha correctamente en Angular
+        // =====================================================
+        cy.get(selector, {timeout: 20000})
+            .should('exist')
+            .then($input => {
+
+                // 🔓 Habilitar input
+                $input.prop('disabled', false);
+
+                cy.wrap($input)
+                    .closest('mat-form-field')
+                    .invoke('removeClass', 'mat-form-field-disabled');
+
+                // 🧠 SETEO REAL (NO TYPE)
+                cy.wrap($input)
+                    .invoke('val', dateObj)
+                    .trigger('input')
+                    .trigger('change')
+                    .trigger('blur');
+            });
+    }
+
+    //Metodo combo totales cajero
+    seleccionarComboTC(valor, xpath) {
+
+        // 🔒 Validación PRO (igual que la tuya)
+        if (
+            valor === undefined ||
+            valor === null ||
+            valor === '' ||
+            valor.toString().trim().toLowerCase() === 'lleno'
+        ) {
+            cy.log(`Combo omitido: ${xpath}`);
+            return;
+        }
+
+        const textoValor = valor.toString().trim().toLowerCase();
+
+        // 1️⃣ Abrir el mat-select por label
+        cy.xpath(
+            `//label[.//*[contains(normalize-space(),'${xpath}')]]
+         /ancestor::mat-form-field//mat-select`,
+            { timeout: 15000 }
+        )
+            .should('exist')
+            .click({ force: true });
+
+        // 2️⃣ Esperar overlay
+        cy.get('.cdk-overlay-pane', { timeout: 15000 })
+            .should('exist')
+            .within(() => {
+
+                // 3️⃣ Seleccionar por mat-option (NO span)
+                cy.xpath(
+                    `//mat-option[
+                    contains(
+                        translate(
+                            normalize-space(.),
+                            'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜÑ',
+                            'abcdefghijklmnopqrstuvwxyzáéíóúüñ'
+                        ),
+                        '${textoValor}'
+                    )
+                ]`,
+                    { timeout: 15000 }
+                )
+                    .first()                // 🔑 uno solo
+                    .should('exist')
+                    .click({ force: true }); // 🔥 aunque no sea visible
+            });
+    }
+
+
 }
 export default TotalDeCajeroPomCy;

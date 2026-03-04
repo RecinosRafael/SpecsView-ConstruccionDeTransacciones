@@ -2,40 +2,65 @@ class MensajesDeErrorPomCy{
 
     MensajesError(codigo, mensajeError, descripcion, valorTipoMensaje, valorAccion){
 
-        cy.get("#code").should("be.visible").clear().type(codigo)
-        cy.get("#message").should("be.visible").clear().type(mensajeError)
-        cy.get("#description").should("be.visible").clear().type(descripcion)
+        // Mapeo directo selector → valor
+        const campos = {
+            '#code': { valor: codigo, nombre: 'Código', req: true },
+            '#message': { valor: mensajeError, nombre: 'Mensaje de error', req: true },
+            '#description': { valor: descripcion, nombre: 'Descripción', req: false },
+            '#moneda': { valor: valorTipoMensaje, nombre: 'Tipo de mensaje', req: true, esCombo: true, index: 0 },
+            '#digitoVerificador': { valor: valorAccion, nombre: 'Acción', req: false, esCombo: true, index: 1 } // ← Cambiado a false
 
-        this.seleccionarComboME(valorTipoMensaje, 0);
-        this.seleccionarComboME(valorAccion, 1);
+        };
+
+        // Validar requeridos
+        const reqFaltantes = Object.values(campos)
+            .filter(c => c.req && (c.valor === undefined || c.valor === null || c.valor === ''))
+            .map(c => c.nombre);
+
+        if (reqFaltantes.length) {
+            throw new Error(`Requeridos: ${reqFaltantes.join(', ')}`);
+        }
+
+        // Ejecutar campos con valor
+        Object.entries(campos)
+            .filter(([_, { valor }]) => valor !== undefined && valor !== null && valor !== '')
+            .forEach(([selector, { nombre, valor, esCombo, index }]) => {
+                cy.log(`${nombre}: "${valor}"`);
+
+                if (esCombo) {
+                    this.seleccionarCombo(valor, index);
+                } else {
+                    cy.get(selector).clear().should('be.visible').type(String(valor));
+                }
+            });
     }
 
-    seleccionarComboME(valor, index) {
+    seleccionarCombo(valor, index) {
+        // Si no hay valor, simplemente salir sin error
+        if (!valor || valor === '') {
+            cy.log(`ℹ️ Combo índice ${index} omitido (valor vacío)`);
+            return;
+        }
 
-        if (!valor) return;
+        cy.log(`🎯 Seleccionando "${valor}" en combo índice ${index}`);
 
         cy.get('mat-select', { timeout: 10000 })
             .filter(':visible')
             .eq(index)
+            .should('not.be.disabled')
             .then($select => {
+                const valorActual = $select.find('.mat-select-min-line').first().text().trim();
 
-                const valorActual = $select
-                    .find('.mat-select-min-line')
-                    .text()
-                    .trim();
-
-                // 🔁 Cambia solo si es diferente
                 if (valorActual !== valor) {
-
-                    cy.wrap($select)
-                        .should('not.be.disabled')
-                        .click({ force: true });
-
+                    cy.wrap($select).click();
                     cy.get('.cdk-overlay-pane', { timeout: 10000 })
                         .find('.mat-option-text')
                         .contains(valor)
                         .should('be.visible')
                         .click();
+                    cy.log(`✅ Seleccionado: "${valor}"`);
+                } else {
+                    cy.log(`ℹ️ Combo ya tiene valor "${valor}"`);
                 }
             });
     }

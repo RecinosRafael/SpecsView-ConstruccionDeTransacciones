@@ -1,9 +1,8 @@
 import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosGeneralesPom.cy";
-import tipoDeDatoCy from "../support/PageObjects/Specs-view-PO/TipoDeDatoPom.cy";
-require('cypress-xpath');
+import rutinasPomCy from "../support/PageObjects/Specs-view-PO/RutinasPom.cy";
 
 const Generales = new metodosGeneralesPomCy()
-const TipoDato = new tipoDeDatoCy()
+const Rutinas = new rutinasPomCy()
 
 
 describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
@@ -22,12 +21,12 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
     })
 
     beforeEach(() => {
-        Generales.IrAPantalla('dataType')
+        Generales.IrAPantalla('routine')
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('tipoDeDato').then((dataTipoDato) => {
-            cy.wrap(dataTipoDato.agregar).each((item) => {
+        cy.fixture('rutinas').then((dataRutinas) => {
+            cy.wrap(dataRutinas.agregar).each((item) => {
                 cy.log(`Insertando código: ${item.codigo}`)
 
                 //Asegurar estado limpio antes de comenzar
@@ -46,14 +45,32 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                     .should('be.visible')
 
                 // Llenar datos
-                TipoDato.TipoDato(
+                Rutinas.Rutinas(
                     item.codigo,
                     item.nombre,
-                    item.descripcion
+                    item.nombreRecurso,
+                    item.endpointRutinaRutaComponenteAngular,
+                    item.tipoRutina,
+                    item.capaEjecucion,
+                    item.descripcion,
+                    item.parametros,
+                    item.tipoOperacion,
+                    item.esLogin,
+                    item.formatoEnvio,
+                    item.formatoRecibido,
+                    item.expresion1,
+                    item.operacion,
+                    item.expresion2,
+                    item.tipoExpresion,
+                    item.endpointRutinaSecundario,
+                    item.enviarListaRecursos,
+                    item.ofline,
+                    item.online,
+                    item.noGuardarLOG
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/dataType').as('guardar')
+                cy.intercept('POST', '**/routine').as('guardar')
 
                 Generales.BtnAceptarRegistro()
 

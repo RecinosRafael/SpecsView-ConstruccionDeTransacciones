@@ -1,12 +1,12 @@
 import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosGeneralesPom.cy";
-import tipoDeDatoCy from "../support/PageObjects/Specs-view-PO/TipoDeDatoPom.cy";
-require('cypress-xpath');
+import MensajesDeErrorPomCy from "../support/PageObjects/Specs-view-PO/MensajesDeErrorPom.cy";
+import mensajesDeErrorPomCy from "../support/PageObjects/Specs-view-PO/MensajesDeErrorPom.cy";
 
 const Generales = new metodosGeneralesPomCy()
-const TipoDato = new tipoDeDatoCy()
+const MensajeError = new mensajesDeErrorPomCy()
 
 
-describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
+describe("Prueba unitaria del Crud de Mensajes de error...", () =>{
 
     Cypress.on('uncaught:exception',(err,Runnable) =>{
         return false
@@ -22,12 +22,12 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
     })
 
     beforeEach(() => {
-        Generales.IrAPantalla('dataType')
+        Generales.IrAPantalla('errorMessage')
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('tipoDeDato').then((dataTipoDato) => {
-            cy.wrap(dataTipoDato.agregar).each((item) => {
+        cy.fixture('MensajesDeError').then((dataMensajesDeError) => {
+            cy.wrap(dataMensajesDeError.agregar).each((item) => {
                 cy.log(`Insertando código: ${item.codigo}`)
 
                 //Asegurar estado limpio antes de comenzar
@@ -39,28 +39,31 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                 })
 
                 //Abrir formulario
-                Generales.BtnAgregarRegistro()
+                Generales.BtnAgregarRegistroSubnivel()
 
                 //Validar que el modal realmente abrió
                 cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
                     .should('be.visible')
 
                 // Llenar datos
-                TipoDato.TipoDato(
+                MensajeError.MensajesError(
+                    //codigo, mensajeError, descripcion, valorTipoMensaje, valorAccion
                     item.codigo,
-                    item.nombre,
-                    item.descripcion
+                    item.mensajeError,
+                    item.descripcion,
+                    item.valorTipoMensaje,
+                    item.valorAccion
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/dataType').as('guardar')
+                cy.intercept('POST', '**/errorMessage').as('guardar')
 
                 Generales.BtnAceptarRegistro()
 
 
                 cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
-                    if (status === 200 || status === 201) {
+                    if (status === 206 || status === 201) {
                         cy.log('Registro insertado correctamente')
                         // Esperar que el modal desaparezca
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')

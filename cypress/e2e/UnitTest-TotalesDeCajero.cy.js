@@ -1,9 +1,9 @@
 import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosGeneralesPom.cy";
-import tipoDeDatoCy from "../support/PageObjects/Specs-view-PO/TipoDeDatoPom.cy";
+import totalDeCajeroPomCy from "../support/PageObjects/Specs-view-PO/TotalDeCajeroPom.cy";
 require('cypress-xpath');
 
 const Generales = new metodosGeneralesPomCy()
-const TipoDato = new tipoDeDatoCy()
+const TotalesCajero = new totalDeCajeroPomCy()
 
 
 describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
@@ -22,12 +22,12 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
     })
 
     beforeEach(() => {
-        Generales.IrAPantalla('dataType')
+        Generales.IrAPantalla('totalCashier')
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('tipoDeDato').then((dataTipoDato) => {
-            cy.wrap(dataTipoDato.agregar).each((item) => {
+        cy.fixture('totalesDeCajero').then((dataTotalesDeCajero) => {
+            cy.wrap(dataTotalesDeCajero.agregar).each((item) => {
                 cy.log(`Insertando código: ${item.codigo}`)
 
                 //Asegurar estado limpio antes de comenzar
@@ -44,16 +44,29 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                 //Validar que el modal realmente abrió
                 cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
                     .should('be.visible')
-
                 // Llenar datos
-                TipoDato.TipoDato(
+                TotalesCajero.TotalesCajero(
                     item.codigo,
+                    item.arbolRaiz,
                     item.nombre,
-                    item.descripcion
+                    item.nombreCorto,
+                    item.descripcion,
+                    item.validaMontos,
+                    item.minimoRequiereAutorizacion,
+                    item.maximoRequiereAutorizacion,
+                    item.correlativoImpreso,
+                    item.enviarHost,
+                    item.cicloVida,
+                    item.validoDesde,
+                    item.validoHasta,
+                    item.totalMonitoreado,
+                    item.rutinaCalculamontoConciliar,
+                    item.rutinacalculaMontoConciliado,
+                    item.esControlEfectivo,
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/dataType').as('guardar')
+                cy.intercept('POST', '**/totalCashier').as('guardar')
 
                 Generales.BtnAceptarRegistro()
 
