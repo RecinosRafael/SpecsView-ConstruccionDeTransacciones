@@ -27,9 +27,9 @@
     {	
       "transaccion": "Entrega de efectivo a bóveda",
       "correlativo": "1",
-      "regla": "Afectación efectivo trx pagadas",
+      "regla": "siempre se cumple",
       "accion": "Afectar Totales",
-      "ejecutar": "Después de enviar al host",
+      "ejecutar": "Después del resumen",
       "descripcion": "generar transacción automática a encargado de bóveda"
     }
   ]
