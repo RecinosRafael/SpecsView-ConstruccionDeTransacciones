@@ -1,0 +1,161 @@
+    describe("Suite de pruebas gestor de transacciones", () => {
+        it("Ingreso a la ventana de transacciones y consulta si el codigo de trx existe", () => {
+            Generales.IrAPantalla("transactionManager");
+            Transacciones.GestorTransacciones(
+                "500",
+                "recibido",
+                "600",
+                "Test de prueba trx",
+                "Test",
+                "lanzado",
+                "05/02/2010",
+                "",
+                "no aplica",
+                "Test de prueba creacion de trx",
+                "si",
+                "si",
+                "si",
+                "si",
+                "si",
+                "si",
+                "1500",
+                "en proceso",
+                "no",
+                "empagua",
+                "no",
+                "si",
+                "1",
+                "si",
+                "Test de prueba resumen de trx",
+                "alerta",
+                "prueba",
+                "caja",
+                "texto de ayuda test"
+            );
+        });
+
+        it("Entrando a flujo de especificacion de la trx", () => {
+            Transacciones.caracteristicasTrx([
+                "moneda",
+                "efectivo fisico",
+
+                "efectivo electrónico",
+                "total",
+            ]);
+
+            Transacciones.configurarEfectivos({
+                "efectivo fisico": {
+                    montoMaximo: "5000",
+                    tipoMovimiento: "ingreso",
+                },
+                "efectivo electrónico": {
+                    montoMaximo: "8000",
+                    tipoMovimiento: "egreso",
+                },
+                total: {
+                    montoMaximo: "15000",
+                    tipoMovimiento: "no aplica",
+                },
+            });
+
+            Transacciones.definiciondePasos([
+                {
+                    nombrePaso: "Paso 1",
+                    tieneRegla: "No",
+                    tipoRegla: "",
+                    descripcion: "Test de prueba paso 1",
+                },
+            ]);
+
+            Transacciones.rutinasPre(
+                "no",
+                "cierre de cajero",
+                "activo",
+                "1",
+                "no",
+                " ",
+                "Descipcion rutina Pre Test",
+                "05/02/2020",
+                "",
+                "Detalles extras pre test"
+            );
+            Transacciones.rutinasPos(
+                "no",
+                "cierre de cajero",
+                "activo",
+                "1",
+                "no",
+                " ",
+                "Descipcion rutina Pos Test",
+                "05/02/2020",
+                "",
+                "Detalles extras pos test"
+            );
+
+            const caracteristicas = [
+                {
+                    nombre: "Moneda",
+                    tamanioLetra: "14",
+                    regla: "A+afdafd",
+                    proteger: "no",
+                    obligatorio: "si",
+                    negrita: "no",
+                    verFirmas: "si",
+                    mensajeError: "Test para mensaje de error",
+                    correlativo: "1",
+                    tieneProductos: "si",
+                    productos: "monetarios",
+                },
+                {
+                    nombre: "Total",
+                    tamanioLetra: "14",
+                    regla: "A+afdafd",
+                    proteger: "no",
+                    obligatorio: "no",
+                    negrita: "no",
+                    verFirmas: "no",
+                    mensajeError: "Test para mensaje de error",
+                    correlativo: "2",
+                    tieneProductos: "no",
+                    productos: "monetarios",
+                },
+            ];
+
+            caracteristicas.forEach((caracteristica) => {
+                Transacciones.arrastrarYConfigurarCaracteristica(caracteristica);
+            });
+        });
+
+        it("Pasos para llenar tipos de cajero", () => {
+            Transacciones.tiposCajero({
+                todosCajero: "no",
+                tiposCajero: ["Cajero 1", "cajero byte sa", "supervisor byte sa"],
+            });
+        });
+
+        it("Pasos totales a afectar", () => {
+            Transacciones.totalesAfectar("si", "no aplica", "No aplica", " ", " ");
+            const caracteristicasTCA = [
+                {
+                    nombre: "Total",
+                    arbolRaiz: "byte",
+                    totalCajero: "ahorros",
+                    operacion: "+",
+                },
+                {
+                    nombre: "Efectivo fisico",
+                    arbolRaiz: "byte",
+                    totalCajero: "ahorros",
+                    operacion: "-",
+                },
+            ];
+
+            caracteristicasTCA.forEach((config) => {
+                Transacciones.arrastrarYConfigurarCaracteristicaTCA(config);
+            });
+        });
+
+        it("Caracteristica de resultados", () => {
+            cy.log("Queda pendiente ya que no sirve el recuardo (issue )");
+        });
+    });

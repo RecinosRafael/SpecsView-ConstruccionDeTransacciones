@@ -181,68 +181,96 @@ class TotalDeCajeroPomCy{
             });
     }
 
-    seleccionarFecha(selector, fecha, obligatoria = false) {
+    seleccionarFecha(selector, fecha) {
 
-        // =====================================================
-        // 🔹 1️⃣ Validación inicial
-        // =====================================================
-        if (!fecha || fecha.toString().trim() === '') {
+        if (!fecha) return;
 
-            if (obligatoria) {
-                throw new Error(`La fecha es obligatoria y no fue enviada (${selector})`);
-            }
+        const [day, month, year] = fecha.split('/');
+        const isoDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 
-            cy.log(`🟡 Fecha omitida (opcional): ${selector}`);
-            return;
-        }
-
-        // =====================================================
-        // 🔹 2️⃣ Parsear fecha D/M/YYYY o DD/MM/YYYY
-        // =====================================================
-        const partes = fecha.toString().trim().split('/');
-
-        if (partes.length !== 3) {
-            throw new Error(`Formato de fecha inválido: ${fecha}`);
-        }
-
-        let [day, month, year] = partes.map(p => parseInt(p, 10));
-
-        if (
-            isNaN(day) ||
-            isNaN(month) ||
-            isNaN(year) ||
-            year < 1900
-        ) {
-            throw new Error(`Fecha inválida: ${fecha}`);
-        }
-
-        // =====================================================
-        // 🔹 3️⃣ Crear Date REAL (CLAVE)
-        // =====================================================
-        const dateObj = new Date(year, month - 1, day);
-
-        // =====================================================
-        // 🔹 4️⃣ Setear fecha correctamente en Angular
-        // =====================================================
-        cy.get(selector, {timeout: 20000})
+        cy.get(selector, { timeout: 20000 })
             .should('exist')
             .then($input => {
 
-                // 🔓 Habilitar input
+                // 🔓 Quitar disabled del input
                 $input.prop('disabled', false);
 
+                // 🔓 Quitar disabled del mat-form-field
                 cy.wrap($input)
                     .closest('mat-form-field')
                     .invoke('removeClass', 'mat-form-field-disabled');
 
-                // 🧠 SETEO REAL (NO TYPE)
+                // ✍️ Setear valor
                 cy.wrap($input)
-                    .invoke('val', dateObj)
+                    .clear({ force: true })
+                    .type(isoDate, { force: true })
                     .trigger('input')
-                    .trigger('change')
-                    .trigger('blur');
+                    .trigger('change');
             });
     }
+
+    // seleccionarFecha(selector, fecha, obligatoria = false) {
+    //
+    //     // =====================================================
+    //     // 🔹 1️⃣ Validación inicial
+    //     // =====================================================
+    //     if (!fecha || fecha.toString().trim() === '') {
+    //
+    //         if (obligatoria) {
+    //             throw new Error(`La fecha es obligatoria y no fue enviada (${selector})`);
+    //         }
+    //
+    //         cy.log(`🟡 Fecha omitida (opcional): ${selector}`);
+    //         return;
+    //     }
+    //
+    //     // =====================================================
+    //     // 🔹 2️⃣ Parsear fecha D/M/YYYY o DD/MM/YYYY
+    //     // =====================================================
+    //     const partes = fecha.toString().trim().split('/');
+    //
+    //     if (partes.length !== 3) {
+    //         throw new Error(`Formato de fecha inválido: ${fecha}`);
+    //     }
+    //
+    //     let [day, month, year] = partes.map(p => parseInt(p, 10));
+    //
+    //     if (
+    //         isNaN(day) ||
+    //         isNaN(month) ||
+    //         isNaN(year) ||
+    //         year < 1900
+    //     ) {
+    //         throw new Error(`Fecha inválida: ${fecha}`);
+    //     }
+    //
+    //     // =====================================================
+    //     // 🔹 3️⃣ Crear Date REAL (CLAVE)
+    //     // =====================================================
+    //     const dateObj = new Date(year, month - 1, day);
+    //
+    //     // =====================================================
+    //     // 🔹 4️⃣ Setear fecha correctamente en Angular
+    //     // =====================================================
+    //     cy.get(selector, {timeout: 20000})
+    //         .should('exist')
+    //         .then($input => {
+    //
+    //             // 🔓 Habilitar input
+    //             $input.prop('disabled', false);
+    //
+    //             cy.wrap($input)
+    //                 .closest('mat-form-field')
+    //                 .invoke('removeClass', 'mat-form-field-disabled');
+    //
+    //             // 🧠 SETEO REAL (NO TYPE)
+    //             cy.wrap($input)
+    //                 .invoke('val', dateObj)
+    //                 .trigger('input')
+    //                 .trigger('change')
+    //                 .trigger('blur');
+    //         });
+    // }
 
     //Metodo combo totales cajero
     seleccionarComboTC(valor, xpath) {

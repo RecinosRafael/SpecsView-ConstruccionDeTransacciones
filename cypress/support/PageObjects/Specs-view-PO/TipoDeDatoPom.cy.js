@@ -1,9 +1,17 @@
+import metodosGeneralesPomCy from "./MetodosGeneralesPom.cy.js";
+
 class TipoDeDatoPomCy {
 
+    constructor() {
+        this.Generales = new metodosGeneralesPomCy();
+    }
+
     TipoDato(codigo, nombre, descripcion){
-        cy.get("#code").should("be.visible").clear().type(codigo)
-        cy.get("#name").should("be.visible").clear().type(nombre)
-        cy.get("#description").should("be.visible").clear().type(descripcion)
+
+        this.Generales.llenarCampo(codigo, "codigo")
+        this.Generales.llenarCampo(nombre, "nombre")
+        this.Generales.llenarCampo(descripcion, "descripcion")
+
 
     }
 
