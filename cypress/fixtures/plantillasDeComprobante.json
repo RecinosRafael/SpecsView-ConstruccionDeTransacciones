@@ -1,0 +1,11 @@
+{
+  "agregar": [
+
+    {
+      "key": "comprobante-QARAutomatizacion",
+      "nombre": "Comprobante desde automatizacion",
+      "descripcion": "Comprobante desde automatizacion para pruebas",
+      "archivo": "comprobante-drive.docx"
+    }
+  ]
+}
