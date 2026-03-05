@@ -4,7 +4,7 @@
       "transaccion": "",
       "correlativo": "999",
       "descripcion": "Enviar transacciones generico a core byte",
-      "pagoServicio": "Euros",
+      "pagoServicio": "",
       "requiereLogin": "No",
       "endpointDeLogueo": "",
       "formatoDeEnvio": "Enviar transacción a core Byte",

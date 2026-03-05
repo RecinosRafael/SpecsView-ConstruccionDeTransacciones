@@ -1,47 +1,109 @@
 {
   "oracle": {
     "jteller": {
-      "user": "jtellerv7",
-      "password": "jtellerv7",
+      "user": "JTELLERV7",
+      "password": "JTELLERV7",
       "connectString": "172.16.10.139:51521/xe"
     },
     "jsigcommon": {
-      "user": "jsigcommon",
-      "password": "jsigcommon",
+      "user": "JSIGCOMMON",
+      "password": "JSIGCOMMON",
       "connectString": "172.16.10.139:51521/xe"
     },
     "jsigperson_data": {
-      "user": "jsigperson_data",
-      "password": "jsigperson_data",
+      "user": "JSIGPERSON_DATA",
+      "password": "JSIGPERSON_DATA",
       "connectString": "172.16.10.139:51521/xe"
     },
     "logdat": {
-      "user": "logdat",
-      "password": "logdat",
+      "user": "LOGDAT",
+      "password": "LOGDAT",
       "connectString": "172.16.10.139:51521/xe"
     },
     "security": {
-      "user": "security",
-      "password": "security",
+      "user": "SECURITY",
+      "password": "SECURITY",
       "connectString": "172.16.10.139:51521/xe"
     },
     "distributor": {
-      "user": "distributor",
-      "password": "distributor",
+      "user": "DISTRIBUTOR",
+      "password": "DISTRIBUTOR",
       "connectString": "172.16.10.139:51521/xe"
     },
     "jsignature": {
-      "user": "jsignature",
-      "password": "jsignature",
+      "user": "JSIGNATURE",
+      "password": "JSIGNATURE",
       "connectString": "172.16.10.139:51521/xe"
     },
     "jsigperson_conf": {
+      "user": "JSIGPERSON_CONF",
+      "password": "JSIGPERSON_CONF",
+      "connectString": "172.16.10.139:51521/xe"
+    }
+  },
+  "mysql": {
+    "root": {
+      "host": "172.16.10.108",
+      "port": 32006,
+      "user": "root",
+      "password": "Dist3.Adm2k21$",
+      "database": "mysql"
+    },
+    "jteller": {
+      "host": "172.16.10.108",
+      "port": 32006,
+      "user": "jtellerv7",
+      "password": "jtellerv7",
+      "database": "jtellerv7"
+    },
+    "jsigcommon": {
+      "host": "172.16.10.108",
+      "port": 32006,
+      "user": "jsigcommon",
+      "password": "jsigcommon",
+      "database": "jsigcommon"
+    },
+    "jsigperson_data": {
+      "host": "172.16.10.108",
+      "port": 32006,
+      "user": "jsigperson_data",
+      "password": "jsigperson_data",
+      "database": "jsigperson_data"
+    },
+    "logdat": {
+      "host": "172.16.10.108",
+      "port": 32006,
+      "user": "logdat",
+      "password": "logdat",
+      "database": "logdat"
+    },
+    "security": {
+      "host": "172.16.10.108",
+      "port": 32006,
+      "user": "security",
+      "password": "security",
+      "database": "security"
+    },
+    "distributor": {
+      "host": "172.16.10.108",
+      "port": 32006,
+      "user": "distributor",
+      "password": "distributor",
+      "database": "distributor"
+    },
+    "jsignature": {
+      "host": "172.16.10.108",
+      "port": 32006,
+      "user": "jsignature",
+      "password": "jsignature",
+      "database": "jsignature"
+    },
+    "jsigperson_conf": {
+      "host": "172.16.10.108",
+      "port": 32006,
       "user": "jsigperson_conf",
       "password": "jsigperson_conf",
-      "connectString": "172.16.10.139:51521/xe"
+      "database": "jsigperson_conf"
     }
   }
 }
-
-
-

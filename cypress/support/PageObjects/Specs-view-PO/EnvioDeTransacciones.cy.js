@@ -1,39 +1,28 @@
+import metodosGeneralesPomCy from "./MetodosGeneralesPom.cy.js"
+
 class EnvioDeTransaccionesCy{
 
-    EnvioTransacciones(correlativo, descripcion, valorRequiereLogin, valorTipoDatoEnvio, valorEndpointEnvio, valorTipoDatoRecibido, valorAnalizarRespuesta) {
-        cy.get("#correlative").should("be.visible").clear().type(correlativo);
-        cy.get("#description").should("be.visible").clear().type(descripcion);
-        this.seleccionarComboET(valorRequiereLogin, 0);
-        this.seleccionarComboET(valorTipoDatoEnvio, 1);
-        this.seleccionarComboET(valorEndpointEnvio, 2);
-        this.seleccionarComboET(valorTipoDatoRecibido, 3);
-        this.seleccionarComboET(valorAnalizarRespuesta, 4);
+    constructor() {
+        this.Generales = new metodosGeneralesPomCy();
     }
 
+    EnvioTransacciones(transaccion, correlativo, descripcion, pagoServicio, requiereLogin, endpointDeLogueo, formatoDeEnvio, progGeneraInfoDeEnvio, tipoDatoEnvio, endpointDeEnvio, tipoDatoRecibido, archivoRespuesta, progRecibeInfo, analizaRespuesta) {
 
-    seleccionarComboET(valor, index) {
-        if (!valor) return;
-
-        cy.get("mat-select", {timeout: 10000})
-            .filter(":visible")
-            .eq(index)
-            .should("not.be.disabled")
-            .then(($select) => {
-                const valorActual = $select.find(".mat-select-min-line").text().trim();
-
-                if (valorActual !== valor) {
-                    cy.wrap($select).click();
-
-                    // 👇 Espera real a que Angular cree el overlay
-                    cy.get("body")
-                        .find(".cdk-overlay-pane", {timeout: 15000})
-                        .should("exist")
-                        .within(() => {
-                            cy.contains(".mat-option-text", valor)
-                                .should("be.visible")
-                                .click();
-                        });
-                }
-            });
+        this.Generales.seleccionarCombo(transaccion, "Transacción")
+        this.Generales.llenarCampo(correlativo, "Correlativo")
+        this.Generales.llenarCampo(descripcion, "Descripción")
+        this.Generales.seleccionarCombo(pagoServicio, "Pago de servicio")
+        this.Generales.seleccionarCombo(requiereLogin, "Requiere login")
+        this.Generales.seleccionarCombo(endpointDeLogueo, "Endpoint de logueo")
+        this.Generales.seleccionarCombo(formatoDeEnvio, "Formato de envío")
+        this.Generales.llenarCampo(progGeneraInfoDeEnvio, "Programa genera informacion de envío")
+        this.Generales.seleccionarCombo(tipoDatoEnvio, "Tipo dato envío")
+        this.Generales.seleccionarCombo(endpointDeEnvio, "Endpoint de envío")
+        this.Generales.seleccionarCombo(tipoDatoRecibido, "Tipo de dato recibido")
+        this.Generales.llenarCampo(archivoRespuesta, "Archivo respuesta")
+        this.Generales.llenarCampo(progRecibeInfo, "Programa recibe informacion")
+        this.Generales.seleccionarCombo(analizaRespuesta, "Analiza respuesta")
     }
 }
+
+export default EnvioDeTransaccionesCy;
