@@ -1,9 +1,9 @@
 import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosGeneralesPom.cy";
-import totalDeCajeroPomCy from "../support/PageObjects/Specs-view-PO/TotalDeCajeroPom.cy";
+import plantillaDeComprobantePomCy from "../support/PageObjects/Specs-view-PO/PlantillaDeComprobantePom.cy";
 require('cypress-xpath');
 
 const Generales = new metodosGeneralesPomCy()
-const TotalesCajero = new totalDeCajeroPomCy()
+const PlantillComprobante = new plantillaDeComprobantePomCy()
 
 
 describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
@@ -22,51 +22,39 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
     })
 
     beforeEach(() => {
-        Generales.IrAPantalla('totalCashier')
+        Generales.IrAPantalla('voucherTemplate')
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('totalesDeCajero').then((dataTotalesDeCajero) => {
-            cy.wrap(dataTotalesDeCajero.agregar).each((item) => {
-                cy.log(`Insertando código: ${item.codigo}`)
+        cy.fixture('plantillasDeComprobante').then((dataPlantillasDeComprobante) => {
+            cy.wrap(dataPlantillasDeComprobante.agregar).each((item) => {
+                cy.log(`Insertando código: ${item.key}`)
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
-                    if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                    if ($body.find('h2:contains("Nuevo registro")').length > 0) {
                         cy.log('Formulario abierto detectado, cerrando...')
                         Generales.BtnCancelarRegistro()
                     }
                 })
 
                 //Abrir formulario
-                Generales.BtnAgregarRegistroSubnivel()
+                Generales.BtnAgregarRegistro()
 
                 //Validar que el modal realmente abrió
-                cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
+                cy.contains('h2', 'Nuevo registro', { timeout: 10000 })
                     .should('be.visible')
+
                 // Llenar datos
-                TotalesCajero.TotalesCajero(
-                    item.codigo,
-                    item.arbolRaiz,
+                PlantillComprobante.PlantillasComprobantes(
+                    item.key,
                     item.nombre,
-                    item.nombreCorto,
                     item.descripcion,
-                    item.validaMontos,
-                    item.minimoRequiereAutorizacion,
-                    item.maximoRequiereAutorizacion,
-                    item.correlativoImpreso,
-                    item.enviarHost,
-                    item.cicloVida,
-                    item.validoDesde,
-                    item.validoHasta,
-                    item.totalMonitoreado,
-                    item.rutinaCalculamontoConciliar,
-                    item.rutinacalculaMontoConciliado,
-                    item.esControlEfectivo,
+                    item.archivo
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/totalCashier').as('guardar')
+                cy.intercept('POST', '**/voucherTemplate').as('guardar')
 
                 Generales.BtnAceptarRegistro()
 
