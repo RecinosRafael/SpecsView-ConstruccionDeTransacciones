@@ -4,6 +4,9 @@ const path = require('path');
 const oracledb = require("oracledb");
 const mysql = require('mysql2/promise');
 
+// ============================================
+// CARGA DE CONFIGURACIÓN DE BASE DE DATOS
+// ============================================
 function loadDatabaseConfig() {
   try {
     const configPath = path.resolve(__dirname, 'cypress/fixtures/database-config.json');
@@ -16,7 +19,7 @@ function loadDatabaseConfig() {
     const configFile = fs.readFileSync(configPath, 'utf8');
     const config = JSON.parse(configFile);
 
-    console.log('✅ Configuración cargada exitosamente');
+    console.log('✅ Configuración de BD cargada exitosamente');
     
     if (config.oracle) {
       console.log('📊 ORACLE - Usuarios disponibles:');
@@ -35,13 +38,43 @@ function loadDatabaseConfig() {
     return config;
 
   } catch (error) {
-    console.error('❌ Error CRÍTICO:', error.message);
+    console.error('❌ Error CRÍTICO en BD:', error.message);
     throw new Error('No se puede continuar sin configuración de BD');
   }
 }
 
-const dbConfigs = loadDatabaseConfig();
+// ============================================
+// CARGA DE VARIABLES DE ENTORNO (cypress.env.json)
+// ============================================
+function loadEnvConfig() {
+  try {
+    const envPath = path.resolve(__dirname, 'cypress.env.json');
+    console.log('📖 Leyendo configuración de entorno desde:', envPath);
 
+    if (fs.existsSync(envPath)) {
+      const envFile = fs.readFileSync(envPath, 'utf8');
+      const envConfig = JSON.parse(envFile);
+      console.log('✅ Configuración de entorno cargada exitosamente');
+      console.log(`   - BASE_URL: ${envConfig.BASE_URL}`);
+      console.log(`   - USER: ${envConfig.USER}`);
+      return envConfig;
+    } else {
+      console.log('⚠️ No se encontró cypress.env.json, usando variables de entorno del sistema');
+      return {};
+    }
+  } catch (error) {
+    console.error('❌ Error cargando cypress.env.json:', error.message);
+    return {};
+  }
+}
+
+// Cargar configuraciones
+const dbConfigs = loadDatabaseConfig();
+const envConfig = loadEnvConfig();
+
+// ============================================
+// CONFIGURACIÓN PRINCIPAL DE CYPRESS
+// ============================================
 module.exports = defineConfig({
   viewportWidth: 1500,
   viewportHeight: 900,
@@ -65,21 +98,41 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       require('cypress-mochawesome-reporter/plugin')(on);
 
+      // ============================================
+      // COMBINAR VARIABLES DE ENTORNO
+      // ============================================
       const dbType = process.env.DB_TYPE || config.env.DB_TYPE || 'oracle';
-      console.log(`\n🔧 Usando base de datos: ${dbType.toUpperCase()}\n`);
       
-      config.env.DB_TYPE = dbType;
+      // Fusionar config.env con envConfig
+      config.env = {
+        ...config.env,      // Variables existentes
+        ...envConfig,       // Variables de cypress.env.json
+        DB_TYPE: dbType,    // Tipo de base de datos
+        database: {          // Configuración de BD
+          type: dbType,
+          oracle: dbConfigs.oracle || {},
+          mysql: dbConfigs.mysql || {}
+        }
+      };
 
-      // Función para normalizar strings (quita espacios y pasa a minúsculas para comparar)
+      console.log(`\n🔧 Usando base de datos: ${dbType.toUpperCase()}`);
+      console.log(`🔧 Usando URL: ${config.env.BASE_URL || 'No definida'}`);
+      console.log(`🔧 Usando usuario: ${config.env.USER || 'No definido'}\n`);
+
+      // ============================================
+      // FUNCIÓN PARA NORMALIZAR STRINGS
+      // ============================================
       const normalizeString = (str) => {
         return str?.toString().trim().toLowerCase() || '';
       };
 
+      // ============================================
+      // FUNCIÓN PARA OBTENER CONFIGURACIÓN DE CONEXIÓN
+      // ============================================
       const getConnectionConfig = (user, type = dbType) => {
         console.log(`🔍 Buscando configuración para ${type}:${user}`);
         const userNormalized = normalizeString(user);
 
-        // Mapeo flexible de usuarios
         const userMap = {
           'jtellerv7': 'jteller',
           'jteller': 'jteller',
@@ -93,10 +146,8 @@ module.exports = defineConfig({
           'root': 'root'
         };
 
-        // Buscar la clave ignorando mayúsculas/minúsculas
         let configKey = userMap[userNormalized];
         
-        // Si no encuentra, buscar en las claves del mapa
         if (!configKey) {
           const foundKey = Object.keys(userMap).find(key => 
             normalizeString(key) === userNormalized
@@ -109,10 +160,8 @@ module.exports = defineConfig({
         }
 
         if (type === 'oracle') {
-          // Buscar en oracle ignorando mayúsculas/minúsculas en las claves
           let oracleConfig = dbConfigs.oracle?.[configKey];
           
-          // Si no encuentra, buscar por clave normalizada
           if (!oracleConfig && dbConfigs.oracle) {
             const oracleKey = Object.keys(dbConfigs.oracle).find(key => 
               normalizeString(key) === normalizeString(configKey)
@@ -127,18 +176,16 @@ module.exports = defineConfig({
           console.log(`✅ Usando ORACLE: ${oracleConfig.user}@${oracleConfig.connectString}`);
           
           return {
-            user: oracleConfig.user, // Respetar el caso original del JSON
+            user: oracleConfig.user,
             password: oracleConfig.password,
             connectString: oracleConfig.connectString,
-            schema: configKey.toUpperCase(), // El esquema siempre en mayúsculas para Oracle
+            schema: configKey.toUpperCase(),
             originalUser: user
           };
         } 
         else if (type === 'mysql') {
-          // Buscar en mysql ignorando mayúsculas/minúsculas en las claves
           let mysqlConfig = dbConfigs.mysql?.[configKey];
           
-          // Si no encuentra, buscar por clave normalizada
           if (!mysqlConfig && dbConfigs.mysql) {
             const mysqlKey = Object.keys(dbConfigs.mysql).find(key => 
               normalizeString(key) === normalizeString(configKey)
@@ -155,7 +202,7 @@ module.exports = defineConfig({
           return {
             host: mysqlConfig.host,
             port: mysqlConfig.port,
-            user: mysqlConfig.user, // Respetar el caso original del JSON
+            user: mysqlConfig.user,
             password: mysqlConfig.password,
             database: mysqlConfig.database,
             originalUser: user
@@ -166,6 +213,9 @@ module.exports = defineConfig({
         }
       };
 
+      // ============================================
+      // TAREAS DE CYPRESS
+      // ============================================
       on("task", {
         oracleQuery: async ({ sql, binds = [], options = {}, user = 'jteller' }) => {
           console.log(`\n[ORACLE] ===== INICIANDO TAREA =====`);
@@ -176,15 +226,11 @@ module.exports = defineConfig({
           try {
             const connectionConfig = getConnectionConfig(user, 'oracle');
             
-            console.log(`[ORACLE] Conectando como ${connectionConfig.user}...`);
-            
             connection = await oracledb.getConnection({
               user: connectionConfig.user,
               password: connectionConfig.password,
               connectString: connectionConfig.connectString
             });
-            
-            console.log(`[ORACLE] Conexión exitosa`);
             
             if (connectionConfig.schema) {
               try {
@@ -195,7 +241,6 @@ module.exports = defineConfig({
               }
             }
 
-            console.log(`[ORACLE] Ejecutando query...`);
             const result = await connection.execute(sql, binds, {
               outFormat: oracledb.OUT_FORMAT_OBJECT,
               autoCommit: true,
@@ -204,8 +249,6 @@ module.exports = defineConfig({
               prefetchRows: 1000,
               ...options
             });
-
-            console.log(`[ORACLE] ✅ Query ejecutada. Filas: ${result.rows?.length || 0}`);
 
             return {
               success: true,
@@ -231,12 +274,10 @@ module.exports = defineConfig({
             if (connection) {
               try {
                 await connection.close();
-                console.log(`[ORACLE] Conexión cerrada`);
               } catch (closeError) {
                 console.error(`[ORACLE] Error cerrando conexión:`, closeError);
               }
             }
-            console.log(`[ORACLE] ===== TAREA FINALIZADA =====\n`);
           }
         },
 
@@ -249,8 +290,6 @@ module.exports = defineConfig({
           try {
             const connectionConfig = getConnectionConfig(user, 'mysql');
             
-            console.log(`[MYSQL] Conectando a MySQL...`);
-            
             const mysqlConfig = {
               host: connectionConfig.host,
               port: connectionConfig.port,
@@ -262,13 +301,10 @@ module.exports = defineConfig({
             };
 
             connection = await mysql.createConnection(mysqlConfig);
-            console.log(`[MYSQL] ✅ Conectado a ${connectionConfig.host}:${connectionConfig.port}/${connectionConfig.database}`);
+            console.log(`[MYSQL] ✅ Conectado a ${connectionConfig.database}`);
 
-            console.log(`[MYSQL] Ejecutando query...`);
             const [rows] = await connection.execute(sql);
             
-            console.log(`[MYSQL] ✅ Query ejecutada. Filas: ${rows?.length || 0}`);
-
             return {
               success: true,
               rows: rows || [],
@@ -295,12 +331,10 @@ module.exports = defineConfig({
             if (connection) {
               try {
                 await connection.end();
-                console.log(`[MYSQL] Conexión cerrada`);
               } catch (closeError) {
                 console.error(`[MYSQL] Error cerrando conexión:`, closeError);
               }
             }
-            console.log(`[MYSQL] ===== TAREA FINALIZADA =====\n`);
           }
         },
 
@@ -312,12 +346,6 @@ module.exports = defineConfig({
           }
         }
       });
-
-      config.env.database = {
-        type: dbType,
-        oracle: dbConfigs.oracle || {},
-        mysql: dbConfigs.mysql || {}
-      };
 
       return config;
     },
