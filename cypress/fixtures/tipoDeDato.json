@@ -1,16 +1,15 @@
 {
   "agregar": [
-    [
-      {
-        "codigo": "TA",
-        "nombre": "TASA {recepcion de Host}",
-        "descripcion": "Extrae de la respuesta del Host {trama} un valor con 4 decimales, segun las posiciones indicadas"
-      },
-      {
-        "codigo": "A",
-        "nombre": "ALFA A {recepcion de Host}",
-        "descripcion": "descripcion larga para prueba de visualización"
-      },
+    {
+      "codigo": "TA",
+      "nombre": "TASA {{}recepcion de Host}",
+      "descripcion": "Extrae de la respuesta del Host {{}trama} un valor con 4 decimales, segun las posiciones indicadas"
+    },
+    {
+      "codigo": "A",
+      "nombre": "ALFA A {{}recepcion de Host}",
+      "descripcion": "descripcion larga para prueba de visualización"
+    },
       {
         "codigo": "LHS",
         "nombre": "AUTORIZACION TRX. ORIGINAL",
@@ -566,6 +565,5 @@
         "nombre": "Dirección de la agencia",
         "descripcion": "Genera dirección de la agencia - complemento de dirección"
       }
-    ]
   ]
 }

@@ -2,7 +2,7 @@
   "agregar": [
     {
       "codigo": "1",
-      "nombre": "Número de cuenta",     
+      "nombre": "Número de cuenta",
       "etiqueta": "Número de cuenta",
       "descripcion": "Cuenta para transacciones monetarias y ahorros",
       "tieneDatosSensibles": false,
@@ -35,10 +35,10 @@
       "datosTachados":true,
       "caracterVisualizar":"4",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
       "codigo": "2",
-      "nombre": "Nombre de cliente",     
+      "nombre": "Nombre de cliente",
       "etiqueta": "Nombre de cliente",
       "descripcion": "Nombre de cliente",
       "tieneDatosSensibles": false,
@@ -71,10 +71,10 @@
       "datosTachados": false,
       "caracterVisualizar":"",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
       "codigo": "3",
-      "nombre": "Moneda",     
+      "nombre": "Moneda",
       "etiqueta": "Moneda",
       "descripcion": "Moneda transacción",
       "tieneDatosSensibles": false,
@@ -92,7 +92,7 @@
       "etiquetaJson":"moneda",
       "valorDefecto":"",
       "ayuda":"",
-      "moneda":"",     
+      "moneda":"",
       "rutina":"",
       "implListaVista":"/api/catalog-service/v1/money?pageable=false",
       "implServicio":"http://catalog:2102/v1/money?query=id==",
@@ -107,10 +107,10 @@
       "datosTachados": false,
       "caracterVisualizar":"",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
       "codigo": "4",
-      "nombre": "Producto",     
+      "nombre": "Producto",
       "etiqueta": "Producto",
       "descripcion": "Producto",
       "tieneDatosSensibles": false,
@@ -143,10 +143,10 @@
       "datosTachados": false,
       "caracterVisualizar":"",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
       "codigo": "5",
-      "nombre": "Efectivo físico",     
+      "nombre": "Efectivo físico",
       "etiqueta": "Efectivo físico",
       "descripcion": "Efectivo físico",
       "tieneDatosSensibles": false,
@@ -179,10 +179,10 @@
       "datosTachados":true,
       "caracterVisualizar":"4",
       "esControlEfectivo":"Efectivo físico"
-    }, 
+    },
     {
       "codigo": "6",
-      "nombre": "Efectivo electrónico",     
+      "nombre": "Efectivo electrónico",
       "etiqueta": "Efectivo electrónico",
       "descripcion": "Efectivo electrónico",
       "tieneDatosSensibles": false,
@@ -215,10 +215,10 @@
       "datosTachados":"",
       "caracterVisualizar":"",
       "esControlEfectivo":"Efectivo electrónico"
-    }, 
+    },
     {
       "codigo": "7",
-      "nombre": "Cheques otros bancos",     
+      "nombre": "Cheques otros bancos",
       "etiqueta": "Cheques otros bancos",
       "descripcion": "Cheques otros bancos",
       "tieneDatosSensibles": false,
@@ -251,10 +251,10 @@
       "datosTachados":"",
       "caracterVisualizar":"",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
       "codigo": "8",
-      "nombre": "Cheques del exterior",     
+      "nombre": "Cheques del exterior",
       "etiqueta": "Cheques del exterior",
       "descripcion": "Cheques del exterior",
       "tieneDatosSensibles": false,
@@ -287,10 +287,10 @@
       "datosTachados":"",
       "caracterVisualizar":"",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
       "codigo": "9",
-      "nombre": "Número de documento",     
+      "nombre": "Número de documento",
       "etiqueta": "Número de documento",
       "descripcion": "Número de documento generado para la transacción",
       "tieneDatosSensibles": false,
@@ -323,10 +323,10 @@
       "datosTachados":"",
       "caracterVisualizar":"",
       "esControlEfectivo":""
-    }, 
+    },
     {
       "codigo": "10",
-      "nombre": "Total",     
+      "nombre": "Total",
       "etiqueta": "Total",
       "descripcion": "Total de transacción",
       "tieneDatosSensibles": false,
@@ -359,10 +359,10 @@
       "datosTachados":"",
       "caracterVisualizar":"",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
       "codigo": "11",
-      "nombre": "Tipo de identificación",     
+      "nombre": "Tipo de identificación",
       "etiqueta": "Tipo de identificación",
       "descripcion": "Tipo de identificación",
       "tieneDatosSensibles": false,
@@ -395,10 +395,10 @@
       "datosTachados":"",
       "caracterVisualizar":"",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
       "codigo": "12",
-      "nombre": "Número de identificación",     
+      "nombre": "Número de identificación",
       "etiqueta": "Número de identificación",
       "descripcion": "Número de identificación",
       "tieneDatosSensibles": false,
@@ -431,10 +431,10 @@
       "datosTachados":"",
       "caracterVisualizar":"",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
       "codigo": "13",
-      "nombre": "Número de cheque",     
+      "nombre": "Número de cheque",
       "etiqueta": "Número de cheque",
       "descripcion": "Número de cheque",
       "tieneDatosSensibles": false,
@@ -467,10 +467,10 @@
       "datosTachados":"",
       "caracterVisualizar":"",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
       "codigo": "14",
-      "nombre": "Número de seguridad",     
+      "nombre": "Número de seguridad",
       "etiqueta": "Número de seguridad",
       "descripcion": "Número de seguridad para cheques",
       "tieneDatosSensibles": false,
@@ -503,10 +503,10 @@
       "datosTachados":"",
       "caracterVisualizar":"",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
       "codigo": "15",
-      "nombre": "Número de libreta",     
+      "nombre": "Número de libreta",
       "etiqueta": "Número de libreta",
       "descripcion": "Número de libreta para transacciones de ahorro",
       "tieneDatosSensibles": false,
@@ -539,10 +539,10 @@
       "datosTachados":true,
       "caracterVisualizar":"4",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
       "codigo": "16",
-      "nombre": "Saldo en libreta",     
+      "nombre": "Saldo en libreta",
       "etiqueta": "Saldo en libreta",
       "descripcion": "Saldo en libreta para transacciones de ahorro",
       "tieneDatosSensibles": false,
@@ -575,10 +575,10 @@
       "datosTachados":"",
       "caracterVisualizar":"",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
       "codigo": "17",
-      "nombre": "Número de línea",     
+      "nombre": "Número de línea",
       "etiqueta": "Número de línea",
       "descripcion": "Número de línea libretas de ahorro",
       "tieneDatosSensibles": false,
@@ -611,9 +611,9 @@
       "datosTachados":"",
       "caracterVisualizar":"",
       "esControlEfectivo":"No Aplica"
-    }, 
+    },
     {
-      "codigo": "22",
+      "codigo": "18",
       "nombre": "Valor",     
       "etiqueta": "Valor",
       "descripcion": "valor utilizado en transaccion pago de cheque",
@@ -632,7 +632,7 @@
       "etiquetaJson":"valor",
       "valorDefecto":"",
       "ayuda":"",
-      "moneda":"",
+      "moneda":"Lempiras",
       "rutina":"",
       "implListaVista":"",
       "implServicio":"",
@@ -649,7 +649,7 @@
       "esControlEfectivo":"No Aplica"
     }, 
     {
-      "codigo": "24",
+      "codigo": "19",
       "nombre": "Banco",     
       "etiqueta": "Banco",
       "descripcion": "Bancos del sistema",

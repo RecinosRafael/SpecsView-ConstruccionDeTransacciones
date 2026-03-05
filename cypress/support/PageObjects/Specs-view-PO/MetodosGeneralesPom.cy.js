@@ -360,6 +360,7 @@ BuscarRegistroEnTabla(criterios) {
             .should('exist')
             .parents('button')
             .click({ force: true });
+        cy.wait(2000)
 
         // 5️⃣ Clic en el registro encontrado en la tabla
         cy.get('.mat-row .cdk-column-name', { timeout: 15000 })
