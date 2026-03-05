@@ -1,0 +1,207 @@
+========================================
+REPORTE DE EJECUCIÓN ORACLE
+========================================
+
+Fecha: 3/5/2026, 12:48:38 PM
+Total Sentencias: 31
+   ✅ Exitosas: 0
+   ⚠️ Duplicadas: 0
+   ❌ Fallidas: 31
+
+   📊 ALTERs: 0
+   📝 Scripts: 31
+
+📊 ESTADÍSTICAS
+----------------------------------------
+Éxito: 0.00%
+Duplicados: 0.00%
+Fallos: 100.00%
+
+❌ DETALLE DE FALLOS
+----------------------------------------
+
+1. [#1] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: UPDATE jtellerv7.DATABASECHANGELOG SET MD5SUM ='9:646a48206a7dc270854b813344cb95fb' WHERE id = 'init-conf'...
+
+2. [#2] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO JTELLERV7.TRANSACTION_SEND_SPEC (ID, TRANSACTION_SPEC_ID, DESCRIPTION, SERVICE_PAY_ID, REQUIRES_LOGIN, ROUTINE_LOGIN_ID, FORMAT_ID_SEND, PGM_DATA_SEND, TYPE_DATA_SEND, ROUTINE_ID, TYPE_DAT...
+
+3. [#3] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: UPDATE JTELLERV7.RESPONSE_JSON_TAGS SET ENVIRONMENT='jteller', "KEY"='status', LABEL='sts', VALUE_OK='1' WHERE ID=1...
+
+4. [#4] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: UPDATE JTELLERV7.RESPONSE_JSON_TAGS SET ENVIRONMENT='jteller', "KEY"='message', LABEL='message', VALUE_OK=NULL WHERE ID=2...
+
+5. [#5] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: UPDATE JTELLERV7.RESPONSE_JSON_TAGS SET ENVIRONMENT='jteller', "KEY"='errorCode', LABEL='error', VALUE_OK=NULL WHERE ID=3...
+
+6. [#6] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE (ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(39, 'COMPONENTE ANGULAR', 'rutinas tipo componente Angular, incluye los componentes propios de jTeller-core y las exten...
+
+7. [#7] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE (ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(40, 'APIs DEL FLUJO DE TRANSACCION', 'APIs ejecutados en los pasos del flujo de transaccion, ya sea ejecutados por FE o...
+
+8. [#8] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE (ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(27, 'INGRESO A OPERACION/LOGIN', 'APIs ejecutados al entrar a operar JTeller o sea al hacer LOGIN', 27, 0)...
+
+9. [#9] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE (ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(41, 'PRE-TRASLADO', 'rutinas a ejecutarse "antes" de trasladar un usuario entre agencias, se ejecutan por transacción c...
+
+10. [#10] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE (ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(42, 'POST-TRASLADO', 'rutinas a ejecutarse "después" de trasladar a usuario entre agencias, se ejecutan por transacción...
+
+11. [#11] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: UPDATE jtellerv7.ROUTINE SET TYPE_ROUTINE_ID = 39 WHERE TYPE_ROUTINE_ID NOT IN (27,40,41,42) AND EXEC_LAYER IN (2,3)...
+
+12. [#12] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: DELETE FROM jtellerv7.TYPE_ROUTINE where id < 39 and id not in (27)...
+
+13. [#13] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(3, 'ANTES DE HOST', 'se ejecutan al confirmar la transaccion, antes de enviar la transaccion a procesar al host y su res...
+
+14. [#14] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(4, 'DESPUES DE HOST', 'se ejecutan inmediatamente recibir la respuesta del host, estas reciben la respuesta del host, se...
+
+15. [#15] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(6, 'DE CAMPO', 'se ejecutan cada vez que recibe la transaccion a procesar, estas se ejecutan en tiempo de las validacion...
+
+16. [#16] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(9, 'DE VALIDACION', 'se ejecutan cada vez que recibe la transaccion a procesar ANTES de las validaciones standard de JTe...
+
+17. [#17] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(10, 'FINALIZACION OK', 'se ejecutan si la transaccion fue aceptada, se ha relizado todos los procesos posteriores y se e...
+
+18. [#18] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(11, 'DE ACEPTACION', 'se ejecutan si la transaccion fue aceptada (estado= completed) despues de procesar la respuesta, a...
+
+19. [#19] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(12, 'DE CANCELACION', 'se ejecutan si la transaccion se recibe en modo Cancelar, ANTES se guardan registros de Sumadora,...
+
+20. [#20] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(13, 'DE RECHAZO', 'se ejecutan si la transaccion fue rechazada (estado= Rejected) despues de procesar la respuesta, asig...
+
+21. [#21] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(19, 'ANTES DE AFECTAR TOTALES', 'se ejecutan si la transaccion fue aceptada, antes de afectar totales y despues de las r...
+
+22. [#22] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(21, 'DE IMPRESION', 'se ejecutan si la transaccion fue aceptada en tiempo de calcular/ generar el comprobante, si fuera ...
+
+23. [#23] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE (ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(14, 'DE CARGA', 'se ejecutan al entrar a Operaciones, despues de las rutinas de LOGIN', 14, 0)...
+
+24. [#24] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE (ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(32, 'SALIDA DE OPERACIONES', 'se ejecutan al hacer LOGOUT', 32, 0)...
+
+25. [#25] Usuario: jteller | Owner: JTELLERV7 | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE (ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(37, 'ENTRADA A TRANSACCION-GENERAL', 'se ejecutan cada vez que se selecciona la ejecucion de una transaccion, no necesi...
+
+26. [#26] Usuario: jsigcommon | Owner: JSIGCOMMON | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: UPDATE jsigcommon.system_entity SET name='ACCOUNT_SIGNATURE' WHERE ID = 2...
+
+27. [#27] Usuario: jsigcommon | Owner: JSIGCOMMON | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO JSIGCOMMON.ENTITY_TRANSITIONS (VERSION, FROM_STATUS_ID, TO_STATUS_ID, NAME, PERMISSION_REQUIRED, REQUIRES_MOTIVE, TRANSITION_TYPE, MOTIVE_TYPE_ID) VALUES(0, 5, 6, 'Activar firma', NULL, 'I...
+
+28. [#28] Usuario: jsigcommon | Owner: JSIGCOMMON | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO JSIGCOMMON.ENTITY_TRANSITIONS (VERSION, FROM_STATUS_ID, TO_STATUS_ID, NAME, PERMISSION_REQUIRED, REQUIRES_MOTIVE, TRANSITION_TYPE, MOTIVE_TYPE_ID) VALUES(0, 6, 7, 'Inactivar firma', NULL, ...
+
+29. [#29] Usuario: jsigcommon | Owner: JSIGCOMMON | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO JSIGCOMMON.ENTITY_TRANSITIONS (VERSION, FROM_STATUS_ID, TO_STATUS_ID, NAME, PERMISSION_REQUIRED, REQUIRES_MOTIVE, TRANSITION_TYPE, MOTIVE_TYPE_ID) VALUES(0, 6, 9, 'Vencer firma', NULL, 'I'...
+
+30. [#30] Usuario: jsigcommon | Owner: JSIGCOMMON | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO JSIGCOMMON.ENTITY_TRANSITIONS (VERSION, FROM_STATUS_ID, TO_STATUS_ID, NAME, PERMISSION_REQUIRED, REQUIRES_MOTIVE, TRANSITION_TYPE, MOTIVE_TYPE_ID) VALUES(0, 6, 8, 'Eliminar firma', NULL, '...
+
+31. [#31] Usuario: jsigcommon | Owner: JSIGCOMMON | Tipo: SCRIPT
+   Error: ORA-01017: invalid username/password; logon denied
+Help: https://docs.oracle.com/error-help/db/ora-01017/
+   Código: 1017
+   SQL: INSERT INTO JSIGCOMMON.ENTITY_TRANSITIONS (VERSION, FROM_STATUS_ID, TO_STATUS_ID, NAME, PERMISSION_REQUIRED, REQUIRES_MOTIVE, TRANSITION_TYPE, MOTIVE_TYPE_ID) VALUES(0, 7, 6, 'Activar firma Inactiva >...

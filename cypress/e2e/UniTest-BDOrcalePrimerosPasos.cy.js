@@ -1,4 +1,4 @@
-describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDENTITY', () => {
+describe('Flujo Oracle: Ejecutar script SQL y configurar columnas ID como IDENTITY', () => {
   
   beforeEach(() => {
     Cypress.config('defaultCommandTimeout', 120000);
@@ -11,7 +11,12 @@ describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDE
     exitosos: 0,
     duplicados: 0,
     fallos: 0,
-    errores: []
+    errores: [],
+    detalles: {
+      exitosos: [],
+      duplicados: [],
+      fallos: []
+    }
   };
 
   // Mapeo de owner a usuario
@@ -40,7 +45,7 @@ describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDE
 
   // Método genérico para ejecutar queries
   const metodoQuery = ({ sql, user }) => {
-    cy.log(`🔧 Ejecutando query con usuario ${user}`);
+    cy.log(`🔧 Ejecutando query Oracle con usuario ${user}`);
     return cy.task('oracleQuery', { sql, user });
   };
 
@@ -48,7 +53,7 @@ describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDE
   // PASO 1: Recopilar sentencias ALTER por cada esquema
   // ------------------------------------------------------------
   it('Paso 1: Recopilar sentencias ALTER por esquema y del script SQL', () => {
-    cy.log('📂 INICIANDO RECOPILACIÓN DE SENTENCIAS');
+    cy.log('📂 INICIANDO RECOPILACIÓN DE SENTENCIAS ORACLE');
     
     // Limpiar arrays
     todasLasSentencias = [];
@@ -83,7 +88,7 @@ describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDE
           
           cy.log(`📊 Total queries en script: ${queries.length}`);
           
-          queries.forEach((query) => {
+          queries.forEach((query, idx) => {
             // Determinar usuario según el contenido
             let user = 'jteller';
             let owner = 'JTELLERV7';
@@ -112,15 +117,17 @@ describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDE
             }
             
             todasLasSentencias.push({
+              id: idx + 1,
               sql: query,
               user: user,
               owner: owner,
-              tipo: 'SCRIPT'
+              tipo: 'SCRIPT',
+              operacion: query.trim().split(' ')[0].toUpperCase()
             });
           });
 
           // Resumen final
-          cy.log('\n📋 ===== RESUMEN UNIFICADO =====');
+          cy.log('\n📋 ===== RESUMEN UNIFICADO ORACLE =====');
           cy.log(`TOTAL SENTENCIAS: ${todasLasSentencias.length} (${totalAlters} ALTERs + ${queries.length} scripts)`);
           
           // Mostrar primeras 5 sentencias como ejemplo
@@ -136,7 +143,7 @@ describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDE
 
       const user = esquemas[index].nombre.toLowerCase();
 
-      cy.log(`\n🔍 Procesando esquema ${index + 1}/${esquemas.length}: ${esquema} (usuario: ${user})`);
+      cy.log(`\n🔍 Procesando esquema ${index + 1}/${esquemas.length}: ${esquema.nombre} (usuario: ${user})`);
       
       // Inicializar array para este esquema
       altersPorEsquema[esquema.nombre] = [];
@@ -160,7 +167,7 @@ describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDE
           const rows = resultado.rows;
           cy.log(`   📊 ${esquema.nombre}: ${rows.length} sentencias ALTER encontradas`);
           
-          rows.forEach((row) => {
+          rows.forEach((row, idx) => {
             // Guardar en el array específico del esquema
             altersPorEsquema[esquema.nombre].push({
               sql: row.ALTER_SQL,
@@ -170,10 +177,12 @@ describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDE
             
             // También guardar en el array unificado
             todasLasSentencias.push({
+              id: todasLasSentencias.length + 1,
               sql: row.ALTER_SQL,
               user: esquema.user,
               owner: esquema.nombre,
-              tipo: 'ALTER'
+              tipo: 'ALTER',
+              operacion: 'ALTER TABLE'
             });
             
             totalAlters++;
@@ -204,7 +213,7 @@ describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDE
   // PASO 2: Ejecutar todas las sentencias UNA POR UNA
   // ------------------------------------------------------------
   it('Paso 2: Ejecutar todas las sentencias', () => {
-    cy.log('\n🚀 EJECUTANDO TODAS LAS SENTENCIAS');
+    cy.log('\n🚀 EJECUTANDO TODAS LAS SENTENCIAS ORACLE');
     cy.log('==================================');
     
     cy.log(`📊 Total a ejecutar: ${todasLasSentencias.length}`);
@@ -219,6 +228,9 @@ describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDE
     const ejecutarSecuencial = (index) => {
       if (index >= todasLasSentencias.length) {
         cy.log('\n✅ EJECUCIÓN COMPLETADA');
+        
+        // Al terminar, guardar todos los reportes
+        guardarReportesOracle();
         return;
       }
 
@@ -231,17 +243,44 @@ describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDE
         sql: sentencia.sql, 
         user: sentencia.user 
       }).then((resultado) => {
+        const detalle = {
+          id: sentencia.id,
+          indice: index + 1,
+          usuario: sentencia.user,
+          owner: sentencia.owner,
+          tipo: sentencia.tipo,
+          operacion: sentencia.operacion,
+          sql: sentencia.sql,
+          timestamp: new Date().toISOString()
+        };
+
         if (resultado?.success) {
           cy.log(`✅ Ejecutada correctamente`);
           resultadosUnificados.exitosos++;
+          resultadosUnificados.detalles.exitosos.push({
+            ...detalle,
+            rowsAffected: resultado.rowsAffected,
+            estado: 'EXITOSO'
+          });
         } else {
           const errorMsg = resultado?.error || 'Resultado undefined';
+          detalle.error = errorMsg;
+          detalle.errorCode = resultado?.errorCode;
+          
           if (errorMsg.includes('ORA-00001')) {
             cy.log(`⚠️ Registro duplicado`);
             resultadosUnificados.duplicados++;
+            resultadosUnificados.detalles.duplicados.push({
+              ...detalle,
+              estado: 'DUPLICADO'
+            });
           } else {
             cy.log(`❌ Falló: ${errorMsg}`);
             resultadosUnificados.fallos++;
+            resultadosUnificados.detalles.fallos.push({
+              ...detalle,
+              estado: 'FALLIDO'
+            });
             resultadosUnificados.errores.push({
               index: index + 1,
               owner: sentencia.owner,
@@ -263,7 +302,7 @@ describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDE
   // ------------------------------------------------------------
   it('Paso 3: Verificar resultados', () => {
     cy.log('\n📋 ==================================');
-    cy.log('📋 RESUMEN FINAL');
+    cy.log('📋 RESUMEN FINAL - ORACLE');
     cy.log('==================================');
     cy.log(`📊 TOTAL: ${resultadosUnificados.total} sentencias`);
     cy.log(`   ✅ Exitosos: ${resultadosUnificados.exitosos}`);
@@ -284,6 +323,171 @@ describe('Flujo unificado: Ejecutar script SQL y configurar columnas ID como IDE
       });
     }
     
+    cy.log('\n📁 Generando reportes detallados...');
+    
+    // Guardar todos los reportes
+    guardarReportesOracle();
+    
     expect(resultadosUnificados.exitosos).to.be.greaterThan(0);
   });
+
+  // ------------------------------------------------------------
+  // FUNCIÓN PARA GUARDAR REPORTES DE ORACLE
+  // ------------------------------------------------------------
+  function guardarReportesOracle() {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const fecha = new Date().toLocaleString();
+    
+    // Preparar datos para CSV
+    const csvRows = [];
+    
+    // Cabeceras CSV
+    csvRows.push(['ID', 'Índice', 'Usuario', 'Owner', 'Tipo', 'Operación', 'Estado', 'Error', 'Código Error', 'Filas Afectadas', 'SQL', 'Timestamp']);
+    
+    // Agregar exitosos
+    resultadosUnificados.detalles.exitosos.forEach(d => {
+      csvRows.push([
+        d.id,
+        d.indice,
+        d.usuario,
+        d.owner,
+        d.tipo,
+        d.operacion,
+        d.estado,
+        '',
+        '',
+        d.rowsAffected || 0,
+        d.sql.replace(/"/g, '""').replace(/\n/g, ' '),
+        d.timestamp
+      ]);
+    });
+    
+    // Agregar duplicados
+    resultadosUnificados.detalles.duplicados.forEach(d => {
+      csvRows.push([
+        d.id,
+        d.indice,
+        d.usuario,
+        d.owner,
+        d.tipo,
+        d.operacion,
+        d.estado,
+        d.error,
+        d.errorCode || '',
+        '',
+        d.sql.replace(/"/g, '""').replace(/\n/g, ' '),
+        d.timestamp
+      ]);
+    });
+    
+    // Agregar fallos
+    resultadosUnificados.detalles.fallos.forEach(d => {
+      csvRows.push([
+        d.id,
+        d.indice,
+        d.usuario,
+        d.owner,
+        d.tipo,
+        d.operacion,
+        d.estado,
+        d.error,
+        d.errorCode || '',
+        '',
+        d.sql.replace(/"/g, '""').replace(/\n/g, ' '),
+        d.timestamp
+      ]);
+    });
+    
+    // Generar contenido CSV
+    const csvContent = csvRows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    
+    // Reporte JSON
+    const reporteJSON = {
+      fecha: fecha,
+      timestamp: timestamp,
+      tipoBaseDatos: 'Oracle',
+      archivoScript: 'ParametrosIniciales.sql',
+      resumen: {
+        total: resultadosUnificados.total,
+        exitosos: resultadosUnificados.exitosos,
+        duplicados: resultadosUnificados.duplicados,
+        fallos: resultadosUnificados.fallos,
+        alters: todasLasSentencias.filter(s => s.tipo === 'ALTER').length,
+        scripts: todasLasSentencias.filter(s => s.tipo === 'SCRIPT').length
+      },
+      detalles: {
+        exitosos: resultadosUnificados.detalles.exitosos,
+        duplicados: resultadosUnificados.detalles.duplicados,
+        fallos: resultadosUnificados.detalles.fallos
+      },
+      estadisticas: {
+        porcentajeExito: ((resultadosUnificados.exitosos / resultadosUnificados.total) * 100).toFixed(2) + '%',
+        porcentajeDuplicados: ((resultadosUnificados.duplicados / resultadosUnificados.total) * 100).toFixed(2) + '%',
+        porcentajeFallos: ((resultadosUnificados.fallos / resultadosUnificados.total) * 100).toFixed(2) + '%'
+      }
+    };
+
+    // Guardar archivos
+    cy.writeFile(`cypress/reports/oracle-report-${timestamp}.json`, reporteJSON, { log: true });
+    cy.writeFile(`cypress/reports/oracle-report-${timestamp}.csv`, csvContent, { log: true });
+    
+    // Reporte TXT (legible)
+    let reporteTXT = '========================================\n';
+    reporteTXT += 'REPORTE DE EJECUCIÓN ORACLE\n';
+    reporteTXT += '========================================\n\n';
+    reporteTXT += `Fecha: ${fecha}\n`;
+    reporteTXT += `Total Sentencias: ${reporteJSON.resumen.total}\n`;
+    reporteTXT += `   ✅ Exitosas: ${reporteJSON.resumen.exitosos}\n`;
+    reporteTXT += `   ⚠️ Duplicadas: ${reporteJSON.resumen.duplicados}\n`;
+    reporteTXT += `   ❌ Fallidas: ${reporteJSON.resumen.fallos}\n`;
+    reporteTXT += `\n   📊 ALTERs: ${reporteJSON.resumen.alters}\n`;
+    reporteTXT += `   📝 Scripts: ${reporteJSON.resumen.scripts}\n\n`;
+    
+    reporteTXT += '📊 ESTADÍSTICAS\n';
+    reporteTXT += '----------------------------------------\n';
+    reporteTXT += `Éxito: ${reporteJSON.estadisticas.porcentajeExito}\n`;
+    reporteTXT += `Duplicados: ${reporteJSON.estadisticas.porcentajeDuplicados}\n`;
+    reporteTXT += `Fallos: ${reporteJSON.estadisticas.porcentajeFallos}\n\n`;
+
+    // Detalle de fallos
+    if (resultadosUnificados.detalles.fallos.length > 0) {
+      reporteTXT += '❌ DETALLE DE FALLOS\n';
+      reporteTXT += '----------------------------------------\n';
+      resultadosUnificados.detalles.fallos.forEach((fallo, i) => {
+        reporteTXT += `\n${i+1}. [#${fallo.indice}] Usuario: ${fallo.usuario} | Owner: ${fallo.owner} | Tipo: ${fallo.tipo}\n`;
+        reporteTXT += `   Error: ${fallo.error}\n`;
+        reporteTXT += `   Código: ${fallo.errorCode || 'N/A'}\n`;
+        reporteTXT += `   SQL: ${fallo.sql.substring(0, 200)}...\n`;
+      });
+    }
+
+    // Detalle de duplicados
+    if (resultadosUnificados.detalles.duplicados.length > 0) {
+      reporteTXT += '\n⚠️ DETALLE DE DUPLICADOS\n';
+      reporteTXT += '----------------------------------------\n';
+      resultadosUnificados.detalles.duplicados.forEach((dup, i) => {
+        reporteTXT += `\n${i+1}. [#${dup.indice}] Usuario: ${dup.usuario} | Owner: ${dup.owner} | Tipo: ${dup.tipo}\n`;
+        reporteTXT += `   Error: ${dup.error}\n`;
+        reporteTXT += `   SQL: ${dup.sql.substring(0, 200)}...\n`;
+      });
+    }
+
+    // Detalle de exitosos (primeros 10)
+    if (resultadosUnificados.detalles.exitosos.length > 0) {
+      reporteTXT += '\n✅ DETALLE DE EXITOSAS (primeras 10)\n';
+      reporteTXT += '----------------------------------------\n';
+      resultadosUnificados.detalles.exitosos.slice(0, 10).forEach((exito, i) => {
+        reporteTXT += `\n${i+1}. [#${exito.indice}] Usuario: ${exito.usuario} | Owner: ${exito.owner} | Tipo: ${exito.tipo}\n`;
+        reporteTXT += `   Filas afectadas: ${exito.rowsAffected || 0}\n`;
+        reporteTXT += `   SQL: ${exito.sql.substring(0, 100)}...\n`;
+      });
+    }
+
+    cy.writeFile(`cypress/reports/oracle-report-${timestamp}.txt`, reporteTXT, { log: true });
+    
+    cy.log(`📁 Reportes Oracle guardados en cypress/reports/`);
+    cy.log(`   - JSON: oracle-report-${timestamp}.json`);
+    cy.log(`   - CSV: oracle-report-${timestamp}.csv`);
+    cy.log(`   - TXT: oracle-report-${timestamp}.txt`);
+  }
 });

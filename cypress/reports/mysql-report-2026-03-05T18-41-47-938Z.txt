@@ -1,0 +1,128 @@
+========================================
+REPORTE DE EJECUCIÓN MYSQL
+========================================
+
+Fecha: 3/5/2026, 12:41:47 PM
+Total Sentencias: 31
+✅ Exitosas: 16
+⚠️ Duplicadas: 11
+❌ Fallidas: 4
+
+📊 ESTADÍSTICAS
+----------------------------------------
+Éxito: 51.61%
+Duplicados: 35.48%
+Fallos: 12.90%
+
+❌ DETALLE DE FALLOS
+----------------------------------------
+
+1. [#3] Usuario: jteller | DB: JTELLERV7 | Tipo: UPDATE
+   Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '"KEY"='status', LABEL='sts', VALUE_OK='1' WHERE ID=1' at line 1
+   Código: ER_PARSE_ERROR
+   SQL: UPDATE jtellerv7.RESPONSE_JSON_TAGS SET ENVIRONMENT='jteller', "KEY"='status', LABEL='sts', VALUE_OK='1' WHERE ID=1
+
+2. [#4] Usuario: jteller | DB: JTELLERV7 | Tipo: UPDATE
+   Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '"KEY"='message', LABEL='message', VALUE_OK=NULL WHERE ID=2' at line 1
+   Código: ER_PARSE_ERROR
+   SQL: UPDATE jtellerv7.RESPONSE_JSON_TAGS SET ENVIRONMENT='jteller', "KEY"='message', LABEL='message', VALUE_OK=NULL WHERE ID=2
+
+3. [#5] Usuario: jteller | DB: JTELLERV7 | Tipo: UPDATE
+   Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '"KEY"='errorCode', LABEL='error', VALUE_OK=NULL WHERE ID=3' at line 1
+   Código: ER_PARSE_ERROR
+   SQL: UPDATE jtellerv7.RESPONSE_JSON_TAGS SET ENVIRONMENT='jteller', "KEY"='errorCode', LABEL='error', VALUE_OK=NULL WHERE ID=3
+
+4. [#26] Usuario: jsigcommon | DB: JSIGCOMMON | Tipo: UPDATE
+   Error: Table 'jsigcommon.system_entity' doesn't exist
+   Código: ER_NO_SUCH_TABLE
+   SQL: UPDATE jsigcommon.system_entity SET name='ACCOUNT_SIGNATURE' WHERE ID = 2
+
+⚠️ DETALLE DE DUPLICADOS
+----------------------------------------
+
+1. [#2] Usuario: jteller | DB: JTELLERV7 | Tipo: INSERT
+   Error: Duplicate entry '999' for key 'TRANSACTION_SEND_SPEC.PRIMARY'
+   SQL: INSERT INTO jtellerv7.TRANSACTION_SEND_SPEC (ID, TRANSACTION_SPEC_ID, DESCRIPTION, SERVICE_PAY_ID, REQUIRES_LOGIN, ROUTINE_LOGIN_ID, FORMAT_ID_SEND, PGM_DATA_SEND, TYPE_DATA_SEND, ROUTINE_ID, TYPE_DATA_RECEIVE, RESPONSE_FILE, PGM_DATA_RECEIVE, ANALYZE_RESPONSE, CORRELATIVE, VERSION) VALUES(999, NULL, 'Enviar transacciones generico a core byte', NULL, '0', NULL, NULL, NULL, 'Trama', NULL, 'Trama', NULL, NULL, '1', 999, 2)
+
+2. [#6] Usuario: jteller | DB: JTELLERV7 | Tipo: INSERT
+   Error: Duplicate entry '39' for key 'TYPE_ROUTINE.PRIMARY'
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE (ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(39, 'COMPONENTE ANGULAR', 'rutinas tipo componente Angular, incluye los componentes propios de jTeller-core y las extensiones de FE o paginas web externas al core jTeller, se asocian en el flujo de la transacción y se ejecutan por el FE en el flujo de la transacción.', 39, 1)
+
+3. [#7] Usuario: jteller | DB: JTELLERV7 | Tipo: INSERT
+   Error: Duplicate entry '40' for key 'TYPE_ROUTINE.PRIMARY'
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE (ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(40, 'APIs DEL FLUJO DE TRANSACCION', 'APIs ejecutados en los pasos del flujo de transaccion, ya sea ejecutados por FE o BE', 40, 0)
+
+4. [#8] Usuario: jteller | DB: JTELLERV7 | Tipo: INSERT
+   Error: Duplicate entry '27' for key 'TYPE_ROUTINE.PRIMARY'
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE (ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(27, 'INGRESO A OPERACION/LOGIN', 'APIs ejecutados al entrar a operar JTeller o sea al hacer LOGIN', 27, 0)
+
+5. [#9] Usuario: jteller | DB: JTELLERV7 | Tipo: INSERT
+   Error: Duplicate entry '41' for key 'TYPE_ROUTINE.PRIMARY'
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE (ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(41, 'PRE-TRASLADO', 'rutinas a ejecutarse "antes" de trasladar un usuario entre agencias, se ejecutan por transacción cambio de usuario.', 41, 0)
+
+6. [#10] Usuario: jteller | DB: JTELLERV7 | Tipo: INSERT
+   Error: Duplicate entry '42' for key 'TYPE_ROUTINE.PRIMARY'
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE (ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(42, 'POST-TRASLADO', 'rutinas a ejecutarse "después" de trasladar a usuario entre agencias, se ejecutan por transacción cambio de usuario.', 42, 0)
+
+7. [#27] Usuario: jsigcommon | DB: JSIGCOMMON | Tipo: INSERT
+   Error: Duplicate entry '5-6' for key 'ENTITY_TRANSITIONS.U_TRANSITIONS'
+   SQL: INSERT INTO jsigcommon.ENTITY_TRANSITIONS (VERSION, FROM_STATUS_ID, TO_STATUS_ID, NAME, PERMISSION_REQUIRED, REQUIRES_MOTIVE, TRANSITION_TYPE, MOTIVE_TYPE_ID) VALUES(0, 5, 6, 'Activar firma', NULL, 'I', 'I', NULL)
+
+8. [#28] Usuario: jsigcommon | DB: JSIGCOMMON | Tipo: INSERT
+   Error: Duplicate entry '6-7' for key 'ENTITY_TRANSITIONS.U_TRANSITIONS'
+   SQL: INSERT INTO jsigcommon.ENTITY_TRANSITIONS (VERSION, FROM_STATUS_ID, TO_STATUS_ID, NAME, PERMISSION_REQUIRED, REQUIRES_MOTIVE, TRANSITION_TYPE, MOTIVE_TYPE_ID) VALUES(0, 6, 7, 'Inactivar firma', NULL, 'A', 'I', 2)
+
+9. [#29] Usuario: jsigcommon | DB: JSIGCOMMON | Tipo: INSERT
+   Error: Duplicate entry '6-9' for key 'ENTITY_TRANSITIONS.U_TRANSITIONS'
+   SQL: INSERT INTO jsigcommon.ENTITY_TRANSITIONS (VERSION, FROM_STATUS_ID, TO_STATUS_ID, NAME, PERMISSION_REQUIRED, REQUIRES_MOTIVE, TRANSITION_TYPE, MOTIVE_TYPE_ID) VALUES(0, 6, 9, 'Vencer firma', NULL, 'I', 'I', NULL)
+
+10. [#30] Usuario: jsigcommon | DB: JSIGCOMMON | Tipo: INSERT
+   Error: Duplicate entry '6-8' for key 'ENTITY_TRANSITIONS.U_TRANSITIONS'
+   SQL: INSERT INTO jsigcommon.ENTITY_TRANSITIONS (VERSION, FROM_STATUS_ID, TO_STATUS_ID, NAME, PERMISSION_REQUIRED, REQUIRES_MOTIVE, TRANSITION_TYPE, MOTIVE_TYPE_ID) VALUES(0, 6, 8, 'Eliminar firma', NULL, 'A', 'I', 2)
+
+11. [#31] Usuario: jsigcommon | DB: JSIGCOMMON | Tipo: INSERT
+   Error: Duplicate entry '7-6' for key 'ENTITY_TRANSITIONS.U_TRANSITIONS'
+   SQL: INSERT INTO jsigcommon.ENTITY_TRANSITIONS (VERSION, FROM_STATUS_ID, TO_STATUS_ID, NAME, PERMISSION_REQUIRED, REQUIRES_MOTIVE, TRANSITION_TYPE, MOTIVE_TYPE_ID) VALUES(0, 7, 6, 'Activar firma Inactiva >Activa', NULL, 'I', 'I', NULL)
+
+✅ DETALLE DE EXITOSAS (primeras 10)
+----------------------------------------
+
+1. [#1] Usuario: jteller | DB: JTELLERV7 | Tipo: UPDATE
+   Filas afectadas: 1
+   SQL: UPDATE jtellerv7.DATABASECHANGELOG SET MD5SUM ='9:646a48206a7dc270854b813344cb95fb' WHERE id = 'init...
+
+2. [#11] Usuario: jteller | DB: JTELLERV7 | Tipo: UPDATE
+   Filas afectadas: 25
+   SQL: UPDATE jtellerv7.ROUTINE SET TYPE_ROUTINE_ID = 39 WHERE TYPE_ROUTINE_ID NOT IN (27,40,41,42) AND EXE...
+
+3. [#12] Usuario: jteller | DB: JTELLERV7 | Tipo: DELETE
+   Filas afectadas: 13
+   SQL: DELETE FROM jtellerv7.TYPE_ROUTINE where id < 39 and id not in (27)...
+
+4. [#13] Usuario: jteller | DB: JTELLERV7 | Tipo: INSERT
+   Filas afectadas: 1
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(3, 'ANTES DE HOST', ...
+
+5. [#14] Usuario: jteller | DB: JTELLERV7 | Tipo: INSERT
+   Filas afectadas: 1
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(4, 'DESPUES DE HOST'...
+
+6. [#15] Usuario: jteller | DB: JTELLERV7 | Tipo: INSERT
+   Filas afectadas: 1
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(6, 'DE CAMPO', 'se e...
+
+7. [#16] Usuario: jteller | DB: JTELLERV7 | Tipo: INSERT
+   Filas afectadas: 1
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(9, 'DE VALIDACION', ...
+
+8. [#17] Usuario: jteller | DB: JTELLERV7 | Tipo: INSERT
+   Filas afectadas: 1
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(10, 'FINALIZACION OK...
+
+9. [#18] Usuario: jteller | DB: JTELLERV7 | Tipo: INSERT
+   Filas afectadas: 1
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(11, 'DE ACEPTACION',...
+
+10. [#19] Usuario: jteller | DB: JTELLERV7 | Tipo: INSERT
+   Filas afectadas: 1
+   SQL: INSERT INTO jtellerv7.TYPE_ROUTINE(ID, NAME, DESCRIPTION, CODE, VERSION) VALUES(12, 'DE CANCELACION'...
