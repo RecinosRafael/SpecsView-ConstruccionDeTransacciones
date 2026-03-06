@@ -12,20 +12,85 @@ class MetodosGeneralesPomCy{
                     .click({ force: true });
             });
     }
+// BtnAgregarRegistros() {
+//     cy.log('Clic en botón ADD');
+//     cy.wait(1500);
+    
+//     // Buscar el botón que contiene el ícono "add"
+//     cy.get('button.mat-fab[color="warn"]', { timeout: 15000 })
+//         .should('exist')
+//         .filter(':has(mat-icon:contains("add"))')  // Filtra los que tienen ícono "add"
+//         .first()  // Toma el primero (por si acaso)
+//         .click({ force: true });
+    
+//     cy.log('✅ Botón ADD clickeado');
+// }
+
 BtnAgregarRegistros() {
     cy.log('Clic en botón ADD');
     cy.wait(1500);
     
-    // Buscar el botón que contiene el ícono "add"
-    cy.get('button.mat-fab[color="warn"]', { timeout: 15000 })
-        .should('exist')
-        .filter(':has(mat-icon:contains("add"))')  // Filtra los que tienen ícono "add"
-        .first()  // Toma el primero (por si acaso)
-        .click({ force: true });
+    const intentarClick = () => {
+        // Selectores CSS en lugar de XPath
+        const selectores = [
+            'button mat-icon:contains("add")',
+            'button.mat-fab[color="warn"]',
+            'button[aria-label="Agregar"]',
+            'button[title="Agregar"]',
+            'button:has(mat-icon:contains("add"))'  // Si usas jQuery
+        ];
+        
+        let encontrado = false;
+        
+        // Función para intentar cada selector
+        const intentarSelector = (index) => {
+            if (index >= selectores.length) {
+                if (!encontrado) {
+                    cy.log('❌ No se encontró el botón ADD con ningún selector');
+                    cy.document().then(doc => {
+                        cy.log('HTML disponible:', doc.body.innerHTML.substring(0, 500));
+                    });
+                    throw new Error('No se pudo encontrar el botón ADD');
+                }
+                return;
+            }
+            
+            const selector = selectores[index];
+            cy.get(selector, { timeout: 3000, failOnStatusCode: false }).then(($el) => {
+                if ($el.length > 0 && !encontrado) {
+                    cy.wrap($el).first().click({ force: true });
+                    encontrado = true;
+                    cy.log(`✅ Click con selector: ${selector}`);
+                } else {
+                    // Intentar siguiente selector
+                    intentarSelector(index + 1);
+                }
+            });
+        };
+        
+        // Comenzar con el primer selector
+        intentarSelector(0);
+    };
     
-    cy.log('✅ Botón ADD clickeado');
+    // Detectar iframe
+    cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
+        if ($iframe.length > 0) {
+            cy.log('✅ Iframe detectado');
+            cy.wrap($iframe)
+                .should("be.visible")
+                .invoke("css", "pointer-events", "auto")
+                .its("0.contentDocument.body")
+                .should("not.be.empty")
+                .then(cy.wrap)
+                .within(() => {
+                    intentarClick();
+                });
+        } else {
+            cy.log('⚠️ Sin iframe');
+            intentarClick();
+        }
+    });
 }
-
     getIframeBody() {
      return cy
         .get('iframe.frame', { timeout: 20000 })
@@ -1244,6 +1309,172 @@ BuscarRegistroEnTabla(criterios) {
             }
         })
     }
+    _ejecutarEnContexto(callback) {
+        cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
+            if ($iframe.length > 0) {
+                cy.log('🎯 Ejecutando dentro del iframe');
+                cy.wrap($iframe)
+                    .should('be.visible')
+                    .invoke('css', 'pointer-events', 'auto')
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        callback();
+                    });
+            } else {
+                cy.log('🎯 Ejecutando directamente en la página');
+                callback();
+            }
+        });
+    }
+    /*
+    * Versión de seleccionarCombo que maneja iframe automáticamente
+    */
+    seleccionarComboIframe(valor, labelText, opciones = {}) {
+        const {
+            ignorarTildes = true,
+            ignorarMayusculas = true,
+            ignorarEspacios = true,
+            timeout = 10000,
+            force = false
+        } = opciones;
+
+        if (!valor || valor === "") {
+            cy.log(`⏭️ Valor vacío para combo "${labelText}" - se omite la selección`);
+            return;
+        }
+
+        cy.log(`🔍 [Iframe] Seleccionando "${valor}" en combo "${labelText}"`);
+
+        const normalizarTexto = (texto) => {
+            if (!texto) return texto;
+            let resultado = String(texto);
+            if (ignorarTildes) {
+                resultado = resultado.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            }
+            if (ignorarMayusculas) {
+                resultado = resultado.toLowerCase();
+            }
+            if (ignorarEspacios) {
+                resultado = resultado.trim().replace(/\s+/g, ' ');
+            }
+            return resultado;
+        };
+
+        const labelNormalizado = normalizarTexto(labelText);
+
+        // Función para ejecutar la lógica dentro del contexto adecuado (iframe o no)
+        const ejecutarSeleccion = () => {
+            // 1. Encontrar el label que coincida (usando contains flexible)
+            cy.contains('mat-label, label, .mat-label', new RegExp(labelText, 'i'), { timeout })
+                .should('be.visible')
+                .then(($label) => {
+                    // 2. Obtener el form-field padre
+                    const $formField = $label.closest('mat-form-field');
+                    expect($formField, `No se encontró mat-form-field para label "${labelText}"`).to.exist;
+
+                    // 3. Dentro de ese form-field, buscar el mat-select
+                    cy.wrap($formField).find('mat-select').as('select');
+                });
+
+            // 4. Usar el alias para obtener el select (esto evita referencias directas)
+            cy.get('@select').should('be.visible').then($select => {
+                // Obtener valor actual
+                const valorActual = $select.find('.mat-select-value-text span, .mat-select-min-line').first().text().trim();
+                const valorActualNormalizado = normalizarTexto(valorActual);
+                const valorNormalizado = normalizarTexto(valor);
+
+                cy.log(`📌 Valor actual: "${valorActual || 'vacío'}"`);
+                cy.log(`🎯 Valor deseado: "${valor}"`);
+
+                if (valorActualNormalizado === valorNormalizado || valorActualNormalizado.includes(valorNormalizado)) {
+                    cy.log(`⏭️ Ya tiene el valor correcto, no se requiere cambio.`);
+                    return;
+                }
+
+                // Hacer click en el select
+                cy.get('@select').click({ force });
+
+                // Esperar a que el panel aparezca
+                cy.get('.cdk-overlay-pane', { timeout }).should('be.visible');
+
+                // Buscar la opción deseada dentro del panel
+                cy.get('.cdk-overlay-pane mat-option').then($options => {
+                    let $opcion = null;
+                    $options.each((i, opt) => {
+                        const textoOpcion = Cypress.$(opt).text().trim();
+                        const textoOpcionNormalizado = normalizarTexto(textoOpcion);
+                        if (textoOpcionNormalizado === valorNormalizado || textoOpcionNormalizado.includes(valorNormalizado)) {
+                            $opcion = Cypress.$(opt);
+                            return false;
+                        }
+                    });
+
+                    if ($opcion) {
+                        cy.wrap($opcion).scrollIntoView().should('be.visible').click({ force });
+                    } else {
+                        // Si no se encuentra, intentar con el input de búsqueda
+                        cy.get('.cdk-overlay-pane input[placeholder="Buscar"]').should('be.visible').type(valor, { force, delay: 100 });
+                        cy.wait(500);
+                        cy.get('.cdk-overlay-pane mat-option').first().should('be.visible').click({ force });
+                    }
+
+                    // Esperar que desaparezca el backdrop
+                    cy.get('.cdk-overlay-backdrop', { timeout: 5000 }).should('not.exist');
+                    cy.log(`✅ Seleccionado "${valor}" en combo "${labelText}"`);
+                });
+            });
+        };
+
+        // Manejo del iframe
+        cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
+            if ($iframe.length > 0) {
+                cy.log('🎯 [Iframe] Ejecutando dentro del iframe');
+                cy.wrap($iframe)
+                    .should('be.visible')
+                    .invoke('css', 'pointer-events', 'auto')
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        ejecutarSeleccion();
+                    });
+            } else {
+                cy.log('🎯 [Iframe] Ejecutando directamente en la página');
+                ejecutarSeleccion();
+            }
+        });
+    }
+
+
+    /**
+     * Versión de llenarCampo que maneja iframe automáticamente
+     */
+    llenarCampoIframe(valor, labelText, opciones = {}) {
+        this._ejecutarEnContexto(() => {
+            this.llenarCampo(valor, labelText, opciones);
+        });
+    }
+
+    /**
+     * Versión de checkbox que maneja iframe automáticamente
+     */
+    checkboxIframe(valor, labelText, opciones = {}) {
+        this._ejecutarEnContexto(() => {
+            this.checkbox(valor, labelText, opciones);
+        });
+    }
+
+    /**
+     * Versión de IngresarFecha que maneja iframe automáticamente
+     */
+    IngresarFechaIframe(fecha, nombreCampo, opciones = {}) {
+        this._ejecutarEnContexto(() => {
+            this.IngresarFecha(fecha, nombreCampo, opciones);
+        });
+    }
+
 
     seleccionarCombo(valor, labelText, opciones = {}) {
         const {

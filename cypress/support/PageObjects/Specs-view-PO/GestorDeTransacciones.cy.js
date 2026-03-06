@@ -1,35 +1,75 @@
+import metodosGeneralesPomCy from "./MetodosGeneralesPom.cy.js";
+
+class GestorPomCy{
+
+    constructor() {
+        this.Generales = new metodosGeneralesPomCy();
+    }
+
     //Gestor de transacciones
-    GestorTransacciones(
-        codigoTrx,
-        tipoTRX,
-        codigoAlternativo,
-        nombreTrx,
-        etiquetaTrx,
-        estadoTrx,
-        validoDesde,
-        validoHasta,
-        tipoMovimientoBoveda,
-        descripcionTrx,
-        esconderMenu,
-        permiteReversion,
-        modoOffline,
-        requiereSupervisor,
-        requiereValidarAcceso,
-        seEnvíaHost,
-        tiempoEsperaSeEnviaHost,
-        accionDemoraHost,
-        tienepagoServicio,
-        typePagoServicio,
-        pasoConfirmacionServicio,
-        permiteReimpresion,
-        diasPermitidoReimpresion,
-        presentarResumentrx,
-        mensajeResumenTrx,
-        tipoMensajeTrx,
-        iconoDatosAdicionales,
-        typeDepartamentodeAutorizacion,
-        textoAyudaDatosAdcionales
-    ) {
+    
+        GestorTransacciones(
+        tipo, codigo, codAlternativo, nombre, etiqueta, estado, validoDesde, validoHasta, tipoMovimientoBoveda, descripcion,
+        esconderMenu, permiteReversion, modoOffline, requiereSupervisor, requiereValidarAcceso, seEnviaHost, tiempoEspera, 
+        accionPorDemora, tienePagoServicio, PagoServicio, pasoConfirmacionServicio, permiteReimpresion, diasPermitidoReimpresion, 
+        presentarResumen, mensajeResumen, tipoMensaje, icono, DepartamentodeAutorizacion, textoAyuda, logo
+    ){
+            this.Generales.seleccionarComboIframe(tipo, "Tipo" );
+            this.Generales.llenarCampoIframe(codigo, "Código"); 
+            this.Generales.llenarCampoIframe(codAlternativo, "Código alternativo");
+            this.Generales.llenarCampoIframe(nombre, "Nombre");
+            this.Generales.llenarCampoIframe(etiqueta, "Etiqueta");
+            this.Generales.seleccionarComboIframe(estado, "Estado");
+            this.Generales.seleccionarComboIframe(tipoMovimientoBoveda, "Tipo movimiento en bóveda");
+            this.Generales.IngresarFechaIframe(validoDesde, "Valido desde");
+            this.Generales.IngresarFechaIframe(validoHasta, "Valido hasta");
+            this.Generales.llenarCampoIframe(descripcion, "Descripción");
+            this.Generales.checkboxIframe(esconderMenu, "Esconder en menú");
+            this.Generales.checkboxIframe(permiteReversion, "Permite reversión");
+            this.Generales.checkboxIframe(modoOffline, "Modo offline");
+            this.Generales.checkboxIframe(requiereSupervisor, "Requiere supervisor");
+            this.Generales.checkboxIframe(requiereValidarAcceso, "Se requiere validar acceso");
+            if (seEnviaHost) {
+                this.Generales.checkboxIframe(seEnviaHost, "Se envía al host");
+                this.Generales.llenarCampoIframe(tiempoEspera, "Tiempo de espera");
+                this.Generales.seleccionarComboIframe(accionPorDemora, "Acción por demora");      
+            }else{
+                cy.log("Se envía al host no está activo, no se ingresan los datos relacionados a esta opción");
+            }
+            if (tienePagoServicio) {
+                this.Generales.checkboxIframe(tienePagoServicio, "Es pago de servicio");
+                this.Generales.seleccionarComboIframe(PagoServicio, "Pago de servicio");
+                this.Generales.seleccionarComboIframe(pasoConfirmacionServicio, "Incluye paso para confirmar datos");
+            }else{
+                cy.log("Es pago de servicio no está activo, no se ingresan los datos relacionados a esta opción");
+            }
+            if (permiteReimpresion) {
+                this.Generales.checkboxIframe(permiteReimpresion, "Permite reimpresión");
+                this.Generales.llenarCampoIframe(diasPermitidoReimpresion, "Dias permitidos para reimprimir");
+            }else{
+                cy.log("Permite reimpresión no está activo, no se ingresan los datos relacionados a esta opción");
+            }
+            if (presentarResumen) {
+                this.Generales.checkboxIframe(presentarResumen, "Presentar resumen de transaccion");
+                this.Generales.llenarCampoIframe(mensajeResumen, "Mensaje despues del proceso");
+                this.Generales.seleccionarComboIframe(tipoMensaje, "Tipo de mensaje");    
+            } else {
+                cy.log("Presentar resumen no está activo, no se ingresan los datos relacionados a esta opción");
+            }
+            this.Generales.llenarCampoIframe(icono, "Ícono");
+            this.Generales.seleccionarComboIframe(DepartamentodeAutorizacion, "Departamento de autorización");
+            this.Generales.llenarCampoIframe(textoAyuda, "Texto de ayuda");
+                // Carga de logo this.Generales.cargarArchivo(logo, "Logo"); pendiente
+    }    
+
+    
+    GestorTransacciones2(
+        codigoTrx,tipoTRX, codigoAlternativo, nombreTrx, etiquetaTrx, estadoTrx, validoDesde, validoHasta, tipoMovimientoBoveda, descripcionTrx,
+        esconderMenu, permiteReversion, modoOffline, requiereSupervisor, requiereValidarAcceso, seEnvíaHost, tiempoEsperaSeEnviaHost, 
+        accionDemoraHost, tienepagoServicio, typePagoServicio, pasoConfirmacionServicio, permiteReimpresion, diasPermitidoReimpresion, 
+        presentarResumentrx, mensajeResumenTrx, tipoMensajeTrx, iconoDatosAdicionales, typeDepartamentodeAutorizacion, textoAyudaDatosAdcionales
+    ){
+        
         cy.get("iframe.frame", {timeout: 10000})
             .should("be.visible")
             .invoke("css", "pointer-events", "auto")
@@ -1290,3 +1330,5 @@
     }
 
 //Fin Gestor de transacciones
+}
+export default GestorPomCy;
