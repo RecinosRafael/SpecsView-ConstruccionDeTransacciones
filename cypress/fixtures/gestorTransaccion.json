@@ -16,7 +16,7 @@
       "modoOffline ":false,
       "requiereSupervisor":false,
       "requiereValidarAcceso":false,
-      "seEnviaHost":false,
+      "seEnviaHost":true,
       "tiempoEspera":"30",
       "accionPorDemora":"",
       "tienePagoServicio":false,
