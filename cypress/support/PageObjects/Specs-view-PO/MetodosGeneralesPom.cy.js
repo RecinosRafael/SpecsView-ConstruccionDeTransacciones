@@ -244,12 +244,217 @@ BtnAceptarRegistro() {
 }
 
     //Boton para cancelar la insercion del registro.
-    BtnCancelarRegistro() {
-        cy.log('Clic en botón CANCELAR');
+    // BtnCancelarRegistro() {
+    //     cy.log('Clic en botón CANCELAR');
 
-        cy.contains('button', 'Cancelar', { timeout: 15000 })
-            .should('exist')
-            .click({ force: true });
+    //     cy.contains('button', 'Cancelar', { timeout: 15000 })
+    //         .should('exist')
+    //         .click({ force: true });
+    // }
+
+    BtnCancelarRegistro() {
+    cy.log('Clic en botón CANCELAR');
+    cy.wait(500);
+
+    const intentarClick = () => {
+        // Selectores CSS para el botón Cancelar (con icono keyboard_return)
+        const selectores = [
+            'button[mat-fab][color="warn"]',                  // botón con atributos específicos
+            'button mat-icon:contains("keyboard_return")',     // icono dentro del botón
+            'button[mat-fab]',                                 // menos específico
+            'button[color="warn"]',                            // por color
+            'button.mdc-fab.mat-warn'                          // combinación de clases
+        ];
+
+        let encontrado = false;
+
+        const intentarSelector = (index) => {
+            if (index >= selectores.length) {
+                if (!encontrado) {
+                    cy.log('❌ No se encontró el botón CANCELAR con ningún selector');
+                    cy.document().then(doc => {
+                        cy.log('HTML disponible:', doc.body.innerHTML.substring(0, 500));
+                    });
+                    throw new Error('No se pudo encontrar el botón CANCELAR');
+                }
+                return;
+            }
+
+            const selector = selectores[index];
+            cy.get(selector, { timeout: 3000, failOnStatusCode: false }).then(($el) => {
+                if ($el.length > 0 && !encontrado) {
+                    // Si el elemento encontrado no es un botón (ej: el icono), buscar el botón padre
+                    let $button = $el;
+                    if (!$el.is('button')) {
+                        $button = $el.closest('button');
+                        if ($button.length === 0) {
+                            // No hay botón asociado, pasar al siguiente selector
+                            intentarSelector(index + 1);
+                            return;
+                        }
+                    }
+                    cy.wrap($button).first().click({ force: true });
+                    encontrado = true;
+                    cy.log(`✅ Click con selector: ${selector}`);
+                } else {
+                    intentarSelector(index + 1);
+                }
+            });
+        };
+
+        intentarSelector(0);
+    };
+
+    // Detectar iframe
+    cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
+        if ($iframe.length > 0) {
+            cy.log('✅ Iframe detectado');
+            cy.wrap($iframe)
+                .should("be.visible")
+                .invoke("css", "pointer-events", "auto")
+                .its("0.contentDocument.body")
+                .should("not.be.empty")
+                .then(cy.wrap)
+                .within(() => {
+                    intentarClick();
+                });
+        } else {
+            cy.log('⚠️ Sin iframe, ejecutando directamente');
+            intentarClick();
+        }
+    });
+    }
+
+    BtnConfirmarSi() {
+        cy.log('Clic en botón "Sí" del diálogo de confirmación');
+
+        const intentarClick = () => {
+            // 1. Esperar a que el diálogo esté presente en el DOM
+            cy.get('[role="dialog"], mat-dialog-container', { timeout: 10000 })
+                .should('be.visible');
+
+            // 2. Dentro del diálogo, buscar el botón por sus atributos estables
+            //    (mat-mini-fab, color="primary") y hacer clic
+            cy.get('[role="dialog"] button[mat-mini-fab][color="primary"], mat-dialog-container button[mat-mini-fab][color="primary"]')
+                .should('be.visible')
+                .first()
+                .click({ force: true });
+
+            cy.log('✅ Click en botón "Sí"');
+        };
+
+        // Manejo de iframe (igual)
+        cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
+            if ($iframe.length) {
+                cy.wrap($iframe)
+                    .should('be.visible')
+                    .invoke('css', 'pointer-events', 'auto')
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        intentarClick();
+                    });
+            } else {
+                intentarClick();
+            }
+        });
+    }
+
+    BtnVolver() { // También puedes llamarlo BtnCancelarRegistro()
+        cy.log('Clic en botón VOLVER (cancelar)');
+        cy.wait(500);
+
+        const intentarClick = () => {
+            // Normalizar texto (por si se busca por tooltip)
+            const normalizar = (txt) => {
+                if (!txt) return '';
+                return txt.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+            };
+            // Posibles textos de tooltip (según la aplicación)
+            const posiblesTooltips = ['Volver', 'Cancelar', 'Cerrar'];
+            const tooltipsNormalizados = posiblesTooltips.map(normalizar);
+
+            // Función para buscar dentro del body actual usando jQuery
+            const buscarEnContexto = (selectorFn) => {
+                return cy.root().then($root => {
+                    const $result = selectorFn($root);
+                    if ($result && $result.length) {
+                        return cy.wrap($result);
+                    }
+                    throw new Error('No encontrado');
+                });
+            };
+
+            // Estrategias de búsqueda (reciben $root y devuelven elemento jQuery)
+            const estrategias = [
+                // 1. Icono keyboard_return + color warn dentro de un botón (más fiable)
+                ($root) => $root.find('button[mat-fab][color="warn"] mat-icon:contains("keyboard_return")').closest('button'),
+                // 2. Botón con atributos mat-fab y color warn (sin depender del icono)
+                ($root) => $root.find('button[mat-fab][color="warn"]').first(),
+                // 3. Icono keyboard_return dentro de cualquier botón (genérico)
+                ($root) => $root.find('button mat-icon:contains("keyboard_return")').closest('button'),
+                // 4. Botón con clase que contenga "warn" y fab (fallback)
+                ($root) => $root.find('button.mat-warn.mat-mdc-fab').first(),
+                // 5. Tooltip exacto (si existe)
+                ($root) => {
+                    const $els = $root.find('[matTooltip]');
+                    return $els.filter((i, el) => 
+                        posiblesTooltips.includes(el.getAttribute('matTooltip'))
+                    ).first();
+                },
+                // 6. Tooltip que contenga alguna palabra (insensible a tildes)
+                ($root) => {
+                    const $els = $root.find('[matTooltip]');
+                    return $els.filter((i, el) => {
+                        const tooltip = normalizar(el.getAttribute('matTooltip'));
+                        return tooltipsNormalizados.some(t => tooltip.includes(t));
+                    }).first();
+                }
+            ];
+
+            const probarEstrategia = (index) => {
+                if (index >= estrategias.length) {
+                    cy.log('❌ No se encontró el botón VOLVER');
+                    // Opcional: imprimir HTML del diálogo si existe
+                    cy.root().then($root => {
+                        const $dialog = $root.find('[role="dialog"], mat-dialog-container');
+                        if ($dialog.length) {
+                            cy.log('HTML del diálogo:', $dialog.html()?.substring(0, 1000));
+                        }
+                    });
+                    throw new Error('No se pudo encontrar el botón VOLVER');
+                }
+
+                cy.log(`🔍 Probando estrategia ${index + 1}...`);
+                return buscarEnContexto(estrategias[index]).then(($el) => {
+                    cy.wrap($el).first().click({ force: true });
+                    cy.log(`✅ Click con estrategia ${index + 1}`);
+                }, (err) => {
+                    cy.log(`⚠️ Estrategia ${index + 1} falló: ${err.message}`);
+                    return probarEstrategia(index + 1);
+                });
+            };
+
+            return probarEstrategia(0);
+        };
+
+        // Manejo de iframe (igual que los otros métodos)
+        cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
+            if ($iframe.length) {
+                cy.wrap($iframe)
+                    .should('be.visible')
+                    .invoke('css', 'pointer-events', 'auto')
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        intentarClick();
+                    });
+            } else {
+                intentarClick();
+            }
+        });
     }
 
     BuscarRegistroCodigo(codigo) {

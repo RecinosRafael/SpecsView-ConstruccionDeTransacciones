@@ -60,17 +60,39 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
             )
 
                 //Intercept backend
-                cy.intercept('POST', '**/transactionManager').as('guardar')
+                cy.intercept('POST', '**/transactionSpec').as('guardar')
 
                 Generales.BtnAceptarRegistro()
-
 
                 cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
                     if (status === 200 || status === 201) {
                         cy.log('Registro insertado correctamente')
                         // Esperar que el modal desaparezca
+                        cy.wait(2500)
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
+                        cy.wait(2500) 
+                        Generales.BtnCancelarRegistro()
+                        cy.wait(2500) 
+                        cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then($iframe => {
+                            if ($iframe.length) {
+                                const iframeDoc = $iframe[0].contentDocument;
+                                const $body = Cypress.$(iframeDoc).find('body');
+                                const $elemento = $body.find('mat-dialog-content:contains("No ha configurado correctamente el apartado de afectación de totales")');
+                                if ($elemento.length) {
+                                    cy.log('✅ El texto del diálogo SÍ está presente en el iframe');
+                                        Generales.BtnConfirmarSi()
+                                } else {
+                                        cy.log('❌ El texto del diálogo NO está presente en el iframe');
+                                    }
+                                } else {
+                                    cy.log('No se encontró el iframe');
+                                }
+                            });               
+                        cy.wait(2500)
+                        Generales.BtnVolver() 
+
+
                     } else {
                         cy.log(`Error detectado. Status: ${status}`)
                         Generales.BtnCancelarRegistro()
