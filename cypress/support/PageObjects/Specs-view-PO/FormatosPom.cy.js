@@ -123,42 +123,134 @@ class FormatosPomCy{
                    valorOperacion, expresion2, valorTipoExpresion ) {
 
 
-        cy.get("#correlative").should("be.visible").clear().type(correlativo)
-        cy.get("#description").should("be.visible").clear().type(descripcion)
+        // Mapeo directo selector → valor para campos de texto
+        const campos = {
+            '#correlative': { valor: correlativo, nombre: 'Correlativo', req: true },
+            '#description': { valor: descripcion, nombre: 'Descripción', req: true },
+            '#constant': { valor: constante, nombre: 'Constante', req: true },
+            '#maskPrint': { valor: mascaraImpresion, nombre: 'Máscara de impresión', req: false },
+            '#readInitPosition': { valor: leerPosInicial, nombre: 'Leer posición Inicial', req: false },
+            '#readLenData': { valor: leerTamDatos, nombre: 'Leer Tamaño Datos', req: false },
+            '#printInRow': { valor: imprimirFila, nombre: 'Imprimir en Fila', req: false },
 
-        if (valorTipoDatos) {
+            '#printLenData': { valor: imprimirTamDatos, nombre: 'Imprimir Tamaño Datos', req: false },
+            '#printInitColumn': { valor: imprimirPosicionColumna, nombre: 'Imprimir Posición Columna', req: false },
+            '#allocate': { valor: expresionDatosRecurso, nombre: 'Expresión para datos del recurso', req: false },
+            '#expression1': { valor: expresion1, nombre: 'Expresion 1', req: false },
+            '#expression2': { valor: expresion2, nombre: 'Expresion 2', req: false },
+        };
 
-            cy.get('mat-select', {timeout: 10000})
-                .filter(':visible')
-                .first()
-                .then($select => {
+        // Array para combos (NO van en el objeto campos porque no tienen selector real)
+        const combos = [
+            { valor: valorTipoDatos, nombre: 'Tipo de Datos', index: 0, req: false },
+            { valor: valorEspecificacionCaracteristica1, nombre: 'Incluir Imagen', index: 1, req: false },
+            { valor: valorOperador, nombre: 'Operación', index: 2, req: false },
+            { valor: valorEspecificaciOnCaracteristica2, nombre: 'Especificación de Característica 2', index: 3, req: false },
+            { valor: valorOperacion, nombre: 'Operación', index: 4, req: false },
+            { valor: valorTipoExpresion, nombre: 'Tipo de Expresion', index: 5, req: false }
+        ];
 
-                    const valorActual = $select
-                        .find('.mat-select-min-line')
+        // Validar requeridos en campos de texto
+        const reqFaltantes = Object.values(campos)
+            .filter(c => c.req && (c.valor === undefined || c.valor === null || c.valor === ''))
+            .map(c => c.nombre);
+
+        if (reqFaltantes.length) {
+            throw new Error(`Requeridos: ${reqFaltantes.join(', ')}`);
+        }
+
+        // Ejecutar campos de texto con valor
+        Object.entries(campos)
+            .filter(([_, { valor }]) => valor !== undefined && valor !== null && valor !== '')
+            .forEach(([selector, { nombre, valor }]) => {
+                cy.log(`${nombre}: "${valor}"`);
+                cy.get(selector).clear().should('be.visible').type(String(valor));
+            });
+
+        // Ejecutar combos con valor
+        combos
+            .filter(c => c.valor !== undefined && c.valor !== null && c.valor !== '')
+            .forEach(({ nombre, valor, index }) => {
+                cy.log(`${nombre}: "${valor}" (índice ${index})`);
+                this.seleccionarComboDF(valor, index);
+            });
+    }
+
+    seleccionarComboDF(valor, index) {
+        if (!valor || valor === '') {
+            cy.log(`ℹ️ Combo índice ${index} omitido (valor vacío)`);
+            return;
+        }
+
+        cy.log(`🔍 Buscando combo índice ${index} para valor: "${valor}"`);
+
+        const selectores = [
+            'mat-select',
+            'select',
+            '[role="listbox"]',
+            '.mat-select-trigger',
+            'button[aria-haspopup="listbox"]'
+        ];
+
+        let encontrado = false;
+
+        cy.get('body').then($body => {
+
+            for (const selector of selectores) {
+
+                const $elementos = $body.find(selector);
+                cy.log(`   Selector "${selector}" encontró ${$elementos.length} elementos`);
+
+                if ($elementos.length > index) {
+
+                    cy.log(`   ✅ Usando selector "${selector}" para índice ${index}`);
+
+                    const $combo = $elementos.eq(index);
+
+                    const textoActual = $combo
+                        .find('.mat-select-min-line, .mat-select-value-text, option:selected')
+                        .first()
                         .text()
                         .trim();
 
-                    // 🔁 Solo cambiar si es distinto
-                    if (valorActual !== valorTipoDatos) {
+                    if (textoActual !== valor) {
 
-                        cy.wrap($select)
-                            .should('not.be.disabled')
-                            .click({force: true});
+                        cy.wrap($combo)
+                            .scrollIntoView()
+                            .click({ force: true });
 
-                        cy.get('.cdk-overlay-pane', {timeout: 10000})
-                            .find('.mat-option-text')
-                            .contains(valorTipoDatos)
-                            .should('be.visible')
-                            .click();
+                        cy.get('.cdk-overlay-pane, .mat-select-panel, select', { timeout: 8000 })
+                            .should('exist');
+
+                        cy.get('.mat-option-text, option')
+                            .contains(valor)
+                            .scrollIntoView()
+                            .click({ force: true });
+
+                        cy.log(`✅ Seleccionado: "${valor}"`);
+
+                    } else {
+                        cy.log(`ℹ️ Combo ya tiene valor "${valor}"`);
                     }
+
+                    encontrado = true;
+                    break;
+                }
+            }
+
+            if (!encontrado) {
+                cy.log(`⚠️ Combo no existe en índice ${index} con ninguno de los selectores`);
+
+                cy.log('📋 Elementos disponibles:');
+                selectores.forEach(selector => {
+                    const count = $body.find(selector).length;
+                    cy.log(`   ${selector}: ${count} elementos`);
                 });
-        }
-
-        cy.get("#readInitPosition").should("be.visible").clear().type(leerPosInicial)
-        cy.get("#readLenData").should("be.visible").clear().type(leerTamDatos)
-        cy.get("#printInRow").should("be.visible").clear().type(imprimirFila)
-        cy.get("#printLenData").should("be.visible").clear().type(imprimirTamDatos)
-
+            }
+        });
     }
+
+
+
 }
 export default FormatosPomCy;

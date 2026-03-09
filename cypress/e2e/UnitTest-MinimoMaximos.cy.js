@@ -1,8 +1,9 @@
 import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosGeneralesPom.cy";
-import formatosPomCy from "../support/PageObjects/Specs-view-PO/FormatosPom.cy";
+import totalDeCajeroPomCy from "../support/PageObjects/Specs-view-PO/TotalDeCajeroPom.cy";
+import 'cypress-xpath';
 
 const Generales = new metodosGeneralesPomCy()
-const DetalleFormatos = new formatosPomCy()
+const MinimosMaximos = new totalDeCajeroPomCy()
 
 
 describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
@@ -19,58 +20,45 @@ describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
             Cypress.env('PASS')
         )
 
-        cy.fixture('detalleDeFormato').as('dataDetalleFromato')
+        cy.fixture('minimosYmaximos').as('dataDinimosYmaximos')
 
     })
 
     beforeEach(() => {
-        Generales.IrAPantalla('format')
+        Generales.IrAPantalla('totalCashier')
     })
 
-    it("Agregar registros a sub nivel", function () {
+    it("Agregar registros a sub nivel Totales A cuadrar", function () {
 
-        const datos = this.dataDetalleFromato.agregar
+        const datos = this.dataDinimosYmaximos.agregar
 
         const agrupadas = datos.reduce((acc, item) => {
-            if (!acc[item.codigoFormato]) {
-                acc[item.codigoFormato] = []
+            if (!acc[item.codigoTotCaj]) {
+                acc[item.codigoTotCaj] = []
             }
-            acc[item.codigoFormato].push(item)
+            acc[item.codigoTotCaj].push(item)
             return acc
         }, {})
 
-        cy.wrap(Object.keys(agrupadas)).each((codigoFormato) => {
-            cy.log('Procesando Regla con nombre: ' + codigoFormato)
+        cy.wrap(Object.keys(agrupadas)).each((codigoTotCaj) => {
+            cy.log('Procesando Regla con nombre: ' + codigoTotCaj)
 
             // 🔎 Buscar Formato
-            Generales.BuscarRegistroCodigo(codigoFormato)
-            Generales.NavegacionSubMenu('Detalle de Formato')
+            Generales.BuscarRegistroCodigo(codigoTotCaj)
+            Generales.NavegacionSubMenu('Mínimos y Máximos')
 
-            return cy.wrap(agrupadas[codigoFormato]).each((registro) => {
+            return cy.wrap(agrupadas[codigoTotCaj]).each((registro) => {
                 Generales.BtnAgregarRegistroSubnivel()
-                cy.log("y el agregar que pedo")
                 //  const pais = registro.valorPais || registro.nombre
-                DetalleFormatos.DetalleFormato(
-                    //
-                    registro.correlativo,
-                    registro.descripcion,
-                    registro.valorTipoDatos,
-                    registro.constante,
-                    registro.removerCeros,
-                    registro.mascaraImpresion,
-                    registro.valorEspecificacionCaracteristica1,
-                    registro.valorOperador,
-                    registro.valorEspecificaciOnCaracteristica2,
-                    registro.leerPosInicial,
-                    registro.leerTamDatos,
-                    registro.imprimirFila,
-                    registro.imprimirTamDatos,
-                    registro.imprimirPosicionColumna,
-                    registro.expresionDatosRecurso,
-                    registro.expresion1,
-                    registro.valorOperacion,
-                    registro.expresion2,
-                    registro.valorTipoExpresion
+                MinimosMaximos.MinimosMaximos(
+                    //tipoRama, tipoCajero, moneda, minimoCajero, maximoCajero, minimoTipoRama, maximoTipoRama
+                    registro.tipoRama,
+                    registro.tipoCajero,
+                    registro.moneda,
+                    registro.minimoCajero,
+                    registro.maximoCajero,
+                    registro.minimoTipoRama,
+                    registro.maximoTipoRama,
                 )
 
                 Generales.BtnAceptarRegistro();

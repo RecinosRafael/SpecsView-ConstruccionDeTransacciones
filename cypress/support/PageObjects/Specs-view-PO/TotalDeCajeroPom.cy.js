@@ -1,4 +1,10 @@
+import metodosGeneralesPomCy from "./MetodosGeneralesPom.cy.js";
+import 'cypress-xpath';
 class TotalDeCajeroPomCy{
+
+    constructor() {
+        this.Generales = new metodosGeneralesPomCy();
+    }
 
     TotalesCajero(codigo, arbolRaiz, nombre, nombreCorto, descripcion, validaMontos, minimoRequiereAutorizacion, maximoRequiereAutorizacion, correlativoImpreso, enviarHost,
                   cicloVida, validoDesde, validoHasta, totalMonitoreado, rutinaCalculamontoConciliar, rutinacalculaMontoConciliado, esControlEfectivo){
@@ -54,9 +60,9 @@ class TotalDeCajeroPomCy{
     }
 
 
-    TotalesCuadra(TipoCajero){
+    TotalesCuadra(tipoCajero, cuadraEfectivo){
 
-        if (TipoCajero) {
+        if (tipoCajero) {
 
             cy.get('mat-select', { timeout: 10000 })
                 .filter(':visible')
@@ -69,7 +75,7 @@ class TotalDeCajeroPomCy{
                         .trim();
 
                     // 🔁 Solo cambiar si es distinto
-                    if (valorActual !== TipoCajero) {
+                    if (valorActual !== tipoCajero) {
 
                         cy.wrap($select)
                             .should('not.be.disabled')
@@ -77,12 +83,14 @@ class TotalDeCajeroPomCy{
 
                         cy.get('.cdk-overlay-pane', { timeout: 10000 })
                             .find('.mat-option-text')
-                            .contains(TipoCajero)
+                            .contains(tipoCajero)
                             .should('be.visible')
                             .click();
                     }
                 });
         }
+
+        this.checkBoxWOS(cuadraEfectivo, "Cuadra Efectivo");
 
     }
 
@@ -106,9 +114,13 @@ class TotalDeCajeroPomCy{
     MinimosMaximos(tipoRama, tipoCajero, moneda, minimoCajero, maximoCajero, minimoTipoRama, maximoTipoRama){
 
         // 🔽 Combos (se mantienen igual)
-        this.seleccionarCombo(tipoRama, "Tipo de Rama");
-        this.seleccionarCombo(tipoCajero, "Tipo de cajero");
-        this.seleccionarCombo(moneda, "Moneda");
+        this.Generales.seleccionarCombo(tipoRama, "Tipo de Rama");
+        this.Generales.seleccionarCombo(tipoCajero, "Tipo de cajero");
+        this.Generales.seleccionarCombo(moneda, "Moneda");
+
+        // this.seleccionarComboTC(tipoRama, "Tipo de Rama");
+        // this.seleccionarComboTC(tipoCajero, "Tipo de cajero");
+        // this.seleccionarComboTC(moneda, "Moneda");
 
         const campos = [
             {selector: '#minPerCashier', valor: minimoCajero},
@@ -209,68 +221,53 @@ class TotalDeCajeroPomCy{
             });
     }
 
-    // seleccionarFecha(selector, fecha, obligatoria = false) {
-    //
-    //     // =====================================================
-    //     // 🔹 1️⃣ Validación inicial
-    //     // =====================================================
-    //     if (!fecha || fecha.toString().trim() === '') {
-    //
-    //         if (obligatoria) {
-    //             throw new Error(`La fecha es obligatoria y no fue enviada (${selector})`);
-    //         }
-    //
-    //         cy.log(`🟡 Fecha omitida (opcional): ${selector}`);
-    //         return;
-    //     }
-    //
-    //     // =====================================================
-    //     // 🔹 2️⃣ Parsear fecha D/M/YYYY o DD/MM/YYYY
-    //     // =====================================================
-    //     const partes = fecha.toString().trim().split('/');
-    //
-    //     if (partes.length !== 3) {
-    //         throw new Error(`Formato de fecha inválido: ${fecha}`);
-    //     }
-    //
-    //     let [day, month, year] = partes.map(p => parseInt(p, 10));
-    //
-    //     if (
-    //         isNaN(day) ||
-    //         isNaN(month) ||
-    //         isNaN(year) ||
-    //         year < 1900
-    //     ) {
-    //         throw new Error(`Fecha inválida: ${fecha}`);
-    //     }
-    //
-    //     // =====================================================
-    //     // 🔹 3️⃣ Crear Date REAL (CLAVE)
-    //     // =====================================================
-    //     const dateObj = new Date(year, month - 1, day);
-    //
-    //     // =====================================================
-    //     // 🔹 4️⃣ Setear fecha correctamente en Angular
-    //     // =====================================================
-    //     cy.get(selector, {timeout: 20000})
-    //         .should('exist')
-    //         .then($input => {
-    //
-    //             // 🔓 Habilitar input
-    //             $input.prop('disabled', false);
-    //
-    //             cy.wrap($input)
-    //                 .closest('mat-form-field')
-    //                 .invoke('removeClass', 'mat-form-field-disabled');
-    //
-    //             // 🧠 SETEO REAL (NO TYPE)
-    //             cy.wrap($input)
-    //                 .invoke('val', dateObj)
-    //                 .trigger('input')
-    //                 .trigger('change')
-    //                 .trigger('blur');
-    //         });
-    // }
+    seleccionarCombo(valor, xpath) {
+
+        // 🔒 Normalización PRO
+        if (
+            valor === undefined ||
+            valor === null ||
+            valor === '' ||
+            valor.toString().trim().toLowerCase() === 'lleno'
+        ) {
+            cy.log(`Combo omitido: ${xpath}`);
+            return;
+        }
+
+        const textoValor = valor.toString().trim().toLowerCase();
+
+        // 1️⃣ Abrir el mat-select por su label
+        cy.xpath(
+            `//label[.//*[contains(normalize-space(),'${xpath}')]]/ancestor::mat-form-field//mat-select`,
+            {timeout: 15000}
+        )
+            .should('be.visible')
+            .click({force: true});
+
+        // 2️⃣ Esperar overlay
+        cy.get('.cdk-overlay-pane', {timeout: 15000})
+            .should('exist')
+            .within(() => {
+
+                // 3️⃣ Seleccionar opción (insensible a mayúsculas / acentos)
+                cy.xpath(
+                    `(//mat-option//span[contains(
+          translate(
+            normalize-space(),
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜÑ',
+            'abcdefghijklmnopqrstuvwxyzáéíóúüñ'
+          ),
+          '${textoValor}'
+        )])[1]`
+                )
+                    .scrollIntoView({block: 'center'})
+                    .filter(':visible')   // 🔥 elimina duplicados
+                    .first()
+                    .should('exist')
+
+                    .click({force: true});
+            });
+    }
 
     //Metodo combo totales cajero
     seleccionarComboTC(valor, xpath) {

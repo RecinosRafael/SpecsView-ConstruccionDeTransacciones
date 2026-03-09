@@ -161,16 +161,16 @@ class MetodosGeneralesPomCy{
 
 
     //Boton para confirmar el agregar y modificar registros
-    // BtnAceptarRegistro(){
-    //     cy.log('Clic en botón ACEPTAR');
+    BtnAceptarRegistro(){
+        cy.log('Clic en botón ACEPTAR');
 
-    //     cy.contains('button mat-button-wrapper, span.mat-button-wrapper', 'Aceptar', { timeout: 15000 })
-    //         .parents('button')
-    //         .should('exist')
-    //         .click({ force: true });
-    // }
+        cy.contains('button mat-button-wrapper, span.mat-button-wrapper', 'Aceptar', { timeout: 15000 })
+            .parents('button')
+            .should('exist')
+            .click({ force: true });
+    }
 
-BtnAceptarRegistro() {
+BtnAceptarRegistroF() {
     cy.log('Clic en botón ACEPTAR');
     cy.wait(500);
 
