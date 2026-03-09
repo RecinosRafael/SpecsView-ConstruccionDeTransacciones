@@ -161,16 +161,16 @@ class MetodosGeneralesPomCy{
 
 
     //Boton para confirmar el agregar y modificar registros
-    // BtnAceptarRegistro(){
-    //     cy.log('Clic en botón ACEPTAR');
+    BtnAceptarRegistro(){
+        cy.log('Clic en botón ACEPTAR');
 
-    //     cy.contains('button mat-button-wrapper, span.mat-button-wrapper', 'Aceptar', { timeout: 15000 })
-    //         .parents('button')
-    //         .should('exist')
-    //         .click({ force: true });
-    // }
+        cy.contains('button mat-button-wrapper, span.mat-button-wrapper', 'Aceptar', { timeout: 15000 })
+            .parents('button')
+            .should('exist')
+            .click({ force: true });
+    }
 
-BtnAceptarRegistro() {
+BtnAceptarRegistroF() {
     cy.log('Clic en botón ACEPTAR');
     cy.wait(500);
 
@@ -675,10 +675,6 @@ BuscarRegistroEnTabla(criterios) {
         cy.log(`✅ Registro seleccionado exitosamente`);
     });
 }
-
-
-
-
     //Filtro, Buscar por Nombre
     BuscarRegistroNombre(nombre) {
 
@@ -809,6 +805,7 @@ BuscarRegistroEnTabla(criterios) {
             .should('exist')
             .parents('button')
             .click({ force: true });
+            cy.wait(1000)
 
         // 5️⃣ Clic en la descripción encontrada en la tabla
         cy.get('.mat-row .cdk-column-description', { timeout: 15000 }) // ⬅️ ajusta si el nombre difiere

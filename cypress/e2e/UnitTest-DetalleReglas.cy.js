@@ -18,7 +18,7 @@ describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
             Cypress.env('USER'),
             Cypress.env('PASS')
         )
-        
+
         cy.fixture('detalleReglas').as('dataDetalleReglas')
 
     })
@@ -51,11 +51,11 @@ describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
                 cy.log("y el agregar que pedo")
               //  const pais = registro.valorPais || registro.nombre
                 Reglas.DetalleReglas(
-                    registro.correlativo, 
-                    registro.exprsion1, 
-                    registro.operador, 
-                    registro.expresion2, 
-                    registro.operadorLogico, 
+                    registro.correlativo,
+                    registro.exprsion1,
+                    registro.operador,
+                    registro.expresion2,
+                    registro.operadorLogico,
                     registro.tipoExpresion )
 
             Generales.BtnAceptarRegistro();
@@ -63,21 +63,21 @@ describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
             return cy.get('body').then(($body) => {
                 // Buscar específicamente el snackbar de error
                 const snackBarError = $body.find('.snack-container__error');
-                
+
                 if (snackBarError.length > 0) {
                     // Obtener el mensaje específico
                     const mensajeError = snackBarError.find('.message-snack').text();
                     cy.log(`⚠️ Error detectado: ${mensajeError}`);
-                    
+
                     // Cerrar el snackbar si tiene botón de cerrar
                     cy.get('.snack--btn-close').click();
-                    
+
                     Generales.BtnCancelarRegistro();
                     cy.log('❌ Registro duplicado - cancelando');
                 } else {
                     cy.log('✅ No hay errores - aceptando');
                 }
-                
+
                 return cy.get('mat-dialog-container', { timeout: 10000 })
                     .should('not.exist');
             });
@@ -100,7 +100,7 @@ describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
                     // Verificar que estamos en el listado principal
                     return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
                         .should('be.visible')
-                }) 
+                })
             })
         })
     })

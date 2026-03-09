@@ -1,0 +1,21 @@
+{
+  "modificar": [
+    {
+      "transaccion": "",
+      "correlativo": "999",
+      "descripcion": "Enviar transacciones generico a core byte",
+      "pagoServicio": "",
+      "requiereLogin": "No",
+      "endpointDeLogueo": "",
+      "formatoDeEnvio": "Enviar transacción a core Byte",
+      "progGeneraInfoDeEnvio": "",
+      "tipoDatoEnvio": "TRAMA",
+      "endpointDeEnvio": "Enviar interface core Byte",
+      "tipoDatoRecibido": "TRAMA",
+      "archivoRespuesta": "",
+      "progRecibeInfo": "",
+      "analizaRespuesta": "Si"
+      
+    }
+  ]
+}		

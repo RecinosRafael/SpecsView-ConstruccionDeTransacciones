@@ -7,6 +7,7 @@ class UsuarioPomCy{
             .parents('mat-form-field')
             .find('mat-select')
             .click({ force: true });
+        cy.wait(1500)
 
         // 2️⃣ Seleccionar opción del combo
         cy.get('mat-option', { timeout: 10000 })
