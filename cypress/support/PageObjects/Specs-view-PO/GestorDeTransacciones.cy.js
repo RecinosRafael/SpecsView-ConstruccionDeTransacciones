@@ -8,7 +8,7 @@ class GestorPomCy{
 
     //Gestor de transacciones
     
-        GestorTransacciones(
+    GestorTransacciones(
         tipo, codigo, codAlternativo, nombre, etiqueta, estado, validoDesde, validoHasta, tipoMovimientoBoveda, descripcion,
         esconderMenu, permiteReversion, modoOffline, requiereSupervisor, requiereValidarAcceso, seEnviaHost, tiempoEspera, 
         accionPorDemora, tienePagoServicio, PagoServicio, pasoConfirmacionServicio, permiteReimpresion, diasPermitidoReimpresion, 
@@ -20,8 +20,7 @@ class GestorPomCy{
             this.Generales.llenarCampoIframe(nombre, "Nombre");
             this.Generales.llenarCampoIframe(etiqueta, "Etiqueta");
             this.Generales.seleccionarComboIframe(estado, "Estado");
-            this.Generales.seleccionarComboIframe(tipoMovimientoBoveda, "Tipo movimiento en bóveda");
-            this.Generales.IngresarFechaIframe(validoDesde, "Valido desde");
+            this.Generales.seleccionarComboIframe("No aplica", ["Tipo movimiento en bóveda", "Tipo movimiento en bó..."], { force: true });            this.Generales.IngresarFechaIframe(validoDesde, "Valido desde");
             this.Generales.IngresarFechaIframe(validoHasta, "Valido hasta");
             this.Generales.llenarCampoIframe(descripcion, "Descripción");
             this.Generales.checkboxIframe(esconderMenu, "Esconder en menú");
@@ -31,7 +30,7 @@ class GestorPomCy{
             this.Generales.checkboxIframe(requiereValidarAcceso, "Se requiere validar acceso");
             if (seEnviaHost) {
                 this.Generales.checkboxIframe(seEnviaHost, "Se envía al host");
-                this.Generales.llenarCampoIframe(tiempoEspera, "Tiempo de espera");
+                this.Generales.llenarCampoIframe(tiempoEspera, "Tiempo de espera", { force: true });
                 this.Generales.seleccionarComboIframe(accionPorDemora, "Acción por demora");      
             }else{
                 cy.log("Se envía al host no está activo, no se ingresan los datos relacionados a esta opción");
@@ -45,19 +44,19 @@ class GestorPomCy{
             }
             if (permiteReimpresion) {
                 this.Generales.checkboxIframe(permiteReimpresion, "Permite reimpresión");
-                this.Generales.llenarCampoIframe(diasPermitidoReimpresion, "Dias permitidos para reimprimir");
+                this.Generales.llenarCampoIframe(diasPermitidoReimpresion, "Dias permitidos para reimprimir", { force: true });
             }else{
                 cy.log("Permite reimpresión no está activo, no se ingresan los datos relacionados a esta opción");
             }
             if (presentarResumen) {
                 this.Generales.checkboxIframe(presentarResumen, "Presentar resumen de transaccion");
-                this.Generales.llenarCampoIframe(mensajeResumen, "Mensaje despues del proceso");
+                this.Generales.llenarCampoIframe(mensajeResumen, "Mensaje despues del proceso", { force: true });
                 this.Generales.seleccionarComboIframe(tipoMensaje, "Tipo de mensaje");    
             } else {
                 cy.log("Presentar resumen no está activo, no se ingresan los datos relacionados a esta opción");
             }
             this.Generales.llenarCampoIframe(icono, "Ícono");
-            this.Generales.seleccionarComboIframe(DepartamentodeAutorizacion, "Departamento de autorización");
+            this.Generales.seleccionarComboIframe(DepartamentodeAutorizacion, "Departamento de autorización", { force: true });
             this.Generales.llenarCampoIframe(textoAyuda, "Texto de ayuda");
                 // Carga de logo this.Generales.cargarArchivo(logo, "Logo"); pendiente
     }    
