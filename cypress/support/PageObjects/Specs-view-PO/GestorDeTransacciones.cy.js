@@ -8,7 +8,7 @@ class GestorPomCy{
 
     //Gestor de transacciones
     
-        GestorTransacciones(
+    GestorTransacciones(
         tipo, codigo, codAlternativo, nombre, etiqueta, estado, validoDesde, validoHasta, tipoMovimientoBoveda, descripcion,
         esconderMenu, permiteReversion, modoOffline, requiereSupervisor, requiereValidarAcceso, seEnviaHost, tiempoEspera, 
         accionPorDemora, tienePagoServicio, PagoServicio, pasoConfirmacionServicio, permiteReimpresion, diasPermitidoReimpresion, 
@@ -30,7 +30,7 @@ class GestorPomCy{
             this.Generales.checkboxIframe(requiereValidarAcceso, "Se requiere validar acceso");
             if (seEnviaHost) {
                 this.Generales.checkboxIframe(seEnviaHost, "Se envía al host");
-                this.Generales.llenarCampoIframe(tiempoEspera, "Tiempo de espera");
+                this.Generales.llenarCampoIframe(tiempoEspera, "Tiempo de espera", { force: true });
                 this.Generales.seleccionarComboIframe(accionPorDemora, "Acción por demora");      
             }else{
                 cy.log("Se envía al host no está activo, no se ingresan los datos relacionados a esta opción");
