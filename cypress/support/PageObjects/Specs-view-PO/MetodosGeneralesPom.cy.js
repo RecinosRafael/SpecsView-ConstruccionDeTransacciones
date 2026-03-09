@@ -330,10 +330,6 @@ BuscarRegistroEnTabla(criterios) {
         cy.log(`✅ Registro seleccionado exitosamente`);
     });
 }
-
-
-
-
     //Filtro, Buscar por Nombre
     BuscarRegistroNombre(nombre) {
 

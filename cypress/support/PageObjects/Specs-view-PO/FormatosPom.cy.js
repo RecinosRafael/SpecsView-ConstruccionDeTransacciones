@@ -1,28 +1,5 @@
 class FormatosPomCy{
 
-    /*Formato(codigo, nombre, nombreAbreviado, descripcion, plantilla, extencion, valorDtosTachados, valorIncluirImagen, posicion, tamanioImagen,
-            valaroParaCatalogos, codigoPlantillAlternativa, poscEtiquetaComprobante, poscEtiquetaReimprimi) {
-
-        cy.get("#code").should("be.visible").clear().type(codigo)
-        cy.get("#name").should("be.visible").clear().type(nombre)
-        cy.get("#shortName").should("be.visible").clear().type(nombreAbreviado)
-        cy.get("#description").should("be.visible").clear().type(descripcion)
-        cy.get("#templateId").should("be.visible").clear().type(plantilla)
-        cy.get("#extension").should("be.visible").clear().type(extencion)
-
-        this.seleccionarComboF(valorDtosTachados, 0);
-        this.seleccionarComboF(valorIncluirImagen, 1);
-        this.seleccionarComboF(valaroParaCatalogos, 2);
-
-        cy.get("#position").should("be.visible").clear().type(posicion)
-        cy.get("#imageSize").should("be.visible").clear().type(tamanioImagen)
-
-        cy.get("#alternateTemplateCode").should("be.visible").clear().type(codigoPlantillAlternativa)
-        cy.get("#labelPosition").should("be.visible").clear().type(poscEtiquetaComprobante)
-        cy.get("#labelPositionReprint").should("be.visible").clear().type(poscEtiquetaReimprimi)
-
-
-    }*/
 
 
     Formato(codigo, nombre, nombreAbreviado, descripcion, plantilla, extencion,
@@ -141,7 +118,10 @@ class FormatosPomCy{
         });
     }
 
-    DetalleFormato(correlativo, descripcion, valorTipoDatos, leerPosInicial, leerTamDatos, imprimirFila, imprimirTamDatos) {
+    DetalleFormato(correlativo, descripcion, valorTipoDatos, constante,removerCeros, mascaraImpresion, valorEspecificacionCaracteristica1, valorOperador,
+                   valorEspecificaciOnCaracteristica2, leerPosInicial, leerTamDatos, imprimirFila, imprimirTamDatos, imprimirPosicionColumna,expresionDatosRecurso, expresion1,
+                   valorOperacion, expresion2, valorTipoExpresion ) {
+
 
         cy.get("#correlative").should("be.visible").clear().type(correlativo)
         cy.get("#description").should("be.visible").clear().type(descripcion)

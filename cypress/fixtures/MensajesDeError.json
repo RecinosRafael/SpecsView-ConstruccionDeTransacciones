@@ -1,19 +1,1405 @@
 {
   "agregar": [
-
     {
-      "codigo": "420",
-      "mensajeError": "Error en Automatizacion",
-      "descripcion": "QAR.Se agrega un mensaje de error desde cypress con pruebas automatizadas",
-      "valorTipoMensaje": "Recomendación",
-      "valorAccion": "Salir del flujo de transacción"
+      "codigo": 1,
+      "mensajeError": "001 - SE REQUIERE CLAVE DE SUPERVISOR",
+      "descripcion": "",
+      "valorTipoMensaje": null,
+      "valorAccion": null,
+      "expectedStatus": 400
     },
     {
-      "codigo": "421",
-      "mensajeError": "Error en Automatizacion #2",
-      "descripcion": "",
-      "valorTipoMensaje": "Recomendación",
-      "valorAccion": "Salir del flujo de transacción"
+      "codigo": 2,
+      "mensajeError": "002 - TRANSACCION NO REALIZADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 3,
+      "mensajeError": "003 - MOTIVO INVALIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 4,
+      "mensajeError": "004 - CHEQUE CON PARO DE PAGO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 5,
+      "mensajeError": "005 - TIPO DE BLOQUEO NO DEFINIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 6,
+      "mensajeError": "006 - BLOQUEO NO ENCONTRADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 7,
+      "mensajeError": "007 - BLOQUEO YA LIBERADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 8,
+      "mensajeError": "008 - CHEQUE SUSPENDIDO (EXTRAVIADO)",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 9,
+      "mensajeError": "009 - CHEQUE SUSPENDIDO (ROBO)",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 10,
+      "mensajeError": "010 - CHEQUE CERTIFICADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 11,
+      "mensajeError": "011 - CHEQUE YA PAGADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 12,
+      "mensajeError": "012 - ABONADO NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 13,
+      "mensajeError": "013 - BLOQUEO NO LIBERADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 14,
+      "mensajeError": "014 - CUENTA SIN TARJETA DE DEBITO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 15,
+      "mensajeError": "015 - CUENTA CON TARJETA DE DEBITO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 16,
+      "mensajeError": "016 - USUARIO RECHAZO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 17,
+      "mensajeError": "017 - CUENTA CANCELADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 18,
+      "mensajeError": "018 - SOLICITUD NO ENCONTRADA O EMITIDA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 19,
+      "mensajeError": "019 - CHEQUE YA EMITIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 20,
+      "mensajeError": "020 - CUENTA NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 21,
+      "mensajeError": "021 - CUENTA INACTIVA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 22,
+      "mensajeError": "022 - CLIENTE FALLECIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 23,
+      "mensajeError": "023 - VALOR DE APERTURA NO CORRESPONDE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 24,
+      "mensajeError": "024 - CUENTA EMBARGADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 25,
+      "mensajeError": "025 - CUENTA CON ESTATUS INVALIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 26,
+      "mensajeError": "026 - CUENTA NO ACEPTA CREDITOS",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 27,
+      "mensajeError": "027 - CUENTA NO ACEPTA DEBITOS",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 28,
+      "mensajeError": "028 - CHEQUE DE CAJA NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 29,
+      "mensajeError": "029 - CHEQUE DE CAJA YA PAGADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 30,
+      "mensajeError": "030 - STATUS DEL CHEQUE INVALIDO P/COBRO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 31,
+      "mensajeError": "031 - TRANSACCION NO DEFINIDA P/CONSULTA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 32,
+      "mensajeError": "032 - DESCRIPTOR NO ENCONTRADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 33,
+      "mensajeError": "033 - INCONSISTENCIA EN DEFINICION TRX",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 34,
+      "mensajeError": "034 - ERROR SALDO DE LIBRETA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 35,
+      "mensajeError": "035 - NUMERACION NO ASIGNADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 36,
+      "mensajeError": "036 - ERROR EN CHEQUE CERTIFICADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 37,
+      "mensajeError": "037 - CHEQUE ANULADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 38,
+      "mensajeError": "038 - ALGUN CHEQUE YA FUE LIBERADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 39,
+      "mensajeError": "039 - CHQ CERTIFICADO DE DIF VALOR",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 40,
+      "mensajeError": "040 - IMPOSIBLE REVERSAR LA TRANSACCION",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 41,
+      "mensajeError": "041 - NO SE HA DEFINIDO POSICION DE CTA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 42,
+      "mensajeError": "042 - TRANSACCION NO COMPLETADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 43,
+      "mensajeError": "043 - CONTRACUENTA NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 44,
+      "mensajeError": "044 - CHQ CONSIG NO TIENE RESERVA 24H",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 45,
+      "mensajeError": "045 - CUENTA BLOQUEADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 46,
+      "mensajeError": "046 - REGISTRO YA EXISTE EN MAESTRO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 47,
+      "mensajeError": "047 - FONDOS NO CONFIRMADOS",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 48,
+      "mensajeError": "048 - RESERVA DE COBRO DEL EXTERIOR",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 49,
+      "mensajeError": "049 - REGISTRO YA EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 50,
+      "mensajeError": "050 - FONDOS INSUFICIENTES",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 51,
+      "mensajeError": "051 - NO TIENE FONDOS",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 52,
+      "mensajeError": "052 - CHEQUE NO PAGADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 53,
+      "mensajeError": "053 - VALOR DEL DOCUMENTO EN CERO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 54,
+      "mensajeError": "054 - OPERACION NO APLICADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 55,
+      "mensajeError": "055 - MONEDAS NO COINCIDEN",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 56,
+      "mensajeError": "056 - PAGO FUERA DE RANGO DE FECHAS",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 57,
+      "mensajeError": "057 - MONTO MÁX PAGO, MENOR QUE FACTURA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 58,
+      "mensajeError": "058 - VALOR FACTURA NO RECUPERADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 59,
+      "mensajeError": "059 - ERROR EN PAGO SERVIDOR REMOTO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 60,
+      "mensajeError": "060 - TRANSACCIÓN NO CONICIDE CON CIERRE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 61,
+      "mensajeError": "061 - PRESTAMO NO EXISTENTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 62,
+      "mensajeError": "062 - PRESTAMO CON GASTOS LEGALES",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 63,
+      "mensajeError": "063 - PRESTAMO CANCELADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 64,
+      "mensajeError": "064 - MONTO NO COINCIDE CON LA CUOTA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 65,
+      "mensajeError": "065 - NO EXISTEN RECIBOS PENDIENTES",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 66,
+      "mensajeError": "066 - PRODUCTO INCORRECTO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 67,
+      "mensajeError": "067 - PRESTAMO ANULADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 68,
+      "mensajeError": "068 - PRESTAMO CON ATRASOS",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 69,
+      "mensajeError": "069 - ESTADO INVALIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 70,
+      "mensajeError": "070 - RECIBO DE PAGO NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 71,
+      "mensajeError": "071 - RECIBO DE PAGO NO PUEDE APLICARCE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 72,
+      "mensajeError": "072 - FECHA DE EMISION INVALIDA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 73,
+      "mensajeError": "073 - PARAMETROS INVALIDOS PARA PRODUCTO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 74,
+      "mensajeError": "074 - TRANSACCION YA FUE OPERADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 75,
+      "mensajeError": "075 - TRANSACCION INVALIDA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 76,
+      "mensajeError": "076 - CUPO NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 77,
+      "mensajeError": "077 - CUENTA NO SE PUEDE CANCELAR",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 78,
+      "mensajeError": "078 - CUENTA NO SE PUEDE CANCELAR",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 79,
+      "mensajeError": "079 - NO SE PERMITE PAGOS CONVINADOS",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 80,
+      "mensajeError": "080 - CHEQUE DE CAJA DIFIERE VALOR",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 81,
+      "mensajeError": "081 - TARJETA DE CREDITO NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 82,
+      "mensajeError": "082 - USUARIO YA EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 83,
+      "mensajeError": "083 - CONTRACUENTA CANCELADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 84,
+      "mensajeError": "084 - CONTRACUENTA INACTIVA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 85,
+      "mensajeError": "085 - CONTRACUENTA EMBARGADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 86,
+      "mensajeError": "086 - CHEQUERA SUSPENDIDA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 87,
+      "mensajeError": "087 - CHEQUERA NO ENTREGADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 88,
+      "mensajeError": "088 - CHEQUE YA CERTIFICADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 89,
+      "mensajeError": "089 - CHEQUE DE CAJA NO COBRADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 90,
+      "mensajeError": "090 - ERROR EN COMPLEMENTO PAGO PARCIAL",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 91,
+      "mensajeError": "091 - ERROR EN PAGO PARCIAL",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 92,
+      "mensajeError": "092 - PASWORD INVALIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 93,
+      "mensajeError": "093 - ERROR EN DATOS DE INTERFAZ",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 94,
+      "mensajeError": "094 - PLACA NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 95,
+      "mensajeError": "095 - EL SISTEMA ESTA FUERA DE LINEA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 96,
+      "mensajeError": "096 - HAY VALORES PENDIENTES DE PAGO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 97,
+      "mensajeError": "097 - DATOS INCORRECTOS REMITIR A LA DEI",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 98,
+      "mensajeError": "098 - REGISTRO NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 99,
+      "mensajeError": "099 - PERIODO DE PAGO INCORRECTO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 100,
+      "mensajeError": "100 - ERROR EN EL VALOR DEL CERTIFICADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 101,
+      "mensajeError": "101 - ERROR EN EL STATUS DEL CERTIFICADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 102,
+      "mensajeError": "102 - EL CERTIFICADO NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 103,
+      "mensajeError": "103 - ERROR EN INTERESES DEL PERIODO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 104,
+      "mensajeError": "104 - ERROR EN INTERESES ACUMULADOS",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 105,
+      "mensajeError": "105 - IMPUESTO SOBRE LA RENTA ERRONEO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 106,
+      "mensajeError": "106 - CODIGO DE RECHAZO NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 107,
+      "mensajeError": "107 - DOCUMENTO DUPLICADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 108,
+      "mensajeError": "108 - DOCUMENTO NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 109,
+      "mensajeError": "109 - CHEQUE DE VENTANILLA NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 110,
+      "mensajeError": "110 - ERROR EN STATUS CHEQUE VENTANILLA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 111,
+      "mensajeError": "111 - TIPO DE PAGO DEBE SER 1 O 2",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 112,
+      "mensajeError": "112 - NO DEBE DIGITAR NUMERO DE RECIBO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 113,
+      "mensajeError": "113 - DEBE DIGITAR NUMERO DE RECIBO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 114,
+      "mensajeError": "114 - EL GUION DEBE IR EN LA 3RA POSICIO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 115,
+      "mensajeError": "115 - ESTABLECIMIENTO NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 116,
+      "mensajeError": "116 - VALOR CHEQUE SOBREPASA LIMITE ESTA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 117,
+      "mensajeError": "117 - EL BLOQUEO NO ESTA DISPONIBLE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 118,
+      "mensajeError": "118 - EL CHEQUE PROTEGIDO NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 119,
+      "mensajeError": "119 - EL CHEQUE YA FUE PAGADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 120,
+      "mensajeError": "120 - DIFERENCIA EN EL VALOR DEL CHEQUE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 121,
+      "mensajeError": "121 - NO. DE AUTORIZACION NO COINCIDE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 122,
+      "mensajeError": "122 - CHEQUE PROTEGIDO NO HA SIDO PAGADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 123,
+      "mensajeError": "123 - NO SE PUEDE MATRICULAR",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 124,
+      "mensajeError": "124 - ALUMNO NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 125,
+      "mensajeError": "125 - ERROR EN ACTUALIZACION",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 126,
+      "mensajeError": "126 - ERROR EN CORRELATIVO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 127,
+      "mensajeError": "127 - CARRERA NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 128,
+      "mensajeError": "128 - PAGO ANTERIOR NO REALIZADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 129,
+      "mensajeError": "129 - CAMPUS NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 130,
+      "mensajeError": "130 - TRX. REVERSA NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 131,
+      "mensajeError": "131 - TRX. NO ENCONTRADA EN MOVIMIENTO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 132,
+      "mensajeError": "132 - TRX. NO ENCONTRADA EN DIARIO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 133,
+      "mensajeError": "133 - REGISTRO YA EXISTE EN ARCHIVO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 134,
+      "mensajeError": "134 - PAGO YA EFECTUADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 135,
+      "mensajeError": "135 - BIN BLOQUEADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 136,
+      "mensajeError": "136 - BIN ACEPTADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 137,
+      "mensajeError": "137 - NO HAY RESPUESTA DEL TRANSERVER",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 138,
+      "mensajeError": "138 - BIN INVALIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 139,
+      "mensajeError": "139 - MONTO INVALIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 140,
+      "mensajeError": "140 - NUMERO DE LIBRETA NO ES CORRECTO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 141,
+      "mensajeError": "141 - NUMERO DE CERTIFICADO NO ES CORREC",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 142,
+      "mensajeError": "142 - CHEQUE CERTIFICADO SUSPENDIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 143,
+      "mensajeError": "143 - VALOR NO AUTORIZADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 144,
+      "mensajeError": "144 - INFORMACIÓN INVALIDA PARA INTERNAC",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 145,
+      "mensajeError": "145 - EL NÚMERO DE RECIBO NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 146,
+      "mensajeError": "146 - EL NUMERO DE RECIBO NO SE PUEDE AP",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 147,
+      "mensajeError": "147 - EL VALOR NO ES EL DEL RECIBO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 148,
+      "mensajeError": "148 - FECHA LIMITE DE PAGO VENCIDA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 149,
+      "mensajeError": "149 - ERROR AL APLICAR RECIBO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 150,
+      "mensajeError": "150 - CONSULTE LA TARJETA EMISORA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 151,
+      "mensajeError": "151 - AUTORIZACION NO ENCONTRADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 152,
+      "mensajeError": "152 - INTENTE DE NUEVO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 153,
+      "mensajeError": "153 - PIN INCORRECTO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 154,
+      "mensajeError": "154 - LIMITE DE RETIRO EXCEDIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 155,
+      "mensajeError": "155 - MES YA PAGADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 156,
+      "mensajeError": "156 - CTA NO AFILIADA CHEQUE REGIONAL",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 157,
+      "mensajeError": "157 - REGISTRO NO EXISTE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 158,
+      "mensajeError": "158 - CLIENTE NO HA PAGADO MES ANTERIOR.",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 159,
+      "mensajeError": "159 - OPERACION NO REALIZADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 160,
+      "mensajeError": "160 - ERROR EN NUMERO DE REFERENCIA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 161,
+      "mensajeError": "161 - MONTO MAYOR AL PERMITIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 162,
+      "mensajeError": "162 - COMBINACION DE MONTOS INCORRECTOS",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 163,
+      "mensajeError": "163 - NO SE ACEPTAN PAGOS MENORES AL SALDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 164,
+      "mensajeError": "164 - SOLO PAGOS MENORES O IGUALES AL SALDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 165,
+      "mensajeError": "165 - SOLO PAGOS IGUALES AL SALDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 166,
+      "mensajeError": "166 - REGISTRO INCORRECTO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 167,
+      "mensajeError": "167 - POLIZA EN PROCESO DE CANCELACION",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 168,
+      "mensajeError": "168 - FACTURA YA COBRADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 169,
+      "mensajeError": "169 - POLIZA INACTIVA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 170,
+      "mensajeError": "170 - TARJETA CON BLOQUEO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 174,
+      "mensajeError": "174 - REMITASE AL EMISOR DEL CHEQUE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 175,
+      "mensajeError": "175 - DESGLOSE EXCEDE EL MAXIMO PERMITIDO B/M",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 180,
+      "mensajeError": "180 - PAGO NO PROCESADO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 201,
+      "mensajeError": "201 - ESTATUS DEL DOCUMENTO INCORRECTO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 205,
+      "mensajeError": "205 - EL STATUS DEL BONO ES INCORRECTO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 210,
+      "mensajeError": "210 - DESCUADRADO O SIN INGRESO CUADRE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 250,
+      "mensajeError": "250 - No se Canc., compromisos pends.",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 251,
+      "mensajeError": "251 - Ya existe Reg. de Cancelacion",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 300,
+      "mensajeError": "300 - CUENTA RELACIONADA A INVERSIONES",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 301,
+      "mensajeError": "301 - APROBADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 302,
+      "mensajeError": "302 - COMERCIO INVALIDO O PROVEEDOR DE SER",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 303,
+      "mensajeError": "303 - NO HONRAR",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 304,
+      "mensajeError": "304 - ERROR",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 305,
+      "mensajeError": "305 - RETENER PLASTICO CONDICION ESPECIAL",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 306,
+      "mensajeError": "306 - APROBACION POR V.I.P",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 307,
+      "mensajeError": "307 - TRANSACCION INVALIDA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 308,
+      "mensajeError": "308 - MONTO INVALIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 309,
+      "mensajeError": "309 - NUMERO DE CUENTA INVALIDO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 310,
+      "mensajeError": "310 - NO EXISTE EMISOR",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 311,
+      "mensajeError": "311 - RETENER PLASTICO TARJETA PERDIDA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 312,
+      "mensajeError": "312 - RETENER PLASTICO TARJETA ROBADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 313,
+      "mensajeError": "313 - FONDOS INSUFICIENTES",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 314,
+      "mensajeError": "314 - NO ES CUENTA DE CHEQUES",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 315,
+      "mensajeError": "315 - NO ES CUENTA DE AHORROS",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 316,
+      "mensajeError": "316 - TARJETA EXPIRADA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 317,
+      "mensajeError": "317 - PIN INCORRECTO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 318,
+      "mensajeError": "318 - TRANSACCION NO PERMITIDA AL TARJETAA",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 319,
+      "mensajeError": "319 - SOSPECHA DE FRAUDE",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 320,
+      "mensajeError": "320 - EXCESO DE LIMITE DE MONTO",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
+    },
+    {
+      "codigo": 321,
+      "mensajeError": "321 - EXCESO DE LIMITE DE NUMERO DE TRXS",
+      "descripcion": " ",
+      "valorTipoMensaje": " ",
+      "valorAccion": " "
     }
   ]
 }

@@ -1,0 +1,15 @@
+{
+  "agregar": [
+    {
+      "codigoFormato": "7",
+      "correlativo": "15",
+      "descripcion": "tt_fa(\"1\")",
+      "valorTipoDatos": "",
+      "leerPosInicial": "",
+      "leerTamDatos": "AND",
+      "imprimirFila": "Alfanumérico",
+      "imprimirTamDatos": "Alfanumérico"
+    }
+
+    ]
+}

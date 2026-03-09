@@ -2,9 +2,14 @@ import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosG
 import MonedasPomCy from "../support/PageObjects/Specs-view-PO/MonedasPom.cy";
 
 const Generales = new metodosGeneralesPomCy()
-const Monedas = new MonedasPomCy()
+const Denominaciones = new MonedasPomCy()
 
-describe('CRUD Denominaciones', () => {
+
+describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
+
+    Cypress.on('uncaught:exception',(err,Runnable) =>{
+        return false
+    })
 
     //Login y visita al Specs-view
     before(() => {
@@ -13,58 +18,93 @@ describe('CRUD Denominaciones', () => {
             Cypress.env('USER'),
             Cypress.env('PASS')
         )
+
+        cy.fixture('denominaciones').as('dataDenominaciones')
+
     })
 
     beforeEach(() => {
-        Generales.IrAPantalla('country')
+        Generales.IrAPantalla('money')
     })
 
-    before(() => {
-        cy.fixture('denominaciones').as('denominacionesData')
-    })
+    it("Agregar registros a sub nivel", function () {
 
-    it('Insertar todas las denominaciones agrupadas por moneda', function () {
+        const datos = this.dataDenominaciones.agregar
 
-        // 🔥 Agrupar por monedaCodigo
-        const agrupadas = this.denominacionesData.reduce((acc, item) => {
-
-            if (!acc[item.monedaCodigo]) {
-                acc[item.monedaCodigo] = []
+        const agrupadas = datos.reduce((acc, item) => {
+            if (!acc[item.codigoMoneda]) {
+                acc[item.codigoMoneda] = []
             }
-
-            acc[item.monedaCodigo].push(item)
-
+            acc[item.codigoMoneda].push(item)
             return acc
-
         }, {})
 
-        // 🔥 Recorrer cada moneda
-        Object.keys(agrupadas).forEach(monedaCodigo => {
+        cy.wrap(Object.keys(agrupadas)).each((codigoMoneda) => {
+            cy.log('Procesando Regla con nombre: ' + codigoMoneda)
 
-            cy.log(`Insertando denominaciones para moneda ${monedaCodigo}`)
+            // 🔎 Buscar Regla
+            Generales.BuscarRegistroCodigo(codigoMoneda)
+            Generales.NavegacionSubMenu('Denominación de Moneda')
 
-            // 🔎 Buscar moneda una sola vez
-            cy.get('#filtroCodigo').clear().type(monedaCodigo)
-            cy.contains('Buscar').click()
+            return cy.wrap(agrupadas[codigoMoneda]).each((registro) => {
+                Generales.BtnAgregarRegistroSubnivel()
+                cy.log("y el agregar que pedo")
+                //  const pais = registro.valorPais || registro.nombre
+                Denominaciones.DenominacionMoneda(
+                    //nombre, etiqueta, valorTipo, monto
+                    registro.nombre,
+                    registro.etiqueta,
+                    registro.valorTipo,
+                    registro.monto
+            )
 
-            cy.contains(monedaCodigo).click()
+                Generales.BtnAceptarRegistro();
+                cy.wait(2000)
+                return cy.get('body').then(($body) => {
+                    // Buscar específicamente el snackbar de error
+                    const snackBarError = $body.find('.snack-container__error');
 
-            // Entrar al subnivel
-            cy.contains('Denominaciones').click()
+                    if (snackBarError.length > 0) {
+                        // Obtener el mensaje específico
+                        const mensajeError = snackBarError.find('.message-snack').text();
+                        cy.log(`⚠️ Error detectado: ${mensajeError}`);
 
-            // 🔥 Insertar todas sus denominaciones
-            agrupadas[monedaCodigo].forEach(deno => {
+                        // Cerrar el snackbar si tiene botón de cerrar
+                        cy.get('.snack--btn-close').click();
 
-                cy.contains('Agregar').click()
-                cy.get('#valor').clear().type(deno.valor)
-                cy.contains('Guardar').click()
+                        Generales.BtnCancelarRegistro();
+                        cy.log('❌ Registro duplicado - cancelando');
+                    } else {
+                        cy.log('✅ No hay errores - aceptando');
+                    }
 
+                    return cy.get('mat-dialog-container', { timeout: 10000 })
+                        .should('not.exist');
+                });
+
+
+            }).then(() => {
+                cy.log('🔙 Regresando al nivel principal')
+
+                // Primer regreso - SALIR DEL SUBNIVEL
+                return cy.then(() => {
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que salimos del subnivel (modal cerrado)
+                    return cy.get('mat-dialog-container', { timeout: 5000 })
+                        .should('not.exist')
+                }).then(() => {
+                    // Segundo regreso - SALIR DEL DETALLE DE MONEDA
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que estamos en el listado principal
+                    return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
+                        .should('be.visible')
+                })
             })
-
-            cy.contains('Regresar').click()
-
         })
-
     })
 
 })
+
+
