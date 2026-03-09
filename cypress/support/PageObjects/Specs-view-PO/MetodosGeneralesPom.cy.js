@@ -600,6 +600,7 @@ BuscarRegistroEnTabla(criterios) {
             .should('exist')
             .parents('button')
             .click({ force: true });
+            cy.wait(1000)
 
         // 5️⃣ Clic en la descripción encontrada en la tabla
         cy.get('.mat-row .cdk-column-description', { timeout: 15000 }) // ⬅️ ajusta si el nombre difiere
