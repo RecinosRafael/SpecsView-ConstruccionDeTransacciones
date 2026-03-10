@@ -14,50 +14,104 @@ class GestorPomCy{
         accionPorDemora, tienePagoServicio, PagoServicio, pasoConfirmacionServicio, permiteReimpresion, diasPermitidoReimpresion, 
         presentarResumen, mensajeResumen, tipoMensaje, icono, DepartamentodeAutorizacion, textoAyuda, logo
     ){
-            this.Generales.seleccionarComboIframe(tipo, "Tipo" );
-            this.Generales.llenarCampoIframe(codigo, "Código"); 
-            this.Generales.llenarCampoIframe(codAlternativo, "Código alternativo");
-            this.Generales.llenarCampoIframe(nombre, "Nombre");
-            this.Generales.llenarCampoIframe(etiqueta, "Etiqueta");
-            this.Generales.seleccionarComboIframe(estado, "Estado");
-            this.Generales.seleccionarComboIframe("No aplica", ["Tipo movimiento en bóveda", "Tipo movimiento en bó..."], { force: true });            this.Generales.IngresarFechaIframe(validoDesde, "Valido desde");
-            this.Generales.IngresarFechaIframe(validoHasta, "Valido hasta");
-            this.Generales.llenarCampoIframe(descripcion, "Descripción");
-            this.Generales.checkboxIframe(esconderMenu, "Esconder en menú");
-            this.Generales.checkboxIframe(permiteReversion, "Permite reversión");
-            this.Generales.checkboxIframe(modoOffline, "Modo offline");
-            this.Generales.checkboxIframe(requiereSupervisor, "Requiere supervisor");
-            this.Generales.checkboxIframe(requiereValidarAcceso, "Se requiere validar acceso");
+            this.Generales.seleccionarComboIframe(tipo, "Tipo", { timeout: 10000, skipContext: true } );
+            this.Generales.llenarCampoIframe(codigo, "Código", { timeout: 10000, skipContext: true }); 
+            this.Generales.llenarCampoIframe(codAlternativo, "Código alternativo", { timeout: 10000, skipContext: true });
+            this.Generales.llenarCampoIframe(nombre, "Nombre", { timeout: 10000, skipContext: true });
+            this.Generales.llenarCampoIframe(etiqueta, "Etiqueta", { timeout: 10000, skipContext: true });
+            this.Generales.seleccionarComboIframe(estado, "Estado", { timeout: 10000, skipContext: true });
+            this.Generales.seleccionarComboIframe(tipoMovimientoBoveda, "Tipo movimiento en bóveda", { timeout: 10000, skipContext: true, force: true });            
+            this.Generales.IngresarFechaIframe(validoDesde, "Valido desde", { timeout: 10000, skipContext: true });
+            this.Generales.IngresarFechaIframe(validoHasta, "Valido hasta", { timeout: 10000, skipContext: true });
+            this.Generales.llenarCampoIframe(descripcion, "Descripción", { timeout: 10000, skipContext: true });
+            this.Generales.checkboxIframe(esconderMenu, "Esconder en menú", { timeout: 10000, skipContext: true });
+            this.Generales.checkboxIframe(permiteReversion, "Permite reversión", { timeout: 10000, skipContext: true });
+            this.Generales.checkboxIframe(modoOffline, "Modo offline", { timeout: 10000, skipContext: true });
+            this.Generales.checkboxIframe(requiereSupervisor, "Requiere supervisor", { timeout: 10000, skipContext: true });
+            this.Generales.checkboxIframe(requiereValidarAcceso, "Se requiere validar acceso", { timeout: 10000, skipContext: true });
             if (seEnviaHost) {
-                this.Generales.checkboxIframe(seEnviaHost, "Se envía al host");
-                this.Generales.llenarCampoIframe(tiempoEspera, "Tiempo de espera", { force: true });
-                this.Generales.seleccionarComboIframe(accionPorDemora, "Acción por demora", { force: true });      
+                this.Generales.checkboxIframe(seEnviaHost, "Se envía al host", { timeout: 10000, skipContext: true });
+                this.Generales.llenarCampoIframe(tiempoEspera, "Tiempo de espera", { timeout: 10000, force: true, skipContext: true });
+                this.Generales.seleccionarComboIframe(accionPorDemora, "Acción por demora", { timeout: 10000, force: true, skipContext: true });      
             }else{
-                cy.log("Se envía al host no está activo, no se ingresan los datos relacionados a esta opción");
+                cy.log("Se envía al host no está activo, no se ingresan los datos relacionados a esta opción", { timeout: 10000, skipContext: true });
             }
             if (tienePagoServicio) {
-                this.Generales.checkboxIframe(tienePagoServicio, "Es pago de servicio");
-                this.Generales.seleccionarComboIframe(PagoServicio, "Pago de servicio");
-                this.Generales.seleccionarComboIframe(pasoConfirmacionServicio, "Incluye paso para confirmar datos");
+                this.Generales.checkboxIframe(tienePagoServicio, "Es pago de servicio", { timeout: 10000, skipContext: true });
+                this.Generales.seleccionarComboIframe(PagoServicio, "Pago de servicio", { timeout: 10000, skipContext: true });
+                this.Generales.seleccionarComboIframe(pasoConfirmacionServicio, "Incluye paso para confirmar datos", { timeout: 10000, skipContext: true });
             }else{
                 cy.log("Es pago de servicio no está activo, no se ingresan los datos relacionados a esta opción");
             }
             if (permiteReimpresion) {
-                this.Generales.checkboxIframe(permiteReimpresion, "Permite reimpresión");
-                this.Generales.llenarCampoIframe(diasPermitidoReimpresion, "Dias permitidos para reimprimir", { force: true });
+                this.Generales.checkboxIframe(permiteReimpresion, "Permite reimpresión", { timeout: 10000, skipContext: true });
+                this.Generales.llenarCampoIframe(diasPermitidoReimpresion, "Dias permitidos para reimprimir", { timeout: 10000, force: true, skipContext: true });
             }else{
                 cy.log("Permite reimpresión no está activo, no se ingresan los datos relacionados a esta opción");
             }
             if (presentarResumen) {
-                this.Generales.checkboxIframe(presentarResumen, "Presentar resumen de transaccion");
-                this.Generales.llenarCampoIframe(mensajeResumen, "Mensaje despues del proceso", { force: true });
-                this.Generales.seleccionarComboIframe(tipoMensaje, "Tipo de mensaje");    
+                this.Generales.checkboxIframe(presentarResumen, "Presentar resumen de transaccion", { timeout: 10000, skipContext: true });
+                this.Generales.llenarCampoIframe(mensajeResumen, "Mensaje despues del proceso", { timeout: 10000, force: true, skipContext: true });
+                this.Generales.seleccionarComboIframe(tipoMensaje, "Tipo de mensaje", { timeout: 10000, skipContext: true });    
             } else {
                 cy.log("Presentar resumen no está activo, no se ingresan los datos relacionados a esta opción");
             }
-            this.Generales.llenarCampoIframe(icono, "Ícono");
-            this.Generales.seleccionarComboIframe(DepartamentodeAutorizacion, "Departamento de autorización", { force: true });
-            this.Generales.llenarCampoIframe(textoAyuda, "Texto de ayuda");
+            this.Generales.llenarCampoIframe(icono, "Ícono", { timeout: 10000, skipContext: true });
+            this.Generales.seleccionarComboIframe(DepartamentodeAutorizacion, "Departamento de autorización", { timeout: 10000, force: true, skipContext: true });
+            this.Generales.llenarCampoIframe(textoAyuda, "Texto de ayuda", { timeout: 10000, skipContext: true });
+                // Carga de logo this.Generales.cargarArchivo(logo, "Logo"); pendiente
+    }    
+    GestorTransaccionestest(
+        tipo, codigo, codAlternativo, nombre, etiqueta, estado, validoDesde, validoHasta, tipoMovimientoBoveda, descripcion,
+        esconderMenu, permiteReversion, modoOffline, requiereSupervisor, requiereValidarAcceso, seEnviaHost, tiempoEspera, 
+        accionPorDemora, tienePagoServicio, PagoServicio, pasoConfirmacionServicio, permiteReimpresion, diasPermitidoReimpresion, 
+        presentarResumen, mensajeResumen, tipoMensaje, icono, DepartamentodeAutorizacion, textoAyuda, logo
+    ){
+            this.Generales.seleccionarCombo(tipo, "Tipo", { timeout: 10000, skipContext: true });
+            this.Generales.llenarCampo(codigo, "Código"); 
+            this.Generales.llenarCampo(codAlternativo, "Código alternativo");
+            this.Generales.llenarCampo(nombre, "Nombre");
+            this.Generales.llenarCampo(etiqueta, "Etiqueta");
+            this.Generales.seleccionarCombo(estado, "Estado");
+            this.Generales.seleccionarCombo("No aplica", ["Tipo movimiento en bóveda", "Tipo movimiento en bó..."], { force: true });            
+            this.Generales.IngresarFecha(validoDesde, "Valido desde");
+            this.Generales.IngresarFecha(validoHasta, "Valido hasta");
+            this.Generales.llenarCampo(descripcion, "Descripción");
+            this.Generales.checkbox(esconderMenu, "Esconder en menú");
+            this.Generales.checkbox(permiteReversion, "Permite reversión");
+            this.Generales.checkbox(modoOffline, "Modo offline");
+            this.Generales.checkbox(requiereSupervisor, "Requiere supervisor");
+            this.Generales.checkbox(requiereValidarAcceso, "Se requiere validar acceso");
+            if (seEnviaHost) {
+                this.Generales.checkbox(seEnviaHost, "Se envía al host");
+                this.Generales.llenarCampo(tiempoEspera, "Tiempo de espera", { force: true });
+                this.Generales.seleccionarCombo(accionPorDemora, "Acción por demora", { force: true });      
+            }else{
+                cy.log("Se envía al host no está activo, no se ingresan los datos relacionados a esta opción");
+            }
+            if (tienePagoServicio) {
+                this.Generales.checkbox(tienePagoServicio, "Es pago de servicio");
+                this.Generales.seleccionarCombo(PagoServicio, "Pago de servicio");
+                this.Generales.seleccionarCombo(pasoConfirmacionServicio, "Incluye paso para confirmar datos");
+            }else{
+                cy.log("Es pago de servicio no está activo, no se ingresan los datos relacionados a esta opción");
+            }
+            if (permiteReimpresion) {
+                this.Generales.checkbox(permiteReimpresion, "Permite reimpresión");
+                this.Generales.llenarCampo(diasPermitidoReimpresion, "Dias permitidos para reimprimir", { force: true });
+            }else{
+                cy.log("Permite reimpresión no está activo, no se ingresan los datos relacionados a esta opción");
+            }
+            if (presentarResumen) {
+                this.Generales.checkbox(presentarResumen, "Presentar resumen de transaccion");
+                this.Generales.llenarCampo(mensajeResumen, "Mensaje despues del proceso", { force: true });
+                this.Generales.seleccionarCombo(tipoMensaje, "Tipo de mensaje");    
+            } else {
+                cy.log("Presentar resumen no está activo, no se ingresan los datos relacionados a esta opción");
+            }
+            this.Generales.llenarCampo(icono, "Ícono");
+            this.Generales.seleccionarCombo(DepartamentodeAutorizacion, "Departamento de autorización", { force: true });
+            this.Generales.llenarCampo(textoAyuda, "Texto de ayuda");
                 // Carga de logo this.Generales.cargarArchivo(logo, "Logo"); pendiente
     }    
 

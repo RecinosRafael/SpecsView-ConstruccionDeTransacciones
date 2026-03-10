@@ -27,24 +27,27 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
 
     it("Agregar múltiples registros dinámicamente", () => {
 
-        cy.get('iframe.frame', { timeout: 10000 }).its('0.contentDocument.body')
-        .should('not.be.empty').then(cy.wrap).as('iframeBody');
-
+    
         cy.fixture('gestorTransaccion').then((data) => {
             cy.wrap(data.agregar).each((item) => {
                 cy.log(`Insertando código: ${item.codigo}`)
-
+    
+    
+                cy.get('iframe.frame', { timeout: 10000 })
+                .its('0.contentDocument.body')
+                .should('not.be.empty')
+                .then(cy.wrap)
+                .within(() => {
                 //Asegurar estado limpio antes de comenzar
-                cy.get('body').then(($body) => {
-                    if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
-                        cy.log('Formulario abierto detectado, cerrando...')
-                        Generales.BtnCancelarRegistro()
-                    }
-                })
+                // cy.get('body').then(($body) => {
+                //     if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                //         cy.log('Formulario abierto detectado, cerrando...')
+                //         Generales.BtnCancelarRegistro()
+                //     }
+                // })
 
                 //Abrir formulario
-                Generales.BtnIframe('Agregar', { timeout: 10000, force: true})
-                Generales.esperarOcultarSpinner()
+                Generales.BtnIframe('Agregar', { timeout: 10000, force: true, skipContext: true });
                 // //Validar que el modal realmente abrió
                 // cy.contains('h2', 'Nuevo Registro', { timeout: 10000, force: true})
                 //     .should('be.visible')
@@ -63,40 +66,31 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
                 item.diasPermitidoReimpresion, item.presentarResumen, item.mensajeResumen, item.tipoMensaje, item.icono, item.DepartamentodeAutorizacion, item.textoAyuda, item.logo
 
             )
+        // Normalizar el tipo para comparación (opcional)
+        const tipoNormalizado = item.tipo?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
                 //Intercept backend
                 cy.intercept('POST', '**/transactionSpec').as('guardar')
-
-                Generales.BtnIframe('Aceptar', { timeout: 10000, force: true})
-
+                Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+                
                 cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
                     if (status === 200 || status === 201) {
                         cy.log('Registro insertado correctamente')
                         // Esperar que el modal desaparezca
-                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true})
-                        cy.wait(1000) 
-                        cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then($iframe => {
-                            if ($iframe.length) {
-                                const iframeDoc = $iframe[0].contentDocument;
-                                const $body = Cypress.$(iframeDoc).find('body');
-                                const $elemento = $body.find('mat-dialog-content:contains("No ha configurado correctamente el apartado de afectación de totales")');
-                                if ($elemento.length) {
-                                    cy.log('✅ El texto del diálogo SÍ está presente en el iframe');
-                                    Generales.BtnIframe('Sí', { timeout: 10000, force: true})
-                                } else {
-                                    cy.log('❌ El texto del diálogo NO está presente en el iframe');
-                                    Generales.BtnIframe('Atrás', { timeout: 10000, force: true})
-
-                                    }
-                                } else {
-                                    cy.log('No se encontró el iframe');
-                                }
-                            });               
-                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true})
+                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
+                        cy.wait(2000) 
+                            if (tipoNormalizado === "administrativas") {
+                                cy.log('✅ Es tipo ADMINISTRATIVAS, ejecutando acción especial');
+                                Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
+                            } else {
+                                cy.log('➡️ No es ADMINISTRATIVAS, continuando con flujo normal');
+                                Generales.BtnIframe('Sí', { timeout: 10000, force: true, skipContext: true });
+                                Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
+                            }
                     } else {
                         cy.log(`Error detectado. Status: ${status}`)
-                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true})
+                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
                     }
                 })
@@ -105,7 +99,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
             
             
             
-            
+                })
+
             })
         })
     })
