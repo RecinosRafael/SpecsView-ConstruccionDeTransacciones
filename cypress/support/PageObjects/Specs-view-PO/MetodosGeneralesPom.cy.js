@@ -2785,7 +2785,7 @@ BuscarRegistroEnTabla(criterios) {
 
     }
 
-    filtrarPorCodigoIframe(codigo) {
+    /*filtrarPorCodigoIframe(codigo) {
         if (!codigo || codigo === "") {
             cy.log(`⏭️ Código vacío - se omite`);
             return;
@@ -2850,10 +2850,61 @@ BuscarRegistroEnTabla(criterios) {
                 cy.log('❌ No se encontró iframe');
             }
         });
+    }*/
+
+    filtrarPorCodigo(codigo) {
+        if (!codigo || codigo === "") {
+            cy.log(`⏭️ Código vacío - se omite`);
+            return;
+        }
+
+        cy.log(`🔍 Buscando y seleccionando registro con código: "${codigo}"`);
+
+        // PASO 1: Abrir panel Filtros
+        cy.get('mat-expansion-panel-header').contains('Filtros')
+            .then($header => {
+                if ($header.attr('aria-expanded') !== 'true') {
+                    cy.log('📌 Abriendo panel Filtros');
+                    cy.wrap($header).click({ force: true });
+                    cy.wait(500);
+                }
+            });
+
+        // PASO 2: Buscar el campo Código por su mat-label
+        cy.log('📝 Buscando campo Código...');
+        cy.get('mat-label:contains("Código")')
+            .should('be.visible')
+            .then($label => {
+                const $input = $label.closest('mat-form-field').find('input');
+                cy.wrap($input).clear({ force: true }).type(codigo, { force: true, delay: 50 });
+                cy.log('✅ Código ingresado');
+            });
+
+        // PASO 3: Hacer clic en el botón de búsqueda (search)
+        cy.log('🔍 Buscando botón de búsqueda...');
+        cy.get('button.mat-mdc-fab.mat-primary mat-icon:contains("search")')
+            .should('be.visible')
+            .click({ force: true });
+
+        cy.log('⏳ Esperando resultados de búsqueda...');
+        cy.wait(2000);
+
+        // PASO 4: Buscar y hacer clic en el TEXTO del registro
+        cy.log(`📋 Buscando registro con código "${codigo}"...`);
+
+        cy.contains('td.mat-column-codeOfTheTransaction', codigo)
+            .should('be.visible')
+            .then($celdaCodigo => {
+                // Hacer clic en la celda del código (texto)
+                cy.log(`✅ Registro encontrado, haciendo clic en el código "${codigo}"`);
+                cy.wrap($celdaCodigo).click({ force: true });
+            });
+
+        cy.log(`🎉 Registro con código "${codigo}" seleccionado exitosamente`);
     }
 
 
-    abrirPanelIframe(nombrePanel, opciones = {}) {
+    abrirPanel(nombrePanel, opciones = {}) {
         const {
             timeout = 10000,
             force = false,
@@ -2861,104 +2912,55 @@ BuscarRegistroEnTabla(criterios) {
             esperaAnimacion = 1000
         } = opciones;
 
-        cy.log(`🔍 [Iframe] Buscando panel: "${nombrePanel}"`);
+        cy.log(`🔍 Buscando panel: "${nombrePanel}"`);
 
-        cy.get('iframe.frame, iframe', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
-            if ($iframe.length > 0) {
-                cy.log('🎯 Ejecutando dentro del iframe');
+        // Función recursiva para intentar abrir el panel
+        const intentarAbrir = (intento = 1) => {
+            cy.contains('mat-expansion-panel-header', nombrePanel, { timeout })
+                .should('be.visible')
+                .then($header => {
+                    const isExpanded = $header.attr('aria-expanded') === 'true';
 
-                const iframeBody = $iframe.contents().find('body');
+                    if (!isExpanded) {
+                        cy.log(`📌 Intento ${intento}: Panel "${nombrePanel}" colapsado, expandiendo...`);
+                        cy.wrap($header).click({ force });
 
-                cy.wrap(iframeBody).within(() => {
-                    // Función recursiva para intentar abrir el panel
-                    const intentarAbrir = (intento = 1) => {
-                        cy.contains('mat-expansion-panel-header', nombrePanel)
-                            .should('be.visible')
-                            .then($header => {
-                                const isExpanded = $header.attr('aria-expanded') === 'true';
+                        // Esperar a que la animación termine
+                        cy.wait(esperaAnimacion);
 
-                                if (!isExpanded) {
-                                    cy.log(`📌 Intento ${intento}: Panel "${nombrePanel}" colapsado, expandiendo...`);
-                                    cy.wrap($header).click({ force });
+                        // Verificar si el contenido ahora es visible
+                        cy.wrap($header)
+                            .parents('mat-expansion-panel')
+                            .find('.mat-expansion-panel-content')
+                            .then($content => {
+                                const isContentVisible = $content.css('visibility') === 'visible' ||
+                                    $content.css('height') !== '0px';
 
-                                    // Esperar a que la animación termine
-                                    cy.wait(esperaAnimacion);
-
-                                    // Verificar si el contenido ahora es visible
-                                    cy.wrap($header)
-                                        .parents('mat-expansion-panel')
-                                        .find('.mat-expansion-panel-content')
-                                        .then($content => {
-                                            const isContentVisible = $content.css('visibility') === 'visible' ||
-                                                $content.css('height') !== '0px';
-
-                                            if (!isContentVisible && intento < intentos) {
-                                                cy.log(`⚠️ Panel aún no visible, reintentando...`);
-                                                intentarAbrir(intento + 1);
-                                            } else if (!isContentVisible && intento >= intentos) {
-                                                cy.log(`⚠️ Panel no se expandió después de ${intentos} intentos`);
-                                                // Forzar apertura con JavaScript
-                                                cy.wrap($header).then($el => {
-                                                    const panel = $el.closest('mat-expansion-panel')[0];
-                                                    if (panel && panel.componentInstance) {
-                                                        panel.componentInstance.expanded = true;
-                                                        panel.componentInstance._toggle();
-                                                    }
-                                                });
-                                                cy.wait(500);
-                                            } else {
-                                                cy.log(`✅ Panel "${nombrePanel}" expandido correctamente`);
-                                            }
-                                        });
-                                } else {
-                                    cy.log(`✅ Panel "${nombrePanel}" ya está expandido`);
-                                }
-                            });
-                    };
-
-                    intentarAbrir();
-                });
-            } else {
-                cy.log('🎯 No hay iframe, ejecutando directamente');
-                // Misma lógica pero sin iframe
-                const intentarAbrir = (intento = 1) => {
-                    cy.contains('mat-expansion-panel-header', nombrePanel)
-                        .should('be.visible')
-                        .then($header => {
-                            const isExpanded = $header.attr('aria-expanded') === 'true';
-
-                            if (!isExpanded) {
-                                cy.log(`📌 Intento ${intento}: Panel "${nombrePanel}" colapsado, expandiendo...`);
-                                cy.wrap($header).click({ force });
-                                cy.wait(esperaAnimacion);
-
-                                cy.wrap($header)
-                                    .parents('mat-expansion-panel')
-                                    .find('.mat-expansion-panel-content')
-                                    .then($content => {
-                                        const isContentVisible = $content.css('visibility') === 'visible' ||
-                                            $content.css('height') !== '0px';
-
-                                        if (!isContentVisible && intento < intentos) {
-                                            intentarAbrir(intento + 1);
-                                        } else if (!isContentVisible && intento >= intentos) {
-                                            cy.log(`⚠️ Forzando apertura con JavaScript`);
-                                            cy.wrap($header).then($el => {
-                                                const panel = $el.closest('mat-expansion-panel')[0];
-                                                if (panel && panel.componentInstance) {
-                                                    panel.componentInstance.expanded = true;
-                                                    panel.componentInstance._toggle();
-                                                }
-                                            });
+                                if (!isContentVisible && intento < intentos) {
+                                    cy.log(`⚠️ Panel aún no visible, reintentando...`);
+                                    intentarAbrir(intento + 1);
+                                } else if (!isContentVisible && intento >= intentos) {
+                                    cy.log(`⚠️ Panel no se expandió después de ${intentos} intentos`);
+                                    // Forzar apertura con JavaScript
+                                    cy.wrap($header).then($el => {
+                                        const panel = $el.closest('mat-expansion-panel')[0];
+                                        if (panel && panel.componentInstance) {
+                                            panel.componentInstance.expanded = true;
+                                            panel.componentInstance._toggle();
                                         }
                                     });
-                            }
-                        });
-                };
+                                    cy.wait(500);
+                                } else {
+                                    cy.log(`✅ Panel "${nombrePanel}" expandido correctamente`);
+                                }
+                            });
+                    } else {
+                        cy.log(`✅ Panel "${nombrePanel}" ya está expandido`);
+                    }
+                });
+        };
 
-                intentarAbrir();
-            }
-        });
+        intentarAbrir();
     }
 
 

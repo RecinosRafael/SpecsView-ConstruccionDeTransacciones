@@ -25,8 +25,25 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        Generales.filtrarPorCodigoIframe('700');
-        Generales.abrirPanelIframe("Características del resultado")
+
+        cy.get('iframe.frame', { timeout: 10000 })
+            .its('0.contentDocument.body')
+            .should('not.be.empty')
+            .then(cy.wrap)
+            .within(() => {
+
+                Generales.filtrarPorCodigo('600');
+                Generales.abrirPanel("Totales a Afectar")
+                Generales.BtnIframe("Tipos de cajero",{ timeout: 10000, force: true, skipContext: false })
+
+
+
+
+            })
+
+
+
+
     })
 
 })
