@@ -96,7 +96,9 @@ module.exports = defineConfig({
 
   e2e: {
     setupNodeEvents(on, config) {
+      numTestsKeptInMemory: 0,
       require('cypress-mochawesome-reporter/plugin')(on);
+      
 
       // ============================================
       // COMBINAR VARIABLES DE ENTORNO

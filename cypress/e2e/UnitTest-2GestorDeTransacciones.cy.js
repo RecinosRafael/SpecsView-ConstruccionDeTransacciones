@@ -30,6 +30,17 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
     
         cy.fixture('gestorTransaccion').then((data) => {
             cy.wrap(data.agregar).each((item) => {
+                cy.then(() => {
+        const doc = window.top.document;
+        // Intentamos con varios selectores que usa Cypress para su log
+        const logContainer = doc.querySelector('.reporter .commands') || 
+                             doc.querySelector('.command-list') ||
+                             doc.querySelector('.runnable-commands-region');
+                             
+        if (logContainer) {
+            logContainer.innerHTML = ''; 
+        }
+    });
                 cy.log(`Insertando código: ${item.codigo}`)
     
     
@@ -38,13 +49,6 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
                 .should('not.be.empty')
                 .then(cy.wrap)
                 .within(() => {
-                //Asegurar estado limpio antes de comenzar
-                // cy.get('body').then(($body) => {
-                //     if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
-                //         cy.log('Formulario abierto detectado, cerrando...')
-                //         Generales.BtnCancelarRegistro()
-                //     }
-                // })
 
                 //Abrir formulario
                 Generales.BtnIframe('Agregar', { timeout: 10000, force: true, skipContext: true });
