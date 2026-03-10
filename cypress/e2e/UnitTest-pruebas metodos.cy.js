@@ -1,6 +1,6 @@
 import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosGeneralesPom.cy";
 import GestorPomCy from "../support/PageObjects/Specs-view-PO/GestorDeTransacciones.cy";
-
+import 'cypress-xpath';
 const Generales = new metodosGeneralesPomCy()
 const GestorDeTransacciones = new GestorPomCy()
 
@@ -26,6 +26,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
 
     it("Agregar múltiples registros dinámicamente", () => {
         Generales.filtrarPorCodigoIframe('700');
+        Generales.abrirPanelIframe("Características del resultado")
     })
 
 })
