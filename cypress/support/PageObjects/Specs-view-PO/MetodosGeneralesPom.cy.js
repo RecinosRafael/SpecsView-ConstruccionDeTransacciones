@@ -45,7 +45,7 @@ BtnIframe(textoBoton, opciones = {}) {
             return;
         }
 
-        cy.log(`🔍 Buscando botón con tooltip: "${textoBoton}" usando XPath`);
+        cy.log(`🔍 Buscando elemento con tooltip: "${textoBoton}" usando XPath`);
 
         const normalizarParaXPath = (texto) => {
             return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -54,41 +54,28 @@ BtnIframe(textoBoton, opciones = {}) {
         const textoNormalizado = normalizarParaXPath(textoBoton);
         const textoSeguro = textoNormalizado.replace(/'/g, "&apos;");
 
-        const xpath = `//button[@aria-describedby=//div[contains(@class,'cdk-describedby-message-container')]//div[translate(translate(text(), 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = translate(translate('${textoSeguro}', 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')]/@id]`;
+        // 👇 CAMBIO AQUÍ: ahora selecciona cualquier elemento (*) con aria-describedby
+        const xpath = `//*[@aria-describedby=//div[contains(@class,'cdk-describedby-message-container')]//div[translate(translate(text(), 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = translate(translate('${textoSeguro}', 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')]/@id]`;
 
         cy.log(`XPath generado: ${xpath}`);
 
-        // Guardar el elemento como alias para evitar problemas de desvinculación
         cy.xpath(xpath, { timeout })
             .first()
-            .as('botonEncontrado');
-
-        cy.get('@botonEncontrado').then($boton => {
-            if (!force && !ignorarBackdrop) {
-                cy.wrap($boton).should('be.visible');
-            } else {
-                cy.log('⏩ Se omite verificación de visibilidad por force/ignorarBackdrop');
-            }
-        });
-
-        cy.get('@botonEncontrado').scrollIntoView({
-            duration: 300,
-            easing: 'linear',
-            offset: { top: offsetTop, left: 0 },
-            ensureScrollable: ensureScrollable
-        });
-
-        cy.wait(200);
-
-        cy.get('@botonEncontrado').click({ force });
-
-        cy.log(`✅ Clic en botón con tooltip "${textoBoton}"`);
-
-        this.esperarOcultarSpinner({
-            timeout: spinnerTimeout,
-            esperarAparicion: esperarAparicionSpinner,
-            skipContext: skipContext
-        });
+            .scrollIntoView({
+                duration: 300,
+                easing: 'linear',
+                offset: { top: offsetTop, left: 0 },
+                ensureScrollable: ensureScrollable
+            })
+            .click({ force })
+            .then(() => {
+                cy.log(`✅ Clic en elemento con tooltip "${textoBoton}"`);
+                this.esperarOcultarSpinner({
+                    timeout: spinnerTimeout,
+                    esperarAparicion: esperarAparicionSpinner,
+                    skipContext: skipContext
+                });
+            });
     };
 
     if (skipContext) {
@@ -2795,113 +2782,7 @@ BuscarRegistroEnTabla(criterios) {
                 }
             });
         }
-    }
-
-    /*filtrarPorCodigoIframe(codigo) {
-        if (!codigo) return;
-
-        cy.get('iframe.frame, iframe', { timeout: 10000 }).then($iframe => {
-            const body = $iframe.contents().find('body');
-
-            // PASO 1: Abrir panel Filtros
-            cy.wrap(body).find('mat-expansion-panel-header').contains('Filtros').click();
-            cy.wait(1000);
-
-            // PASO 2: Buscar el campo de código - SIN within y SIN cy.get('body')
-            cy.wrap(body).then($body => {
-                // Buscar elemento que contenga "Código"
-                const $elementoCodigo = $body.find(':contains("Código"), :contains("Codigo")').first();
-
-                if ($elementoCodigo.length > 0) {
-                    cy.log('✅ Texto "Código" encontrado');
-                    const $input = $elementoCodigo.closest('tr, div.row, .mat-row, .mat-form-field').find('input:visible');
-
-                    if ($input.length > 0) {
-                        cy.log('✅ Input encontrado cerca del texto');
-                        cy.wrap($input.first()).clear().type(codigo);
-                    } else {
-                        cy.log('⚠️ No hay input cerca, usando primer input');
-                        cy.wrap(body).find('input:visible').first().clear().type(codigo);
-                    }
-                } else {
-                    cy.log('⚠️ No encontró texto "Código", usando primer input');
-                    cy.wrap(body).find('input:visible').first().clear().type(codigo);
-                }
-            });
-
-            // PASO 3: Buscar y hacer clic en el botón de búsqueda
-            cy.wrap(body).find('mat-icon:contains("filter_alt")').click();
-
-            cy.log(`✅ Filtro por código "${codigo}" aplicado`);
-        });
-    }*/
-
-
-    filtrarPorCodigoIframe(codigo) {
-        if (!codigo || codigo === "") {
-            cy.log(`⏭️ Código vacío - se omite`);
-            return;
-        }
-
-        cy.log(`🔍 Buscando y seleccionando registro con código: "${codigo}"`);
-
-        cy.get('iframe.frame, iframe', { timeout: 10000 }).then(($iframe) => {
-            if ($iframe.length > 0) {
-                const iframeBody = $iframe.contents().find('body');
-
-                // PASO 1: Abrir panel Filtros
-                cy.wrap(iframeBody).find('mat-expansion-panel-header').contains('Filtros')
-                    .then($header => {
-                        if ($header.attr('aria-expanded') !== 'true') {
-                            cy.log('📌 Abriendo panel Filtros');
-                            cy.wrap($header).click({ force: true });
-                            cy.wait(500);
-                        }
-                    });
-
-                // PASO 2: Buscar el campo Código por su mat-label
-                cy.log('📝 Buscando campo Código...');
-                cy.wrap(iframeBody).find('mat-label:contains("Código")')
-                    .should('be.visible')
-                    .then($label => {
-                        const $input = $label.closest('mat-form-field').find('input');
-                        cy.wrap($input).clear({ force: true }).type(codigo, { force: true, delay: 50 });
-                        cy.log('✅ Código ingresado');
-                    });
-
-                // PASO 3: Hacer clic en el botón de búsqueda (search)
-                cy.log('🔍 Buscando botón de búsqueda...');
-                cy.wrap(iframeBody).find('button.mat-mdc-fab.mat-primary mat-icon:contains("search")')
-                    .should('be.visible')
-                    .click({ force: true });
-
-                cy.log('⏳ Esperando resultados de búsqueda...');
-                cy.wait(2000);
-
-                // PASO 4: Buscar y hacer clic en el TEXTO del registro
-                cy.log(`📋 Buscando registro con código "${codigo}"...`);
-
-                cy.wrap(iframeBody).within(() => {
-                    // Buscar la celda que contiene el código
-                    cy.contains('td.mat-column-codeOfTheTransaction', codigo)
-                        .should('be.visible')
-                        .then($celdaCodigo => {
-                            // Hacer clic en la celda del código (texto)
-                            cy.log(`✅ Registro encontrado, haciendo clic en el código "${codigo}"`);
-                            cy.wrap($celdaCodigo).click({ force: true });
-
-                            // Opcional: También podrías hacer clic en cualquier celda de la fila
-                            // const $fila = $celdaCodigo.closest('tr');
-                            // cy.wrap($fila.find('td').first()).click({ force: true });
-                        });
-                });
-
-                cy.log(`🎉 Registro con código "${codigo}" seleccionado exitosamente`);
-
-            } else {
-                cy.log('❌ No se encontró iframe');
-            }
-        });
+        
     }
 }
 
