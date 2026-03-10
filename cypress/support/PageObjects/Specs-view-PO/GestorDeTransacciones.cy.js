@@ -265,7 +265,19 @@ class GestorPomCy{
             });
     }
 
-    definiciondePasos(
+    DefinicionDePasos(nombrePaso, tieneReglaCondionanteDePaso, typeReglaParaCondicionarPaso, descripcionPasoTrx){
+
+        this.Generales.llenarCampoIframe(nombrePaso, "Nombre");
+        if (tieneReglaCondionanteDePaso){
+            this.Generales.seleccionarComboIframe(typeReglaParaCondicionarPaso, "Regla para condicionar paso" );
+        }else{
+            console.log("No tiene regla para condicionar pasos...");
+        }
+
+        this.Generales.llenarCampoIframe(descripcionPasoTrx, "Descripción");
+    }
+
+    definiciondePasos2(
         nombrePaso,
         tieneReglaCondionanteDePaso,
         typeReglaParaCondicionarPaso,

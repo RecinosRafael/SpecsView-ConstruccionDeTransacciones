@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "gestor": "cypress run --spec cypress/e2e/UnitTest-2GestorDeTransacciones.cy.js --browser chrome --env reportName=ReportUnitTest-2GestorDeTransacciones"
   },
   "keywords": [],
   "author": "Rafael Recinos",
