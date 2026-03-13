@@ -7,30 +7,8 @@ class GestorPomCy{
     }
 
 
-       ComprobantesImpresion( tipoFormato, comprobante, esMandatorio, verComprobante, notificaComprobante, 
-                    impAntesConsultarFirmas, copiasImprimir, etiqueta, etiqueta2
-){
-        this.Generales.seleccionarComboIframe(tipoFormato, "Tipo de Formato", { timeout: 10000,  skipContext: true, force: true })
-        this.Generales.seleccionarComboIframe(comprobante, "Comprobante", { timeout: 10000, skipContext: true, force: true })
-        this.Generales.slideToggleIframe(esMandatorio, "Es mandatorio", { timeout: 10000, skipContext: true, force: true });
-        this.Generales.slideToggleIframe(verComprobante, "Ver comprobante", { timeout: 10000, skipContext: true, force: true })
-        this.Generales.slideToggleIframe(notificaComprobante, "Se notifica comprobante al menos por un medio", { timeout: 10000, skipContext: true, force: true })
-        this.Generales.slideToggleIframe(impAntesConsultarFirmas, "Imprimir antes de consultar Firmas", { timeout: 10000, skipContext: true, force: true })
-        this.Generales.llenarCampoIframe(copiasImprimir, "Copias a imprimir", { timeout: 10000, skipContext: true, force: true })
-        this.Generales.llenarCampoEnTablaIframe(etiqueta, "Etiqueta", 1, { timeout: 10000, skipContext: true, force: true });
-        this.Generales.llenarCampoEnTablaIframe(etiqueta2, "Etiqueta", 2, { timeout: 10000, skipContext: true, force: true });
-   }
-    
-    // ComprobantesNotElectronica(data){
-    //     this.Generales.seleccionarCombo(tipoFormato, "Tipo de Formato", { timeout: 10000, skipContext: false })
-    //     this.Generales.seleccionarCombo(comprobante, "Comprobante", { timeout: 10000, skipContext: false })
-    //     this.Generales.checkbox(verComprobante, "Ver comprobante")
-    //     this.Generales.checkbox(seNotificaMedio, "Se notifica comprobante al menos por un medio", { timeout: 10000, skipContext: true })
-    //     this.Generales.seleccionarCombo(tipoFormato, "Tipo de Formato", { timeout: 10000, skipContext: true })
-    //     this.Generales.checkboxEnTabla(esMandatorio, "Es mandatorio", { timeout: 10000, skipContext: true })
-    //     this.Generales.checkboxEnTabla(notificaComprobante, "Se notifica por medio", { timeout: 10000, skipContext: true })
-    // }
 
+    
 
 
     //Gestor de transacciones
@@ -159,6 +137,42 @@ class GestorPomCy{
                     "//mat-expansion-panel-header[.//h2[normalize-space()='Opciones']]"
                 ).click({force: true});
             });
+    }
+
+    //Comprobante de impresion
+    ComprobantesImpresion( tipoFormato, comprobante, esMandatorio, verComprobante, notificaComprobante, 
+                    impAntesConsultarFirmas, copiasImprimir, etiqueta, etiqueta2)
+    {
+        this.Generales.seleccionarComboIframe(tipoFormato, "Tipo de Formato", { timeout: 10000,  skipContext: true, force: true })
+        this.Generales.seleccionarComboIframe(comprobante, "Comprobante", { timeout: 10000, skipContext: true, force: true })
+        this.Generales.slideToggleIframe(esMandatorio, "Es mandatorio", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.slideToggleIframe(verComprobante, "Ver comprobante", { timeout: 10000, skipContext: true, force: true })
+        this.Generales.slideToggleIframe(notificaComprobante, "Se notifica comprobante al menos por un medio", { timeout: 10000, skipContext: true, force: true })
+        this.Generales.slideToggleIframe(impAntesConsultarFirmas, "Imprimir antes de consultar Firmas", { timeout: 10000, skipContext: true, force: true })
+        this.Generales.llenarCampoIframe(copiasImprimir, "Copias a imprimir", { timeout: 10000, skipContext: true, force: true })
+        this.Generales.llenarCampoEnTablaIframe(etiqueta, "Etiqueta", 1, { timeout: 10000, skipContext: true, force: true });
+        this.Generales.llenarCampoEnTablaIframe(etiqueta2, "Etiqueta", 2, { timeout: 10000, skipContext: true, force: true });
+    }
+
+    //Comprobante notificacion electronica
+    ComprobantesNotElectronica(tipoFormato, comprobante, verComprobante, seNotificaMedio, esMandatorio, notificaComprobante){
+        this.Generales.seleccionarComboIframe(tipoFormato, "Tipo de Formato", { timeout: 10000,  skipContext: true, force: true })
+        this.Generales.seleccionarComboIframe(comprobante, "Comprobante", { timeout: 10000,  skipContext: true, force: true })
+        this.Generales.slideToggleIframe(verComprobante, "Ver comprobante", { timeout: 10000, skipContext: true, force: true })
+        this.Generales.slideToggleIframe(seNotificaMedio, "Se notifica comprobante al menos por un medio", { timeout: 10000, skipContext: true, force: true })
+        this.Generales.seleccionarMediosNotificacion(seNotificaMedio, "Se notifica por medio", {
+            timeout: 10000,
+            skipContext: true,
+            ignorarDeshabilitados: true
+        });
+        cy.wait(1000);
+        this.Generales.seleccionarMediosNotificacion(esMandatorio, "Es mandatorio", {
+            timeout: 10000,
+            skipContext: true,
+            ignorarDeshabilitados: true 
+        });
+
+
     }
 
     configurarEfectivos(config) {

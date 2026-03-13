@@ -4,8 +4,8 @@
       "codigoTX": "700",
       "tipoFormato": "Online",
       "comprobante": "Comprobante trx de depósitos",
-      "seNotificaMedio": "eMail", 
-      "esMandatorio": "",
+      "seNotificaMedio": "{SMS, eMail}", 
+      "esMandatorio": "{}",
       "verComprobante": true,
       "notificaComprobante": false
     }

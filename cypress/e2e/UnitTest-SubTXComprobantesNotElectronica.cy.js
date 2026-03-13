@@ -20,7 +20,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('subTxTipoCajero').as('data');
+        cy.fixture('subTxTipoComprobantesNotElectronica').as('data');
     });
 
     it("Agregar múltiples registros dinámicamente", function() {
@@ -51,8 +51,14 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     Generales.filtrarPorCodigo(item.codigoTX); // o item.codigoTX - 777 para pruebas 
                     Generales.abrirPanel("Opciones");
                     Generales.BtnIframe("Comprobantes", { timeout: 10000, force: true, skipContext: true });
-                    Generales.BtnIframe("Notificaciones electrónicas", { timeout: 10000, force: true, skipContext: true });
-                    GestorDeTransacciones.ComprobantesNotElectronica(item);
+                    Generales.BtnIframe("Notificaciones electrónicas", { timeout: 10000, skipContext: true }, 'div[role="tab"]', true);
+                    cy.wait(1500)
+                    Generales.BtnIframe("Agregar", { timeout: 10000, force: true, skipContext: true }, 'add-button');                    GestorDeTransacciones.ComprobantesImpresion(item);
+                    GestorDeTransacciones.ComprobantesNotElectronica(
+                       //tipoFormato, comprobante, verComprobante, seNotificaMedio, esMandatorio, notificaComprobante
+                        item.tipoFormato, item.comprobante, item.verComprobante, item.seNotificaMedio, 
+                        item.esMandatorio,  item.notificaComprobante                       
+                    );
                     // Hacemos clic en Guardar sin interceptar
                     Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
                 }); // Salimos del iframe
