@@ -1,0 +1,300 @@
+{
+  "agregar": [
+    {
+      "codigoTX": "600",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "700",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "805",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "808",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "814",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "815",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "1600",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "1610",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "1700",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "1710",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "7660",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "7665",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "7680",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "7760",
+      "administrador": false,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "7765",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "7780",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "9002",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9060",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "9064",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "9090",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "9111",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9150",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9180",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "9181",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9222",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9333",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9400",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": true
+    },    
+    {
+      "codigoTX": "9608",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9670",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9671",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9673",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9678",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9692",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9820",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9840",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9850",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    },    
+    {
+      "codigoTX": "9852",
+      "administrador": true,
+      "supervisor": false,
+      "jefeAgencia": false,
+      "subJefeAgencia": false,
+      "cajero": false
+    }
+  ]
+}

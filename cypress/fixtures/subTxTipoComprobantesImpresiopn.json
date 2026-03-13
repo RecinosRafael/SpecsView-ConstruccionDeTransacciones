@@ -1,0 +1,100 @@
+{
+  "agregar": [
+    {
+      "codigoTX": "600",
+      "tipoFormato": "Certificación",
+      "comprobante": "Comprobante trx de retiros",
+      "esMandatorio": true,
+      "verComprobante": true,
+      "notificaComprobante": true,
+      "impAntesConsultarFirmas": false,
+      "copiasImprimir": "2",
+      "etiqueta":"Banco",
+      "etiqueta2":"Cliente"
+    },    
+    {
+      "codigoTX": "700",
+      "tipoFormato": "Online",
+      "comprobante": "Comprobante trx de depósitos",
+      "esMandatorio": true,
+      "verComprobante": true,
+      "notificaComprobante": true,
+      "impAntesConsultarFirmas": false,
+      "copiasImprimir": "2",
+      "etiqueta":"Bank",
+      "etiqueta2":"Client"
+    },    
+    {
+      "codigoTX": "1600",
+      "tipoFormato": "Certificación",
+      "comprobante": "Comprobante trx de retiros",
+      "esMandatorio": true,
+      "verComprobante": true,
+      "notificaComprobante": true,
+      "impAntesConsultarFirmas": false,
+      "copiasImprimir": "1",
+      "etiqueta":"Original",
+      "etiqueta2":""
+    },    
+    {
+      "codigoTX": "1600",
+      "tipoFormato": "Libreta",
+      "comprobante": "Comprobante posteos",
+      "esMandatorio": false,
+      "verComprobante": false,
+      "notificaComprobante": false,
+      "impAntesConsultarFirmas": false,
+      "copiasImprimir": "1",
+      "etiqueta":"",
+      "etiqueta2":""
+    },    
+    {
+      "codigoTX": "1610",
+      "tipoFormato": "Certificación",
+      "comprobante": "Comprobante trx de retiros",
+      "esMandatorio": false,
+      "verComprobante": false,
+      "notificaComprobante": false,
+      "impAntesConsultarFirmas": false,
+      "copiasImprimir": "2",
+      "etiqueta":"Banco",
+      "etiqueta2":"Cliente"
+    },    
+    {
+      "codigoTX": "1700",
+      "tipoFormato": "Certificación",
+      "comprobante": "Comprobante trx de depósitos",
+      "esMandatorio": true,
+      "verComprobante": true,
+      "notificaComprobante": true,
+      "impAntesConsultarFirmas": false,
+      "copiasImprimir": "2",
+      "etiqueta":"Banco",
+      "etiqueta2":"Cliente"
+    },    
+    {
+      "codigoTX": "1700",
+      "tipoFormato": "Libreta",
+      "comprobante": "Comprobante posteos",
+      "esMandatorio": true,
+      "verComprobante": true,
+      "notificaComprobante": false,
+      "impAntesConsultarFirmas": false,
+      "copiasImprimir": "1",
+      "etiqueta":"posteo",
+      "etiqueta2":""
+    },    
+    {
+      "codigoTX": "1710",
+      "tipoFormato": "Certificación",
+      "comprobante": "Comprobante trx de depósitos",
+      "esMandatorio": true,
+      "verComprobante": true,
+      "notificaComprobante": true,
+      "impAntesConsultarFirmas": false,
+      "copiasImprimir": "2",
+      "etiqueta":"Original",
+      "etiqueta2":"Cliente"
+    }
+  ]
+}

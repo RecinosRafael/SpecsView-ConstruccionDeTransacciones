@@ -33,8 +33,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
             .within(() => {
 
                 Generales.filtrarPorCodigo('600');
-                Generales.abrirPanel("Totales a Afectar")
-                Generales.BtnIframe("Tipos de cajero",{ timeout: 10000, force: true, skipContext: false })
+                Generales.abrirPanel("Opciones")
+                Generales.BtnIframe("Tipos de cajero",{ timeout: 10000, force: true, skipContext: true })
 
 
 
