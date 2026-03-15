@@ -1,0 +1,13 @@
+{
+  "agregar": [
+      {
+      "codigoTX": "700",
+      "tipoFormato": "Online",
+      "comprobante": "Comprobante trx de depósitos",
+      "seNotificaMedio": "{SMS, eMail}", 
+      "esMandatorio": "{}",
+      "verComprobante": true,
+      "notificaComprobante": false
+    }
+  ]
+}

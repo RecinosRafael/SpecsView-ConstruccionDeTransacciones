@@ -26,7 +26,78 @@ BtnAgregarRegistros() {
     cy.log('✅ Botón ADD clickeado');
 }
 
-BtnIframe(textoBoton, opciones = {}) {
+    // BtnIframe(textoBoton, opciones = {}, filtroClase = null) {
+    //     const {
+    //         timeout = 10000,
+    //         force = false,
+    //         scrollBehavior = 'center',
+    //         ensureScrollable = true,
+    //         offsetTop = -100,
+    //         ignorarBackdrop = true,
+    //         skipContext = false,
+    //         spinnerTimeout = 30000,
+    //         esperarAparicionSpinner = false
+    //     } = opciones;
+
+    //     const ejecutar = () => {
+    //         if (textoBoton == null || (typeof textoBoton === 'string' && textoBoton.trim() === '')) {
+    //             cy.log(`⏭️ Texto de botón vacío o nulo, se omite clic.`);
+    //             return;
+    //         }
+
+    //         cy.log(`🔍 Buscando elemento con tooltip: "${textoBoton}" usando XPath`);
+
+    //         const normalizarParaXPath = (texto) => {
+    //             return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    //         };
+
+    //         const textoNormalizado = normalizarParaXPath(textoBoton);
+    //         const textoSeguro = textoNormalizado.replace(/'/g, "&apos;");
+
+    //         let xpath = `//*[@aria-describedby=//div[contains(@class,'cdk-describedby-message-container')]//div[translate(translate(text(), 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = translate(translate('${textoSeguro}', 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')]/@id]`;
+
+    //         // Si se proporciona un filtro de clase, lo agregamos
+    //         if (filtroClase) {
+    //             if (typeof filtroClase === 'string') {
+    //                 // Filtramos por clase específica
+    //                 xpath = xpath.replace('/*', `/*[contains(@class, '${filtroClase}')]`);
+    //                 cy.log(`🔍 Filtrando por clase: ${filtroClase}`);
+    //             }
+    //         }
+
+    //         cy.log(`XPath final: ${xpath}`);
+
+    //         cy.xpath(xpath, { timeout })
+    //             .first()
+    //             .scrollIntoView({
+    //                 duration: 300,
+    //                 easing: 'linear',
+    //                 offset: { top: offsetTop, left: 0 },
+    //                 ensureScrollable: ensureScrollable
+    //             })
+    //             .click({ force })
+    //             .then(() => {
+    //                 cy.log(`✅ Clic en elemento con tooltip "${textoBoton}"`);
+    //                 if (this.esperarOcultarSpinner) {
+    //                     this.esperarOcultarSpinner({
+    //                         timeout: spinnerTimeout,
+    //                         esperarAparicion: esperarAparicionSpinner,
+    //                         skipContext: skipContext
+    //                     });
+    //                 }
+    //             });
+    //     };
+
+    //     if (skipContext) {
+    //         ejecutar();
+    //     } else if (this._ejecutarEnContexto) {
+    //         this._ejecutarEnContexto(ejecutar);
+    //     } else {
+    //         ejecutar();
+    //     }
+    // }
+
+    BtnIframe(textoBoton, opciones = {}, filtroClase = null, porTexto = false) {
     const {
         timeout = 10000,
         force = false,
@@ -45,92 +116,87 @@ BtnIframe(textoBoton, opciones = {}) {
             return;
         }
 
-        cy.log(`🔍 Buscando elemento con tooltip: "${textoBoton}" usando XPath`);
-
-        const normalizarParaXPath = (texto) => {
-            return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-        };
-
-        const textoNormalizado = normalizarParaXPath(textoBoton);
-        const textoSeguro = textoNormalizado.replace(/'/g, "&apos;");
-
-        // 👇 CAMBIO AQUÍ: ahora selecciona cualquier elemento (*) con aria-describedby
-        const xpath = `//*[@aria-describedby=//div[contains(@class,'cdk-describedby-message-container')]//div[translate(translate(text(), 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = translate(translate('${textoSeguro}', 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')]/@id]`;
-
-        cy.log(`XPath generado: ${xpath}`);
-
-        cy.xpath(xpath, { timeout })
-            .first()
-            .scrollIntoView({
-                duration: 300,
-                easing: 'linear',
-                offset: { top: offsetTop, left: 0 },
-                ensureScrollable: ensureScrollable
-            })
-            .click({ force })
-            .then(() => {
-                cy.log(`✅ Clic en elemento con tooltip "${textoBoton}"`);
-                this.esperarOcultarSpinner({
-                    timeout: spinnerTimeout,
-                    esperarAparicion: esperarAparicionSpinner,
-                    skipContext: skipContext
+        if (porTexto) {
+            // Búsqueda por texto visible (para tabs, botones, etc.)
+            cy.log(`🔍 Buscando elemento con texto visible: "${textoBoton}"`);
+            let selector = filtroClase ? `${filtroClase}:contains("${textoBoton}")` : `:contains("${textoBoton}")`;
+            cy.get(selector, { timeout })
+                .first()
+                .scrollIntoView({
+                    duration: 300,
+                    easing: 'linear',
+                    offset: { top: offsetTop, left: 0 },
+                    ensureScrollable: ensureScrollable
+                })
+                .click({ force })
+                .then(() => {
+                    cy.log(`✅ Clic en elemento con texto "${textoBoton}"`);
+                    if (this.esperarOcultarSpinner) {
+                        this.esperarOcultarSpinner({
+                            timeout: spinnerTimeout,
+                            esperarAparicion: esperarAparicionSpinner,
+                            skipContext: skipContext
+                        });
+                    }
                 });
-            });
+        } else {
+            // Lógica actual con XPath para tooltips
+            cy.log(`🔍 Buscando elemento con tooltip: "${textoBoton}" usando XPath`);
+
+            const normalizarParaXPath = (texto) => {
+                return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            };
+
+            const textoNormalizado = normalizarParaXPath(textoBoton);
+            const textoSeguro = textoNormalizado.replace(/'/g, "&apos;");
+
+            let xpath = `//*[@aria-describedby=//div[contains(@class,'cdk-describedby-message-container')]//div[translate(translate(text(), 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = translate(translate('${textoSeguro}', 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')]/@id]`;
+
+            // Si se proporciona un filtro de clase, lo agregamos
+            if (filtroClase) {
+                if (typeof filtroClase === 'string') {
+                    xpath = xpath.replace('/*', `/*[contains(@class, '${filtroClase}')]`);
+                    cy.log(`🔍 Filtrando por clase: ${filtroClase}`);
+                }
+            }
+
+            cy.log(`XPath final: ${xpath}`);
+
+            cy.xpath(xpath, { timeout })
+                .first()
+                .scrollIntoView({
+                    duration: 300,
+                    easing: 'linear',
+                    offset: { top: offsetTop, left: 0 },
+                    ensureScrollable: ensureScrollable
+                })
+                .click({ force })
+                .then(() => {
+                    cy.log(`✅ Clic en elemento con tooltip "${textoBoton}"`);
+                    if (this.esperarOcultarSpinner) {
+                        this.esperarOcultarSpinner({
+                            timeout: spinnerTimeout,
+                            esperarAparicion: esperarAparicionSpinner,
+                            skipContext: skipContext
+                        });
+                    }
+                });
+        }
     };
 
     if (skipContext) {
         ejecutar();
-    } else {
+    } else if (this._ejecutarEnContexto) {
         this._ejecutarEnContexto(ejecutar);
+    } else {
+        ejecutar();
     }
 }
 
 BtnAgregarRegistrosIF() {
         cy.log('Clic en botón ADD');
         this.esperarOcultarSpinner();
-        
-        // const intentarClick = () => {
-        //     // Selectores CSS en lugar de XPath
-        //     const selectores = [
-        //         'button mat-icon:contains("add")',
-        //         'button.mat-fab[color="warn"]',
-        //         'button[aria-label="Agregar"]',
-        //         'button[title="Agregar"]',
-        //         'button:has(mat-icon:contains("add"))'  // Si usas jQuery
-        //     ];
-            
-        //     let encontrado = false;
-            
-        //     // Función para intentar cada selector
-        //     const intentarSelector = (index) => {
-        //         if (index >= selectores.length) {
-        //             if (!encontrado) {
-        //                 cy.log('❌ No se encontró el botón ADD con ningún selector');
-        //                 cy.document().then(doc => {
-        //                     cy.log('HTML disponible:', doc.body.innerHTML.substring(0, 500));
-        //                 });
-        //                 throw new Error('No se pudo encontrar el botón ADD');
-        //             }
-        //             return;
-        //         }
-                
-        //         const selector = selectores[index];
-        //         cy.get(selector, { timeout: 3000, failOnStatusCode: false }).then(($el) => {
-        //             if ($el.length > 0 && !encontrado) {
-        //                 cy.wrap($el).first().click({ force: true });
-        //                 encontrado = true;
-        //                 cy.log(`✅ Click con selector: ${selector}`);
-        //             } else {
-        //                 // Intentar siguiente selector
-        //                 intentarSelector(index + 1);
-        //             }
-        //         });
-        //     };
-            
-        //     // Comenzar con el primer selector
-        //     intentarSelector(0);
-        // };
-        
+              
         // Detectar iframe
         cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
             if ($iframe.length > 0) {
@@ -1646,44 +1712,80 @@ BuscarRegistroEnTabla(criterios) {
         })
     }
     _ejecutarEnContexto(callback, skipContext = false) {
-    if (skipContext) {
-        callback();
-        return;
-    }
-    // Lógica actual: buscar iframe y ejecutar dentro
-    cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
-        if ($iframe.length > 0) {
-            cy.wrap($iframe)
-                .its('0.contentDocument.body')
-                .should('not.be.empty')
-                .then(cy.wrap)
-                .within(callback);
-        } else {
+        // Si skipContext es true, forzamos la ejecución directa
+        if (skipContext) {
             callback();
+            return;
         }
-    });
-}
+
+        // Detectar si ya estamos dentro de un iframe
+        cy.document().then(doc => {
+            const isInIframe = doc.defaultView && doc.defaultView.parent !== doc.defaultView;
+
+            if (isInIframe) {
+                cy.log('📌 Ya estamos dentro del iframe, ejecutando directamente');
+                callback();
+            } else {
+                // No estamos en iframe, procedemos a buscarlo
+                cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
+                    if ($iframe.length > 0) {
+                        cy.wrap($iframe)
+                            .its('0.contentDocument.body')
+                            .should('not.be.empty')
+                            .then(cy.wrap)
+                            .within(callback);
+                    } else {
+                        callback();
+                    }
+                });
+            }
+        });
+    }
     /*
     * Versión de seleccionarCombo que maneja iframe automáticamente
     */
     seleccionarComboIframe(valor, labelText, opciones = {}) {
+        // Extraer el valor real si es un objeto (igual que antes)
+        let valorReal = valor;
+        if (valor && typeof valor === 'object') {
+            cy.log(`⚠️ valor es un objeto: ${JSON.stringify(valor)}`);
+            if (valor.tipoFormato) {
+                valorReal = valor.tipoFormato;
+                cy.log(`✅ Usando valor.tipoFormato: "${valorReal}"`);
+            } else {
+                const propiedades = Object.values(valor);
+                const propiedadString = propiedades.find(p => typeof p === 'string');
+                if (propiedadString) {
+                    valorReal = propiedadString;
+                    cy.log(`✅ Usando primera propiedad string: "${valorReal}"`);
+                } else {
+                    valorReal = String(valor);
+                    cy.log(`⚠️ No se pudo extraer string, usando: "${valorReal}"`);
+                }
+            }
+        }
+
         const {
             ignorarTildes = true,
             ignorarMayusculas = true,
             ignorarEspacios = true,
             timeout = 10000,
             force = false,
-            skipContext = false,         // ← NUEVA OPCIÓN
-            iframeTimeout = 5000          // ← NUEVA OPCIÓN (tiempo para buscar iframe)
+            skipContext = false,
+            iframeTimeout = 5000,
+            usarBusqueda = false  // Nuevo: si es true, usa el campo de búsqueda; si es false, intenta clic directo con force
         } = opciones;
 
-        // Validación mejorada: solo omite si es null, undefined o string vacío
-        if (valor == null || (typeof valor === 'string' && valor.trim() === '')) {
-            cy.log(`⏭️ Valor vacío o nulo para combo "${Array.isArray(labelText) ? labelText.join('" o "') : labelText}" - se omite la selección`);
+        // Validación mejorada
+        if (valorReal == null || (typeof valorReal === 'string' && valorReal.trim() === '')) {
+            cy.log(`⏭️ Valor vacío o nulo para combo "${Array.isArray(labelText) ? labelText.join('" o "') : labelText}" - se omite`);
             return;
         }
 
-        cy.log(`🔍 [Iframe] Seleccionando "${valor}" en combo "${Array.isArray(labelText) ? labelText.join('" o "') : labelText}"`);
+        cy.log(`🔍 Seleccionando "${valorReal}" en combo "${labelText}"`);
+
+        const valorString = String(valorReal);
+        const forceOption = force === true;
 
         const normalizarTexto = (texto) => {
             if (!texto) return texto;
@@ -1700,140 +1802,141 @@ BuscarRegistroEnTabla(criterios) {
             return resultado;
         };
 
-        // Convertir labelText a array si es string
-        const labelsArray = Array.isArray(labelText) ? labelText : [labelText];
-        
-        // Función para ejecutar la lógica dentro del contexto adecuado (iframe o no)
         const ejecutarSeleccion = () => {
-            // Variable para controlar si ya encontramos el label
+            const labelsArray = Array.isArray(labelText) ? labelText : [labelText];
             let labelEncontrado = false;
             let intentoActual = 0;
-            
-            // Función recursiva para probar labels (sin .catch())
+
             const probarSiguienteLabel = () => {
                 if (intentoActual >= labelsArray.length) {
-                    // Si ya probamos todos y no encontramos ninguno
                     if (!labelEncontrado) {
                         throw new Error(`❌ No se encontró ningún label con los textos: ${labelsArray.join(', ')}`);
                     }
                     return;
                 }
-                
+
                 const labelActual = labelsArray[intentoActual];
                 cy.log(`🔍 Intentando con label: "${labelActual}"`);
-                
-                // Buscar el label
-                cy.contains('mat-label, label, .mat-label', new RegExp(labelActual, 'i'), { timeout })
-                    .should('be.visible')
-                    .then(($label) => {
-                        // Si llegamos aquí, encontramos el label
-                        if ($label && $label.length > 0 && !labelEncontrado) {
-                            labelEncontrado = true;
-                            cy.log(`✅ Label encontrado con texto: "${labelActual}"`);
-                            
-                            // 2. Obtener el form-field padre
-                            const $formField = $label.closest('mat-form-field');
-                            expect($formField, `No se encontró mat-form-field para label "${labelActual}"`).to.exist;
 
-                            // 3. Dentro de ese form-field, buscar el mat-select
-                            cy.wrap($formField).find('mat-select').as('select');
-                            
-                            // 4. Continuar con la selección
-                            continuarSeleccion();
-                        }
-                    })
-                    .then(() => {
-                        // Este then se ejecuta después del intento actual
-                        // Si no encontramos el label y aún no hemos probado todos
-                        if (!labelEncontrado && intentoActual < labelsArray.length - 1) {
-                            intentoActual++;
-                            probarSiguienteLabel();
-                        } else if (!labelEncontrado && intentoActual === labelsArray.length - 1) {
-                            // Si llegamos al final sin encontrar nada
-                            throw new Error(`❌ No se encontró ningún label con los textos: ${labelsArray.join(', ')}`);
+                const labelNormalizado = normalizarTexto(labelActual);
+
+                cy.get('mat-form-field:has(mat-select)', { timeout }).then($formFields => {
+                    let $mejorCampo = null;
+                    let mejorPuntaje = -1;
+                    let mejorCoincidencia = null;
+
+                    $formFields.each((index, field) => {
+                        const $field = Cypress.$(field);
+                        const $label = $field.find('mat-label, label, .mat-label, .mat-form-field-label');
+
+                        if ($label.length) {
+                            const textoLabel = $label.first().text().trim();
+                            const textoLabelNormalizado = normalizarTexto(textoLabel);
+
+                            let puntaje = 0;
+                            if (textoLabelNormalizado === labelNormalizado) {
+                                puntaje = 100;
+                            } else if (textoLabelNormalizado.replace(/\s*\*\s*/g, '') === labelNormalizado) {
+                                puntaje = 90;
+                            } else if (textoLabelNormalizado.startsWith(labelNormalizado + ' ')) {
+                                puntaje = 80;
+                            } else if (textoLabelNormalizado.match(new RegExp(`\\b${labelNormalizado}\\b`))) {
+                                puntaje = 70;
+                            } else if (textoLabelNormalizado.includes(labelNormalizado)) {
+                                puntaje = 50;
+                            } else if (labelNormalizado.includes(textoLabelNormalizado)) {
+                                puntaje = 30;
+                            }
+
+                            cy.log(`📝 "${textoLabel}" → puntaje: ${puntaje}`);
+
+                            if (puntaje > mejorPuntaje) {
+                                mejorPuntaje = puntaje;
+                                $mejorCampo = $field;
+                                mejorCoincidencia = textoLabel;
+                            }
                         }
                     });
+
+                    if ($mejorCampo && mejorPuntaje >= 50) {
+                        labelEncontrado = true;
+                        cy.log(`✅ Mejor coincidencia: "${mejorCoincidencia}" (puntaje: ${mejorPuntaje})`);
+
+                        cy.wrap($mejorCampo).find('mat-select').as('select');
+
+                        cy.get('@select').then($select => {
+                            const valorActual = $select.find('.mat-select-value-text span, .mat-select-min-line').first().text().trim();
+                            const valorActualNormalizado = normalizarTexto(valorActual);
+                            const valorNormalizado = normalizarTexto(valorString);
+
+                            cy.log(`📌 Valor actual: "${valorActual || 'vacío'}"`);
+                            cy.log(`🎯 Valor deseado: "${valorString}"`);
+
+                            if (valorActualNormalizado === valorNormalizado || valorActualNormalizado.includes(valorNormalizado)) {
+                                cy.log(`⏭️ Ya tiene el valor correcto, no se requiere cambio.`);
+                                return;
+                            }
+
+                            cy.get('@select').click({ force: forceOption });
+
+                            // Esperar a que el panel aparezca
+                            cy.get('.cdk-overlay-pane', { timeout }).should('be.visible');
+
+                            // Buscar la opción deseada visualmente
+                            cy.get('.cdk-overlay-pane mat-option').then($options => {
+                                let $opcion = null;
+                                $options.each((i, opt) => {
+                                    const textoOpcion = Cypress.$(opt).text().trim();
+                                    const textoOpcionNormalizado = normalizarTexto(textoOpcion);
+                                    if (textoOpcionNormalizado === valorNormalizado || textoOpcionNormalizado.includes(valorNormalizado)) {
+                                        $opcion = Cypress.$(opt);
+                                        return false;
+                                    }
+                                });
+
+                                if ($opcion) {
+                                    // Intentar hacer clic en la opción (con force si se desea)
+                                    cy.wrap($opcion).scrollIntoView().then(() => {
+                                        if (usarBusqueda) {
+                                            // Si se prefiere usar búsqueda, se podría activar aquí
+                                            // Pero como no quieres escribir, simplemente hacemos clic con force si es necesario
+                                            cy.wrap($opcion).click({ force: forceOption });
+                                        } else {
+                                            // Intentar clic normal, pero si falla por visibilidad, usar force
+                                            cy.wrap($opcion).click({ force: forceOption });
+                                        }
+                                    });
+                                } else {
+                                    // Opción no encontrada visualmente, recurrir al campo de búsqueda si está permitido
+                                    if (usarBusqueda) {
+                                        cy.log('⚠️ Opción no encontrada visualmente, usando campo de búsqueda');
+                                        cy.get('.cdk-overlay-pane input[placeholder="Buscar"]')
+                                            .should('be.visible')
+                                            .type(valorString, { force: forceOption, delay: 100 });
+                                        cy.wait(500);
+                                        cy.get('.cdk-overlay-pane mat-option').first().should('be.visible').click({ force: forceOption });
+                                    } else {
+                                        throw new Error(`❌ No se encontró opción "${valorString}" en el combo y la búsqueda está deshabilitada`);
+                                    }
+                                }
+
+                                cy.get('.cdk-overlay-backdrop', { timeout: 5000 }).should('not.exist');
+                                cy.log(`✅ Seleccionado "${valorString}" en combo "${labelText}"`);
+                            });
+                        });
+                    } else if (!labelEncontrado && intentoActual < labelsArray.length - 1) {
+                        intentoActual++;
+                        probarSiguienteLabel();
+                    } else {
+                        throw new Error(`❌ No se encontró campo con label que coincida con "${labelsArray.join('", "')}"`);
+                    }
+                });
             };
-            
-            // Iniciar la búsqueda
+
             probarSiguienteLabel();
         };
-        
-        // Función para continuar con la selección después de encontrar el select
-        const continuarSeleccion = () => {
-            // 4. Usar el alias para obtener el select (esto evita referencias directas)
-            cy.get('@select').should('be.visible').then($select => {
-                // Obtener valor actual
-                const valorActual = $select.find('.mat-select-value-text span, .mat-select-min-line').first().text().trim();
-                const valorActualNormalizado = normalizarTexto(valorActual);
-                const valorNormalizado = normalizarTexto(valor);
 
-                cy.log(`📌 Valor actual: "${valorActual || 'vacío'}"`);
-                cy.log(`🎯 Valor deseado: "${valor}"`);
-
-                if (valorActualNormalizado === valorNormalizado || valorActualNormalizado.includes(valorNormalizado)) {
-                    cy.log(`⏭️ Ya tiene el valor correcto, no se requiere cambio.`);
-                    return;
-                }
-
-                // Hacer click en el select
-                cy.get('@select').click({ force });
-
-                // Esperar a que el panel aparezca
-                cy.get('.cdk-overlay-pane', { timeout }).should('be.visible');
-
-                // Buscar la opción deseada dentro del panel
-                cy.get('.cdk-overlay-pane mat-option').then($options => {
-                    let $opcion = null;
-                    $options.each((i, opt) => {
-                        const textoOpcion = Cypress.$(opt).text().trim();
-                        const textoOpcionNormalizado = normalizarTexto(textoOpcion);
-                        if (textoOpcionNormalizado === valorNormalizado || textoOpcionNormalizado.includes(valorNormalizado)) {
-                            $opcion = Cypress.$(opt);
-                            return false;
-                        }
-                    });
-
-                    if ($opcion) {
-                        cy.wrap($opcion).scrollIntoView().should('be.visible').click({ force });
-                    } else {
-                        // Si no se encuentra, intentar con el input de búsqueda
-                        cy.get('.cdk-overlay-pane input[placeholder="Buscar"]').should('be.visible').type(valor, { force, delay: 100 });
-                        cy.wait(500);
-                        cy.get('.cdk-overlay-pane mat-option').first().should('be.visible').click({ force });
-                    }
-
-                    // Esperar que desaparezca el backdrop
-                    cy.get('.cdk-overlay-backdrop', { timeout: 5000 }).should('not.exist');
-                    cy.log(`✅ Seleccionado "${valor}" en combo "${Array.isArray(labelText) ? labelText.join('" o "') : labelText}"`);
-                });
-            });
-        };
-
-        // Si skipContext es true, ejecutar directamente sin buscar iframe
-        if (skipContext) {
-            ejecutarSeleccion();
-            return;
-        }
-
-        // Manejo del iframe (original)
-        cy.get('iframe.frame', { timeout: iframeTimeout, failOnStatusCode: false }).then(($iframe) => {
-            if ($iframe.length > 0) {
-                cy.log('🎯 [Iframe] Ejecutando dentro del iframe');
-                cy.wrap($iframe)
-                    .should('be.visible')
-                    .invoke('css', 'pointer-events', 'auto')
-                    .its('0.contentDocument.body')
-                    .should('not.be.empty')
-                    .then(cy.wrap)
-                    .within(() => {
-                        ejecutarSeleccion();
-                    });
-            } else {
-                cy.log('🎯 [Iframe] Ejecutando directamente en la página');
-                ejecutarSeleccion();
-            }
-        });
+        this._ejecutarEnContexto(ejecutarSeleccion, skipContext);
     }
 
     /**
@@ -2021,154 +2124,259 @@ BuscarRegistroEnTabla(criterios) {
                         });
                 });
         };
-
         if (skipContext) {
             ejecutar();
-        } else {
+        } else if (this._ejecutarEnContexto) {
             this._ejecutarEnContexto(ejecutar);
+        } else {
+            ejecutar();
         }
     }
 
     /**
-     * Versión de checkbox que maneja iframe automáticamente
+     * Versión de checkbox que maneja iframe automáticamente o no con skipcontext
      */
     checkboxIframe(valor, labelText, opciones = {}) {
         const {
             timeout = 10000,
-            normalizarTildes = true,
-            ignorarMayusculas = true,
             force = false,
-            scrollBehavior = 'center',
-            ensureScrollable = true,
-            offsetTop = -100,
-            skipContext = false  // ← NUEVA OPCIÓN
+            skipContext = false
         } = opciones;
 
-        const ejecutar = () => {
-            // --- Validación de valor vacío ---
-            if (valor == null || (typeof valor === 'string' && valor.trim() === '')) {
-                cy.log(`⏭️ Valor vacío o nulo para "${labelText}", se omite procesamiento.`);
-                return;
+        // Manejar si valor es objeto (similar a combo)
+        let valorReal = valor;
+        if (valor && typeof valor === 'object') {
+            cy.log(`⚠️ checkbox valor es objeto: ${JSON.stringify(valor)}`);
+            if (valor.hasOwnProperty('esMandatorio')) {
+                valorReal = valor.esMandatorio;
+            } else {
+                const props = Object.values(valor);
+                const propString = props.find(p => typeof p === 'string' || typeof p === 'boolean');
+                if (propString !== undefined) valorReal = propString;
+                else valorReal = Boolean(valor);
             }
+        }
 
-            cy.log(`🔍 Procesando elemento (checkbox/switch) "${labelText}" con valor: ${valor}`);
+        if (valorReal == null || (typeof valorReal === 'string' && valorReal.trim() === '')) {
+            cy.log(`⏭️ Valor vacío o nulo para checkbox "${labelText}" - se omite`);
+            return;
+        }
 
-            const normalizar = (texto) => {
-                if (!texto) return texto;
-                let resultado = String(texto).trim();
-                if (normalizarTildes) {
-                    resultado = resultado.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                }
-                if (ignorarMayusculas) {
-                    resultado = resultado.toLowerCase();
-                }
-                return resultado;
-            };
+        cy.log(`🔍 Procesando checkbox "${labelText}" con valor: ${valorReal}`);
 
-            const textoBusqueda = normalizar(labelText);
-            const valorEsperado = valor === true || valor === 'true' || valor === 1 || valor === '1';
+        const ejecutar = () => {
+            const valorBooleano = typeof valorReal === 'string'
+                ? ['true', '1', 'sí', 'si', 'yes'].includes(valorReal.toLowerCase().trim())
+                : Boolean(valorReal);
 
-            // --- Estrategia 1: Búsqueda por estructura conocida (switch-wrapper + label) ---
-            const buscarPorEstructura = () => {
-                return cy.get('.switch-wrapper label.label', { timeout: 5000 })
-                    .filter((i, el) => normalizar(el.innerText).includes(textoBusqueda))
-                    .first()
-                    .parent('.switch-wrapper')
-                    .find('mat-slide-toggle')
-                    .then($toggle => {
-                        if ($toggle.length) return cy.wrap($toggle);
-                        // Si no se encuentra mat-slide-toggle, podría ser un checkbox dentro de un wrapper similar
-                        return cy.get('.switch-wrapper label.label')
-                            .filter((i, el) => normalizar(el.innerText).includes(textoBusqueda))
-                            .first()
-                            .parent('.switch-wrapper')
-                            .find('mat-checkbox');
-                    })
-                    .then($el => {
-                        if ($el && $el.length) return cy.wrap($el);
-                        return null;
-                    });
-            };
-
-            // --- Estrategia 2: Búsqueda genérica en mat-checkbox y mat-slide-toggle ---
-            const buscarGenerico = () => {
-                return cy.get('mat-checkbox, mat-slide-toggle', { timeout })
-                    .should('have.length.gt', 0)
-                    .filter((index, el) => {
-                        const $el = Cypress.$(el);
-                        let texto = '';
-                        if ($el.is('mat-checkbox')) {
-                            texto = $el.find('.mat-checkbox-label').text().trim();
-                        } else if ($el.is('mat-slide-toggle')) {
-                            const $parent = $el.closest('.switch-wrapper, .mat-mdc-slide-toggle, div');
-                            texto = $parent.find('label.label').text().trim() || $el.text().trim();
+            // Buscar el label por texto
+            cy.contains('mat-label, label, .mat-label', new RegExp(labelText, 'i'), { timeout })
+                .should('be.visible')
+                .then($label => {
+                    // Estrategias para encontrar el mat-checkbox asociado:
+                    let $checkbox = $label.closest('mat-checkbox'); // Caso 1: label dentro de mat-checkbox
+                    
+                    if ($checkbox.length === 0) {
+                        // Caso 2: label con atributo 'for' apuntando al input
+                        const forAttr = $label.attr('for');
+                        if (forAttr) {
+                            $checkbox = Cypress.$(`mat-checkbox#${forAttr}, input#${forAttr}`).closest('mat-checkbox');
                         }
-                        if (!texto) texto = $el.text().trim();
-                        const textoNorm = normalizar(texto);
-                        return textoNorm.includes(textoBusqueda) || textoNorm === textoBusqueda;
-                    })
-                    .first();
-            };
+                    }
+                    
+                    if ($checkbox.length === 0) {
+                        // Caso 3: buscar en padres cercanos
+                        $checkbox = $label.parents().find('mat-checkbox').first();
+                    }
 
-            // Intentar primero con la estrategia 1; si no da resultado, usar la 2
-            buscarPorEstructura().then($elemento => {
-                if ($elemento && $elemento.length) {
-                    manejarElemento($elemento);
-                } else {
-                    buscarGenerico().then($el => manejarElemento($el));
+                    expect($checkbox, `No se encontró mat-checkbox para label "${labelText}"`).to.exist;
+
+                    // Verificar estado actual
+                    cy.wrap($checkbox).then($cb => {
+                        const isChecked = $cb.hasClass('mat-checked') || 
+                                        $cb.find('input[type="checkbox"]').is(':checked') ||
+                                        $cb.attr('aria-checked') === 'true';
+
+                        cy.log(`📌 Estado actual: ${isChecked ? 'checked' : 'unchecked'}`);
+
+                        if ((valorBooleano && !isChecked) || (!valorBooleano && isChecked)) {
+                            cy.wrap($cb).click({ force });
+                            cy.log(`✅ Checkbox "${labelText}" cambiado a ${valorBooleano ? 'checked' : 'unchecked'}`);
+                        } else {
+                            cy.log(`⏭️ Checkbox "${labelText}" ya tiene el estado correcto`);
+                        }
+                    });
+                });
+        };
+
+        this._ejecutarEnContexto(ejecutar, skipContext);
+    }
+    
+    /**
+     * Versión de slideToggle que maneja iframe automaticamente o no con skipcontext
+     */
+    slideToggleIframe(valor, labelText, opciones = {}) {
+        const {
+            timeout = 10000,
+            force = false,
+            skipContext = false,
+            esperarHabilitado = true
+        } = opciones;
+
+        // Extraer valor real si es objeto
+        let valorReal = valor;
+        if (valor && typeof valor === 'object') {
+            cy.log(`⚠️ slideToggle valor es objeto: ${JSON.stringify(valor)}`);
+            if (valor.hasOwnProperty('esMandatorio')) {
+                valorReal = valor.esMandatorio;
+            } else {
+                const props = Object.values(valor);
+                const propString = props.find(p => typeof p === 'string' || typeof p === 'boolean');
+                if (propString !== undefined) valorReal = propString;
+                else valorReal = Boolean(valor);
+            }
+        }
+
+        // Validar valor vacío
+        if (valorReal == null || (typeof valorReal === 'string' && valorReal.trim() === '')) {
+            cy.log(`⏭️ Valor vacío o nulo para slideToggle "${labelText}" - se omite`);
+            return;
+        }
+
+        cy.log(`🔍 Procesando slideToggle "${labelText}" con valor: ${valorReal}`);
+
+        const ejecutar = () => {
+            const valorBooleano = typeof valorReal === 'string'
+                ? ['true', '1', 'sí', 'si', 'yes'].includes(valorReal.toLowerCase().trim())
+                : Boolean(valorReal);
+
+            // Usar XPath para encontrar el label que contiene el texto exacto (ignorando mayúsculas/minúsculas)
+            // Esto es más flexible y evita problemas de estructura
+            const xpathLabel = `//label[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜ', 'abcdefghijklmnopqrstuvwxyzáéíóúü'), translate('${labelText}', 'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜ', 'abcdefghijklmnopqrstuvwxyzáéíóúü'))]`;
+
+            cy.xpath(xpathLabel, { timeout }).should('be.visible').then($label => {
+                // Una vez encontrado el label, buscar el mat-slide-toggle asociado
+                // Puede ser:
+                // 1. El label está dentro de un mat-slide-toggle (hacer closest)
+                // 2. El label tiene un atributo 'for' que apunta al id del slide-toggle
+                // 3. Buscar el slide-toggle en el mismo contenedor (wrapper)
+
+                let $slideToggle = $label.closest('mat-slide-toggle');
+
+                if ($slideToggle.length === 0) {
+                    const forAttr = $label.attr('for');
+                    if (forAttr) {
+                        // Intentar obtener por id exacto o por el contenedor que tenga ese id
+                        $slideToggle = Cypress.$(`mat-slide-toggle#${forAttr}, #${forAttr}`).closest('mat-slide-toggle');
+                    }
                 }
-            });
 
-            function manejarElemento($elemento) {
-                // Scroll al elemento
-                cy.wrap($elemento).scrollIntoView({
+                if ($slideToggle.length === 0) {
+                    // Buscar en hermanos o padres
+                    $slideToggle = $label.parent().find('mat-slide-toggle');
+                    if ($slideToggle.length === 0) {
+                        $slideToggle = $label.parents().find('mat-slide-toggle').first();
+                    }
+                }
+
+                expect($slideToggle, `No se encontró mat-slide-toggle para label "${labelText}"`).to.exist;
+
+                cy.wrap($slideToggle).then($toggle => {
+                    // Determinar si está checked
+                    // En mat-slide-toggle de Angular Material, la clase 'mat-mdc-slide-toggle-checked' indica checked
+                    const isChecked = $toggle.hasClass('mat-mdc-slide-toggle-checked') ||
+                                    $toggle.find('input[type="checkbox"]').is(':checked') ||
+                                    $toggle.attr('aria-checked') === 'true';
+
+                    cy.log(`📌 Estado actual: ${isChecked ? 'checked' : 'unchecked'}`);
+
+                    // Si ya está en el estado deseado, no hacer nada
+                    if ((valorBooleano && isChecked) || (!valorBooleano && !isChecked)) {
+                        cy.log(`⏭️ SlideToggle "${labelText}" ya tiene el estado correcto`);
+                        return;
+                    }
+
+                    // Si se requiere esperar a que no esté deshabilitado
+                    if (esperarHabilitado) {
+                        cy.wrap($toggle).should('not.have.class', 'mdc-switch--disabled')
+                        .find('button[role="switch"]').should('not.be.disabled', { timeout });
+                    }
+
+                    // Hacer clic en el botón interno (para evitar clics en el label que pueden no funcionar)
+                    const $button = $toggle.find('button[role="switch"]');
+                    cy.wrap($button).click({ force });
+                    cy.log(`✅ SlideToggle "${labelText}" cambiado a ${valorBooleano ? 'checked' : 'unchecked'}`);
+                });
+            });
+        };
+
+        this._ejecutarEnContexto(ejecutar, skipContext);
+    }
+
+    /**
+     * Versión de checkbox que maneja checkbox en tabla sin iframe
+     */
+    checkboxEnTabla(valor, labelText, opciones = {}) {
+    const {
+        timeout = 10000,
+        normalizarTildes = true,
+        ignorarMayusculas = true,
+        force = false,
+        scrollBehavior = 'center',
+        ensureScrollable = true,
+        offsetTop = -100
+    } = opciones;
+
+    cy.log(`🔍 Procesando checkbox en tabla con texto: "${labelText}"`);
+
+    const normalizar = (texto) => {
+        if (!texto) return texto;
+        let resultado = String(texto).trim();
+        if (normalizarTildes) {
+            resultado = resultado.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+        if (ignorarMayusculas) {
+            resultado = resultado.toLowerCase();
+        }
+        return resultado;
+    };
+
+    const textoBusqueda = normalizar(labelText);
+    const valorEsperado = valor === true || valor === 'true' || valor === 1 || valor === '1';
+
+    // Buscar la fila que contenga el texto en la columna de descripción
+    cy.get('mat-row, tr.mat-mdc-row', { timeout })
+        .filter((i, row) => {
+            const textoFila = Cypress.$(row).find('.mat-column-description, td:eq(1)').text().trim();
+            return normalizar(textoFila).includes(textoBusqueda);
+        })
+        .first()
+        .within(() => {
+            // Dentro de la fila, encontrar el checkbox
+            cy.get('mat-checkbox').then($checkbox => {
+                // Scroll al checkbox (o a la fila)
+                cy.wrap($checkbox).scrollIntoView({
                     duration: 300,
                     easing: 'linear',
                     offset: { top: offsetTop, left: 0 },
-                    ensureScrollable: ensureScrollable
+                    ensureScrollable
                 });
+                cy.wait(200);
 
-                cy.wait(200); // Pequeña pausa después del scroll
-
-                const esCheckbox = $elemento.is('mat-checkbox');
-                const esSlideToggle = $elemento.is('mat-slide-toggle');
-
-                let estaActivado = false;
-                if (esCheckbox) {
-                    estaActivado = $elemento.hasClass('mat-checkbox-checked');
-                } else if (esSlideToggle) {
-                    // Para slide toggle, las clases que indican activado pueden variar
-                    estaActivado = $elemento.hasClass('mat-mdc-slide-toggle-checked') || 
-                                $elemento.find('.mdc-switch').hasClass('mdc-switch--selected');
-                }
-
-                if (estaActivado !== valorEsperado) {
-                    // Hacer clic en el área correspondiente
-                    if (esCheckbox) {
-                        cy.wrap($elemento)
-                            .find('.mat-checkbox-layout, .mat-checkbox-inner-container')
-                            .first()
-                            .click({ force });
-                    } else if (esSlideToggle) {
-                        cy.wrap($elemento)
-                            .find('button.mdc-switch, .mdc-switch')
-                            .first()
-                            .click({ force });
-                    }
-                    cy.log(`✅ Elemento actualizado a ${valorEsperado ? 'activado' : 'desactivado'}`);
+                // Detectar estado checked en MDC
+                const estaChequeado = $checkbox.hasClass('mat-mdc-checkbox-checked') || 
+                                      $checkbox.find('.mdc-checkbox').hasClass('mdc-checkbox--selected');
+                
+                if (estaChequeado !== valorEsperado) {
+                    // Hacer clic en el área interactiva (mejor en el input nativo)
+                    cy.get('input[type="checkbox"]').first().click({ force });
+                    cy.log(`✅ Checkbox actualizado a ${valorEsperado ? 'chequeado' : 'no chequeado'}`);
                 } else {
-                    cy.log(`⏭️ Elemento ya tiene el estado correcto`);
+                    cy.log(`⏭️ Checkbox ya tiene estado correcto`);
                 }
-            }
-        };
-
-        if (skipContext) {
-            ejecutar();
-        } else {
-            this._ejecutarEnContexto(ejecutar);
-        }
-    }
-
+            });
+        });
+}
     /**
      * Versión de IngresarFecha que maneja iframe automáticamente
      */
@@ -2192,10 +2400,241 @@ BuscarRegistroEnTabla(criterios) {
 
         if (skipContext) {
             ejecutar();
-        } else {
+        } else if (this._ejecutarEnContexto) {
             this._ejecutarEnContexto(ejecutar);
+        } else {
+            ejecutar();
         }
     }
+
+    /**
+     * Versión de llenar campo que maneja iframe automáticamente
+     */
+    llenarCampoEnTablaIframe(valor, nombreColumna, numeroFila = 1, opciones = {}) {
+        const {
+            limpiar = true,
+            delay = 10,
+            timeout = 10000,
+            force = false,
+            skipContext = false,
+            ignorarTildes = true,
+            ignorarMayusculas = true,
+            ignorarEspacios = true
+        } = opciones;
+
+        const ejecutar = () => {
+            // Validación
+            if (valor == null || (typeof valor === 'string' && valor.trim() === '')) {
+                cy.log(`⏭️ Valor vacío para columna "${nombreColumna}" fila ${numeroFila}`);
+                return;
+            }
+
+            cy.log(`🔍 Buscando tabla para escribir "${valor}" en columna "${nombreColumna}" fila ${numeroFila}`);
+
+            // Función de normalización
+            const normalizarTexto = (texto) => {
+                if (!texto) return '';
+                let resultado = String(texto);
+                if (ignorarTildes) {
+                    resultado = resultado.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                }
+                if (ignorarMayusculas) {
+                    resultado = resultado.toLowerCase();
+                }
+                if (ignorarEspacios) {
+                    resultado = resultado.trim().replace(/\s+/g, ' ');
+                }
+                return resultado;
+            };
+
+            const columnaNormalizada = normalizarTexto(nombreColumna);
+
+            // Buscar la tabla principal
+            cy.get('table', { timeout }).should('be.visible').then($table => {
+                // Encontrar el índice de la columna por el texto del encabezado (soporta th.mat-header-cell o th a secas)
+                let columnaIndex = -1;
+                
+                // Buscar en los encabezados de la tabla (priorizando los que tienen clase mat-header-cell)
+                const $encabezados = $table.find('th.mat-header-cell, thead th, .mat-header-cell');
+                
+                if ($encabezados.length === 0) {
+                    // Si no encuentra con esos selectores, intenta con th genérico
+                    $encabezados = $table.find('th');
+                }
+
+                $encabezados.each((index, th) => {
+                    const textoTh = Cypress.$(th).text().trim();
+                    const textoNormalizado = normalizarTexto(textoTh);
+                    cy.log(`📌 Encabezado ${index}: "${textoTh}" normalizado: "${textoNormalizado}"`);
+                    if (textoNormalizado.includes(columnaNormalizada) || columnaNormalizada.includes(textoNormalizado)) {
+                        columnaIndex = index;
+                        cy.log(`✅ Columna "${nombreColumna}" encontrada en índice ${columnaIndex} (texto: "${textoTh}")`);
+                        return false;
+                    }
+                });
+
+                if (columnaIndex === -1) {
+                    throw new Error(`No se encontró columna "${nombreColumna}" en la tabla. Encabezados encontrados: ${$encabezados.map((i, th) => Cypress.$(th).text().trim()).get().join(' | ')}`);
+                }
+
+                // Obtener todas las filas del cuerpo de la tabla
+                const $filas = $table.find('tbody tr');
+                
+                if (numeroFila > $filas.length) {
+                    throw new Error(`La fila ${numeroFila} no existe. Solo hay ${$filas.length} filas`);
+                }
+
+                // La fila 1 es la primera fila (índice 0)
+                const $fila = $filas.eq(numeroFila - 1);
+                
+                // Encontrar la celda en la columna correspondiente
+                const $celda = $fila.find('td').eq(columnaIndex);
+                
+                // Buscar input dentro de la celda
+                const $input = $celda.find('input, textarea, mat-select, .mat-select-trigger');
+                
+                if ($input.length === 0) {
+                    throw new Error(`No se encontró input en columna "${nombreColumna}" fila ${numeroFila}`);
+                }
+
+                // Determinar el tipo de campo
+                if ($input.is('mat-select') || $input.hasClass('mat-select-trigger')) {
+                    // Si es un select, podemos llamar a seleccionarComboIframe con el contexto adecuado
+                    // Pero para simplificar, hacemos clic y luego seleccionamos la opción (asumiendo que es un select simple)
+                    cy.wrap($input).click({ force });
+                    // Aquí podrías añadir lógica para seleccionar una opción, pero como el valor es texto, tal vez no aplica.
+                    // Por ahora, lanzamos error o simplemente click.
+                    cy.log('⚠️ Es un mat-select, se necesita lógica adicional');
+                } else {
+                    // Es un input normal
+                    cy.wrap($input)
+                        .scrollIntoView()
+                        .should('be.visible')
+                        .then(() => {
+                            if (limpiar) {
+                                cy.wrap($input).clear({ force });
+                            }
+                            cy.wrap($input).type(String(valor), { delay, force });
+                            cy.log(`✅ Escrito "${valor}" en columna "${nombreColumna}" fila ${numeroFila}`);
+                        });
+                }
+            });
+        };
+
+        if (skipContext) {
+            ejecutar();
+        } else if (this._ejecutarEnContexto) {
+            this._ejecutarEnContexto(ejecutar);
+        } else {
+            ejecutar();
+        }
+    }
+
+    /**
+     * metodo para seleccionar medio de notificacion
+     */
+seleccionarMediosNotificacion(medios, textoFila, opciones = {}) {
+    const {
+        timeout = 10000,
+        force = false,
+        skipContext = false,
+        esperarHabilitado = true,
+        ignorarDeshabilitados = true // true: solo advierte, false: lanza error
+    } = opciones;
+
+    // Función para interpretar el string de medios
+    const parseMedios = (input) => {
+        if (input == null) return { sms: false, email: false };
+        if (typeof input === 'boolean') return { sms: input, email: input };
+        if (Array.isArray(input)) {
+            return {
+                sms: input.some(m => m.toLowerCase().includes('sms')),
+                email: input.some(m => m.toLowerCase().includes('email') || m.toLowerCase().includes('e-mail'))
+            };
+        }
+        if (typeof input === 'string') {
+            const m = input.toLowerCase().trim();
+            // Eliminar llaves si existen
+            const sinLlaves = m.replace(/[{}]/g, '');
+            // Separar por comas o espacios
+            const partes = sinLlaves.split(/[,\s]+/).filter(p => p.length > 0);
+            if (partes.length === 0) return { sms: false, email: false };
+            // Si contiene 'ambos' o alguna parte incluye ambos
+            if (partes.includes('ambos')) return { sms: true, email: true };
+            return {
+                sms: partes.some(p => p.includes('sms')),
+                email: partes.some(p => p.includes('email') || p.includes('e-mail'))
+            };
+        }
+        return { sms: false, email: false };
+    };
+
+    const ejecutar = () => {
+        // Validar valor vacío (solo si es string vacío o null)
+        if (medios == null || (typeof medios === 'string' && medios.trim() === '')) {
+            cy.log(`⏭️ Valor vacío para la fila "${textoFila}", se omite.`);
+            return;
+        }
+
+        // Mostrar todas las etiquetas para depuración
+        cy.log('📋 Etiquetas disponibles en la tabla:');
+        cy.get('tbody tr td.cdk-column-label', { timeout }).each($el => {
+            cy.log('   "' + $el.text().trim() + '"');
+        });
+
+        // Interpretar los medios solicitados
+        const { sms: activarSMS, email: activarEmail } = parseMedios(medios);
+        cy.log(`🔍 Fila "${textoFila}" → SMS: ${activarSMS}, eMail: ${activarEmail}`);
+
+        // Buscar la fila por el texto exacto (ignorando espacios)
+        cy.contains('tbody tr td.cdk-column-label', new RegExp(`^\\s*${textoFila}\\s*$`), { timeout })
+            .should('be.visible')
+            .then(($td) => {
+                const $fila = $td.closest('tr');
+
+                const procesarCheckbox = (columna, debeEstarMarcado) => {
+                    const selector = `td.cdk-column-${columna} mat-checkbox`;
+                    cy.wrap($fila).find(selector).should('exist').then($cb => {
+                        const isDisabled = $cb.hasClass('mdc-checkbox--disabled') || $cb.find('input').is(':disabled');
+                        
+                        if (isDisabled) {
+                            if (debeEstarMarcado) {
+                                const msg = `⚠️ El checkbox ${columna} en fila "${textoFila}" está deshabilitado pero se solicita marcarlo.`;
+                                if (ignorarDeshabilitados) {
+                                    cy.log(msg + ' Se omite (ignorarDeshabilitados=true).');
+                                } else {
+                                    throw new Error(msg);
+                                }
+                            } else {
+                                cy.log(`⏭️ ${columna} en fila "${textoFila}" está deshabilitado y no necesita cambios.`);
+                            }
+                            return;
+                        }
+
+                        if (esperarHabilitado) {
+                            cy.wrap($cb).should('not.have.class', 'mdc-checkbox--disabled');
+                        }
+
+                        const isChecked = $cb.hasClass('mat-mdc-checkbox-checked') || $cb.find('input').is(':checked');
+                        if (debeEstarMarcado && !isChecked) {
+                            cy.wrap($cb).click({ force });
+                            cy.log(`✅ Marcado ${columna} en fila "${textoFila}"`);
+                        } else if (!debeEstarMarcado && isChecked) {
+                            cy.wrap($cb).click({ force });
+                            cy.log(`✅ Desmarcado ${columna} en fila "${textoFila}"`);
+                        } else {
+                            cy.log(`⏭️ ${columna} en fila "${textoFila}" ya en estado deseado`);
+                        }
+                    });
+                };
+
+                if (activarSMS !== undefined) procesarCheckbox('SMS', activarSMS);
+                if (activarEmail !== undefined) procesarCheckbox('eMail', activarEmail);
+            });
+    };
+
+    this._ejecutarEnContexto(ejecutar, skipContext);
+}
 
 
     seleccionarCombo(valor, labelText, opciones = {}) {
@@ -2946,7 +3385,6 @@ BuscarRegistroEnTabla(criterios) {
 
         cy.log(`🎉 Registro con código "${codigo}" seleccionado exitosamente`);
     }
-
 
     abrirPanel(nombrePanel, opciones = {}) {
         const {

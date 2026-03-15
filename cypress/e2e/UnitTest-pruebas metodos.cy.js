@@ -37,6 +37,9 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
                 //Generales.clickAddCaracteristica({ timeout: 10000, force: true, skipContext: true })
                 //GestorDeTransacciones.caracteristicasTrx2("moneda")
                 cy.wait(3000)
+                Generales.filtrarPorCodigo('600');
+                Generales.abrirPanel("Opciones")
+                Generales.BtnIframe("Tipos de cajero",{ timeout: 10000, force: true, skipContext: true })
 
                 //Generales.BtnIframe("Rutinas de ejecucion",{ timeout: 10000, force: true, skipContext: true })
                 //Generales.BtnIframe("Atras",{ timeout: 10000, force: true, skipContext: true })
