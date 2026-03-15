@@ -32,10 +32,14 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
             .then(cy.wrap)
             .within(() => {
 
-                Generales.filtrarPorCodigo('600');
-                Generales.abrirPanel("Opciones")
-                Generales.BtnIframe("Rutinas de ejecucion",{ timeout: 10000, force: true, skipContext: true })
-                Generales.BtnIframe("Atras",{ timeout: 10000, force: true, skipContext: true })
+                Generales.filtrarPorCodigo('777');
+                //Generales.abrirPanel("Opciones")
+                //Generales.clickAddCaracteristica({ timeout: 10000, force: true, skipContext: true })
+                //GestorDeTransacciones.caracteristicasTrx2("moneda")
+                cy.wait(3000)
+
+                //Generales.BtnIframe("Rutinas de ejecucion",{ timeout: 10000, force: true, skipContext: true })
+                //Generales.BtnIframe("Atras",{ timeout: 10000, force: true, skipContext: true })
 
                // Generales.checkbox("Administrador")
 

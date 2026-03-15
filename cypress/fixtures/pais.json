@@ -1,12 +1,6 @@
 {
   "agregar": [
     {
-      "nombre": "Guatemala",
-      "iso2Code": "GT",
-      "iso3Code": "GTM",
-      "tipo": "COUNTRY"
-    },
-    {
       "nombre": "Honduras",
       "iso2Code": "HN",
       "iso3Code": "HND",

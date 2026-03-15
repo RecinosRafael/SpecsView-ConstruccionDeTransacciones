@@ -302,16 +302,16 @@ BtnAceptarRegistroF() {
     });
 }
 
-    //Boton para cancelar la insercion del registro.
-    // BtnCancelarRegistro() {
-    //     cy.log('Clic en botón CANCELAR');
-
-    //     cy.contains('button', 'Cancelar', { timeout: 15000 })
-    //         .should('exist')
-    //         .click({ force: true });
-    // }
-
+   // Boton para cancelar la insercion del registro.
     BtnCancelarRegistro() {
+        cy.log('Clic en botón CANCELAR');
+
+        cy.contains('button', 'Cancelar', { timeout: 15000 })
+            .should('exist')
+            .click({ force: true });
+    }
+
+    BtnCancelarRegistroIF() {
     cy.log('Clic en botón CANCELAR');
     this.esperarOcultarSpinner()
 
@@ -2356,6 +2356,50 @@ BuscarRegistroEnTabla(criterios) {
         });
     }
 
+    seleccionarComboEspecial(valor, labelText, opciones = {}) {
+        const {
+            timeout = 10000
+        } = opciones;
+
+        if (!valor || valor === "") {
+            cy.log(`⏭️ Valor vacío para combo "${labelText}" - se omite la selección`);
+            return;
+        }
+
+        cy.log(`🔍 Seleccionando "${valor}" en combo "${labelText}"`);
+
+        // Buscar el campo por el label
+        cy.contains('mat-label', labelText, { timeout })
+            .parents('mat-form-field')
+            .find('mat-select')
+            .should('be.visible')
+            .should('not.be.disabled')
+            .click({ force: true });
+
+        // Pequeña espera para que el panel se abra completamente
+        cy.wait(500);
+
+        // Buscar la opción y hacer click directamente
+        cy.get('.cdk-overlay-pane mat-option', { timeout })
+            .should('be.visible')
+            .then($opciones => {
+                // Buscar la opción que coincida con el valor
+                const $opcionEncontrada = $opciones.filter((i, opt) => {
+                    const textoOpcion = Cypress.$(opt).text().trim();
+                    return textoOpcion.includes(valor) || valor.includes(textoOpcion);
+                }).first();
+
+                if ($opcionEncontrada.length > 0) {
+                    cy.wrap($opcionEncontrada).click({ force: true });
+                    cy.log(`✅ Seleccionado "${valor}" en combo "${labelText}"`);
+                } else {
+                    // Si no encuentra por texto, seleccionar la primera opción
+                    cy.log(`⚠️ No se encontró "${valor}", seleccionando primera opción`);
+                    cy.wrap($opciones.first()).click({ force: true });
+                }
+            });
+    }
+
     llenarCampo(valor, labelText, opciones = {}) {
         const {
             limpiar = true,
@@ -2961,6 +3005,17 @@ BuscarRegistroEnTabla(criterios) {
         };
 
         intentarAbrir();
+    }
+
+    // En tu POM (Page Object Model)
+    clickAddCaracteristica() {
+        cy.log('➕ Haciendo clic en botón ADD de Características');
+
+        cy.get('mat-card app-characteristics .buttonAdd button[mat-fab]')
+            .should('be.visible')
+            .click({ force: true });
+
+        cy.log('✅ Click en ADD de Características exitoso');
     }
 
 

@@ -97,6 +97,7 @@ describe("Suite de pruebas Opción Usuario", () => {
                     item.pApellido,
                     item.sApellido,
                     item.valorPais,
+                    item.codigoEbs,
                     item.correo,
                     item.telTrabajo,
                     item.codigoEmpleado,

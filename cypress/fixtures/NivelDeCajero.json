@@ -2,14 +2,6 @@
   "agregar": [
 
     {
-      "codigo": "1",
-      "valorArbolRaiz": "Byte S.A.",
-      "nombre": "Administrador",
-      "descripcion": "Administrador",
-      "valorNivelAutorizacion": "Institucion",
-      "rolKeycloak": "admin"
-    },
-    {
       "codigo": "2",
       "valorArbolRaiz": "Byte S.A.",
       "nombre": "Supervisor",

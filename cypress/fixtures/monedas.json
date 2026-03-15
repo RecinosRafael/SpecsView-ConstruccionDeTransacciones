@@ -1,14 +1,6 @@
 {
   "agregar": [
     {
-      "codigo": "GTQ",
-      "codigoIso": "GTQ",
-      "nombre": "Quetzal",
-      "codigoNumerico": "320",
-      "decimales": "2",
-      "puntoFlotante": ""
-    },
-    {
       "codigo": "L",
       "codigoIso": "L",
       "nombre": "Lempiras",

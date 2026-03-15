@@ -8,7 +8,7 @@
       "ejecutar": "Después de enviar al host",
       "descripcion": "Afectación efectivo trx Pagadas"
     },
-    {	
+    {
       "transaccion": "",
       "correlativo": "2",
       "regla": "Afectación efectivo trx recibidas",

@@ -1,10 +1,5 @@
 {
   "agregar": [
-    {
-      "codigo": "1",
-      "nombre": "Region defecto",
-      "descripcion": "descripcion de region"
-    },
     {	
       "codigo": "2",
       "nombre": "Centro",

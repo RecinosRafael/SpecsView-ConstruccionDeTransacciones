@@ -72,11 +72,11 @@ class AccionesCondicionadasPomCy{
     ACAfecTotalCon(correlativo, caracteristica, arbolRaiz, totalCajero, operador, afectar){
 
         this.Generales.llenarCampo(correlativo, "Correlativo");
-        this.Generales.seleccionarCombo(caracteristica, "Característica");
-        this.Generales.seleccionarCombo(arbolRaiz, "Árbol Raíz");
-        this.Generales.seleccionarCombo(totalCajero, "Total de Cajero");
-        this.Generales.seleccionarCombo(operador, "Operador");
-        this.Generales.seleccionarCombo(afectar, "Afectar");
+        this.Generales.seleccionarComboEspecial(caracteristica, "Característica");
+        this.Generales.seleccionarComboEspecial(arbolRaiz, "Árbol Raíz");
+        this.Generales.seleccionarComboEspecial(totalCajero, "Total de Cajero");
+        this.Generales.seleccionarComboEspecial(operador, "Operador");
+        this.Generales.seleccionarComboEspecial(afectar, "Afectar");
 
     }
 

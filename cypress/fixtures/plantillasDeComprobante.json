@@ -1,11 +1,22 @@
 {
   "agregar": [
-
     {
-      "key": "comprobante-QARAutomatizacion",
-      "nombre": "Comprobante desde automatizacion",
-      "descripcion": "Comprobante desde automatizacion para pruebas",
-      "archivo": "comprobante-drive.docx"
+      "key": "comprobante-trx-depositos",
+      "nombre": "comprobante-trx-depositos",
+      "descripcion": "comprobante-trx-depositos",
+      "archivo": "comprobante-trx-depositos.docx"
+    },
+    {
+      "key": "comprobante-trx-retiros",
+      "nombre": "comprobante-trx-retiros",
+      "descripcion": "comprobante-trx-retiros",
+      "archivo": "comprobante-trx-retiros.docx"
+    },
+    {
+      "key": "comprobante-posteos",
+      "nombre": "comprobante-posteos",
+      "descripcion": "comprobante-posteos",
+      "archivo": "comprobante-posteos.docx"
     }
   ]
 }

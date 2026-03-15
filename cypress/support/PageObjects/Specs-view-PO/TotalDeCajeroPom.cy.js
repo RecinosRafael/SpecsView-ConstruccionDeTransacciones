@@ -270,7 +270,7 @@ class TotalDeCajeroPomCy{
     }
 
     //Metodo combo totales cajero
-    seleccionarComboTC(valor, xpath) {
+    /*seleccionarComboTC(valor, xpath) {
 
         // 🔒 Validación PRO (igual que la tuya)
         if (
@@ -287,7 +287,7 @@ class TotalDeCajeroPomCy{
 
         // 1️⃣ Abrir el mat-select por label
         cy.xpath(
-            `//label[.//*[contains(normalize-space(),'${xpath}')]]
+            `//label[.//!*[contains(normalize-space(),'${xpath}')]]
          /ancestor::mat-form-field//mat-select`,
             { timeout: 15000 }
         )
@@ -317,8 +317,35 @@ class TotalDeCajeroPomCy{
                     .should('exist')
                     .click({ force: true }); // 🔥 aunque no sea visible
             });
-    }
+    }*/
 
+    // En tu Page Object, modifica seleccionarComboTC:
+
+    seleccionarComboTC(valor, nombreCampo) {
+        if (valor === undefined || valor === null || valor === '') {
+            cy.log(`Combo omitido: ${nombreCampo}`);
+            return;
+        }
+
+        cy.log(`Seleccionando combo: ${nombreCampo} = ${valor}`);
+
+        // 1. Buscar el contenedor del combo por su etiqueta
+        cy.contains('mat-label', nombreCampo)
+            .should('be.visible')
+            .parents('mat-form-field')
+            .find('mat-select')
+            .click();
+
+        // 2. ESPERAR QUE APAREZCA EL PANEL Y SELECCIONAR
+        cy.get('.cdk-overlay-pane', { timeout: 10000 })
+            .should('have.length', 1) // 👈 FORZAR QUE SOLO HAYA UNO
+            .first() // 👈 TOMAR EL PRIMERO POR SI ACASO
+            .within(() => {
+                cy.contains('mat-option', valor)
+                    .should('be.visible')
+                    .click();
+            });
+    }
 
 }
 export default TotalDeCajeroPomCy;

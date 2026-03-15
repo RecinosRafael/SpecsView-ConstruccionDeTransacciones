@@ -57,7 +57,7 @@ class RutinasPomCy{
         this.checkBoxWOS(noGuardarLOG, "No guardar LOG");
     }
 
-    seleccionarCombo(valor, xpath) {
+    /*seleccionarCombo(valor, xpath) {
 
         // 🔒 Normalización PRO
         if (
@@ -74,7 +74,7 @@ class RutinasPomCy{
 
         // 1️⃣ Abrir el mat-select por su label
         cy.xpath(
-            `//label[.//*[contains(normalize-space(),'${xpath}')]]/ancestor::mat-form-field//mat-select`,
+            `//label[.//!*[contains(normalize-space(),'${xpath}')]]/ancestor::mat-form-field//mat-select`,
             {timeout: 15000}
         )
             .should('be.visible')
@@ -102,6 +102,52 @@ class RutinasPomCy{
                     .should('exist')
 
                     .click({force: true});
+            });
+    }*/
+
+    seleccionarCombo(valor, xpath) {
+        // 🔒 Normalización PRO
+        if (
+            valor === undefined ||
+            valor === null ||
+            valor === '' ||
+            valor.toString().trim().toLowerCase() === 'lleno'
+        ) {
+            cy.log(`Combo omitido: ${xpath}`);
+            return;
+        }
+
+        const textoValor = valor.toString().trim().toLowerCase();
+
+        // 1️⃣ Abrir el mat-select por su label
+        cy.xpath(
+            `//label[.//*[contains(normalize-space(),'${xpath}')]]/ancestor::mat-form-field//mat-select`,
+            { timeout: 15000 }
+        )
+            .should('be.visible')
+            .click({ force: true });
+
+        // 2️⃣ Esperar overlay y SELECCIONAR EL PRIMERO (solución al error)
+        cy.get('.cdk-overlay-pane', { timeout: 15000 })
+            .should('have.length.at.least', 1) // Verificar que al menos hay uno
+            .first() // 👈 TOMAR SOLO EL PRIMERO
+            .within(() => {
+                // 3️⃣ Seleccionar opción (insensible a mayúsculas / acentos)
+                cy.xpath(
+                    `(//mat-option//span[contains(
+                    translate(
+                        normalize-space(),
+                        'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜÑ',
+                        'abcdefghijklmnopqrstuvwxyzáéíóúüñ'
+                    ),
+                    '${textoValor}'
+                )])[1]`
+                )
+                    .scrollIntoView({ block: 'center' })
+                    .filter(':visible')
+                    .first()
+                    .should('exist')
+                    .click({ force: true });
             });
     }
 

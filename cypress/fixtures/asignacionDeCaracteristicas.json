@@ -1,0 +1,41 @@
+{
+    "agregar": [
+    {
+        "codigoTRX": "777",
+        "caracteristicasTrx": [
+            "Cheques del exterior",
+            "Cheques otros bancos",
+            "efectivo electrónico",
+            "efectivo físico",
+            "Moneda",
+            "Nombre de cliente",
+            "Número de cuenta",
+            "Número de documento",
+            "Producto",
+            "total",
+            "Valor"
+        ]
+    },
+    {
+        "codigoTRX": "666",
+        "caracteristicasTrx": [
+            "Moneda",
+            "efectivo físico",
+            "efectivo electrónico",
+            "Nombre de cliente",
+            "Número de cuenta",
+            "Producto",
+            "total"
+        ]
+    },
+    {
+        "codigoTRX": "555",
+        "caracteristicasTrx": [
+            "Moneda",
+            "efectivo físico",
+            "efectivo electrónico",
+            "total"
+        ]
+    }
+]
+}

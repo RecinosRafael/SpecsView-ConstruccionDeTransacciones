@@ -1,12 +1,5 @@
 {
   "agregar": [
-    {
-      "codigo": "1",
-      "descripcion": "Administrador",
-      "verTotales": true,
-      "permiteTotalizar": true,
-      "permiteRepetirLlave": false
-    },
     {	
       "codigo": "2",
       "descripcion": "Supervisor",

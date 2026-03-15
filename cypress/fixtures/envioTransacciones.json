@@ -10,7 +10,7 @@
       "formatoDeEnvio": "Enviar transacción a core Byte",
       "progGeneraInfoDeEnvio": "",
       "tipoDatoEnvio": "TRAMA",
-      "endpointDeEnvio": "Enviar interface core Byte",
+      "endpointDeEnvio": "Enviar transacción a core Byte",
       "tipoDatoRecibido": "TRAMA",
       "archivoRespuesta": "",
       "progRecibeInfo": "",

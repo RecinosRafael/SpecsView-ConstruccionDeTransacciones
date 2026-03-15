@@ -117,67 +117,9 @@ class GestorPomCy{
 
     //Especificación de transacción
     caracteristicasTrx(caracteristicaTrx) {
-        cy.get("iframe.frame", {timeout: 10000})
-            .should("be.visible")
-            .invoke("css", "pointer-events", "auto")
-            .its("0.contentDocument.body")
-            .should("not.be.empty")
-            .then(cy.wrap)
-            .within(($body) => {
-                cy.log("Entrando a flujo para ingreso de caracteristicas de la trx:");
-                cy.get(".mdc-circular-progress", {timeout: 40000}).should(
-                    "not.exist"
-                );
-                cy.xpath("//button[.//mat-icon[normalize-space()='add']]")
-                    .filter(":visible:not([disabled])")
-                    .first()
-                    .scrollIntoView()
-                    .should("be.visible")
-                    .click({force: true});
-
-                for (let i = 0; i < caracteristicaTrx.length; i++) {
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Característica']]//mat-select"
-                    ).click({force: true});
-                    // 1️⃣ Escribir la característica en el buscador
-                    cy.xpath("//input[@placeholder='Buscar']")
-                        .clear({force: true})
-                        .type(caracteristicaTrx[i], {force: true});
-
-                    // 2️⃣ Seleccionar la primera opción válida que aparece
-                    cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)", {
-                        timeout: 10000,
-                    })
-                        .should("be.visible")
-                        .first()
-                        .click({force: true});
-
-                    // 3️⃣ Click en aceptar (check)
-                    cy.xpath(
-                        "//mat-dialog-actions//button[.//mat-icon[normalize-space()='check']]"
-                    )
-                        .should("not.be.disabled")
-                        .click({force: true});
-
-                    // 4️⃣ Esperar a que termine el loading
-                    cy.get(".mdc-circular-progress", {timeout: 40000}).should(
-                        "not.exist"
-                    );
-                }
-
-                // Opción recomendada para hacer clic en la X de cerrar
-                cy.xpath("//button[.//mat-icon[text()='close']]")
-                    .filter(":visible:not([disabled])")
-                    .first()
-                    .scrollIntoView()
-                    .should("be.visible")
-                    .click({force: true});
-
-                cy.xpath(
-                    "//mat-expansion-panel-header[.//h2[normalize-space()='Opciones']]"
-                ).click({force: true});
-            });
+        this.Generales.seleccionarCombo(caracteristicaTrx, "Característica")
     }
+
 
     configurarEfectivos(config) {
         cy.get("iframe.frame", {timeout: 10000})
@@ -264,6 +206,171 @@ class GestorPomCy{
                 });
             });
     }
+
+    CaracteristicasTrx(caracteristicas) {
+        cy.log(`📋 Procesando ${caracteristicas.length} características en este lote`);
+
+        const normalizar = (texto) => {
+            return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        };
+
+        // Si no hay características, salir
+        if (!caracteristicas || caracteristicas.length === 0) {
+            cy.log('⚠️ No hay características para procesar');
+            return;
+        }
+
+        // Abrir modal de características (solo UNA VEZ por lote)
+        cy.xpath("//button[.//mat-icon[normalize-space()='add']]")
+            .filter(":visible:not([disabled])")
+            .first()
+            .scrollIntoView()
+            .should("be.visible")
+            .click({ force: true });
+
+        cy.get(".mdc-circular-progress", { timeout: 40000 }).should("not.exist");
+        cy.log('✅ Modal de características abierto');
+
+        // Procesar cada característica del lote
+        for (let i = 0; i < caracteristicas.length; i++) {
+            const caracteristica = caracteristicas[i];
+            cy.log(`\n📌 Agregando característica ${i + 1}/${caracteristicas.length}: "${caracteristica}"`);
+
+            // Abrir select
+            cy.xpath("//mat-form-field[.//mat-label[normalize-space()='Característica']]//mat-select")
+                .click({ force: true });
+
+            // Buscar
+            cy.xpath("//input[@placeholder='Buscar']")
+                .clear({ force: true })
+                .type(caracteristica, { force: true, delay: 100 });
+
+            cy.wait(1500);
+
+            // Seleccionar opción (ignorando tildes)
+            cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)", { timeout: 10000 })
+                .then($opciones => {
+                    const buscaNorm = normalizar(caracteristica);
+
+                    // Buscar coincidencia normalizada
+                    let opcionSeleccionada = null;
+                    for (let j = 0; j < $opciones.length; j++) {
+                        const $opt = Cypress.$($opciones[j]);
+                        const textoOpcion = $opt.text().trim();
+                        if (normalizar(textoOpcion).includes(buscaNorm)) {
+                            opcionSeleccionada = $opt;
+                            cy.log(`✅ Opción encontrada: "${textoOpcion}"`);
+                            break;
+                        }
+                    }
+
+                    // Fallback a primera opción
+                    if (!opcionSeleccionada) {
+                        opcionSeleccionada = $opciones[0];
+                        cy.log(`⚠️ Usando primera opción: "${Cypress.$(opcionSeleccionada).text().trim()}"`);
+                    }
+
+                    cy.wrap(opcionSeleccionada).click({ force: true });
+                });
+
+            // Confirmar con botón CHECK
+            cy.xpath("//mat-dialog-actions//button[.//mat-icon[normalize-space()='check']]")
+                .should("be.visible")
+                .click({ force: true });
+
+            cy.get(".mdc-circular-progress", { timeout: 40000 }).should("not.exist");
+            cy.log(`✅ Característica "${caracteristica}" agregada`);
+        }
+
+        // Cerrar modal de características (solo UNA VEZ al final)
+        cy.log('🔍 Cerrando modal de características...');
+        cy.xpath("//button[.//mat-icon[text()='close']]")
+            .filter(":visible:not([disabled])")
+            .first()
+            .scrollIntoView()
+            .should("be.visible")
+            .click({ force: true });
+
+        cy.log('✅ Modal de características cerrado');
+    }
+
+
+    // ===========================
+// MÉTODOS PARA ARRASTRAR CARACTERÍSTICAS (SIN IFRAME)
+// ===========================
+
+    /**
+     * Arrastra una característica desde el panel izquierdo al área de características
+     * @param {string} nombreCaracteristica - Nombre de la característica a arrastrar
+     */
+    arrastrarCaracteristicaAPaso(nombreCaracteristica) {
+        cy.log(`🖱️ Arrastrando característica: "${nombreCaracteristica}"`);
+
+        // Origen: La característica en el panel izquierdo
+        cy.get("div.content-characteristics .cdk-drag")
+            .contains(nombreCaracteristica)
+            .should("be.visible")
+            .realMouseDown({ button: "left", position: "center" })
+            .realMouseMove(0, 10, { position: "center" })
+            .wait(500);
+
+        // Destino: El área "Características" debajo de Rutinas PRE
+        cy.get("div.cdk-drop-list#characteristics")
+            .should("exist")
+            .realMouseMove(0, 0, { position: "center" })
+            .realMouseUp();
+
+        cy.wait(800);
+        cy.log(`✅ Característica "${nombreCaracteristica}" arrastrada`);
+    }
+
+    /**
+     * Valida que la característica apareció en el área de destino
+     * @param {string} nombreCaracteristica - Nombre de la característica a validar
+     */
+    validarCaracteristicaEnDestino(nombreCaracteristica) {
+        cy.log(`🔍 Validando característica "${nombreCaracteristica}" en destino`);
+
+        cy.get("div.cdk-drop-list#characteristics", { timeout: 20000 })
+            .should("exist")
+            .within(() => {
+                cy.contains("mat-card-title", nombreCaracteristica, { timeout: 20000 })
+                    .should("be.visible");
+            });
+
+        cy.log(`✅ Característica "${nombreCaracteristica}" validada en destino`);
+    }
+
+    /**
+     * Arrastra múltiples características desde un array
+     * @param {Array} caracteristicas - Array de nombres de características a arrastrar
+     */
+    arrastrarMultiplesCaracteristicas(caracteristicas) {
+        cy.log(`📋 Arrastrando ${caracteristicas.length} características`);
+
+        caracteristicas.forEach((nombre, index) => {
+            cy.log(`\n🖱️ [${index + 1}/${caracteristicas.length}] Arrastrando: "${nombre}"`);
+            this.arrastrarCaracteristicaAPaso(nombre);
+            this.validarCaracteristicaEnDestino(nombre);
+        });
+
+        cy.log('✅ Todas las características arrastradas exitosamente');
+    }
+
+    /**
+     * Arrastra y configura una característica (si necesitas configurar después)
+     * @param {Object} config - Configuración de la característica
+     * @param {string} config.nombre - Nombre de la característica
+     * @param {Object} config.configuracion - Datos de configuración
+     */
+    arrastrarYConfigurarCaracteristica(config) {
+        this.arrastrarCaracteristicaAPaso(config.nombre);
+        this.validarCaracteristicaEnDestino(config.nombre);
+        // Aquí puedes llamar a un método de configuración si existe
+        // this.configurarCaracteristica(config);
+    }
+
+
 
     DefinicionDePasos(nombrePaso, tieneReglaCondionanteDePaso, typeReglaParaCondicionarPaso, descripcionPasoTrx){
 

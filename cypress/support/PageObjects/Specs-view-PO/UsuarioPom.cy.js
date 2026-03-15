@@ -26,7 +26,7 @@ class UsuarioPomCy{
             .click();
     }
 
-    Usuario(codigo, usuario, pNombre, sNombre, pApellido, sApellido, valorPais, correo, telTrabajo, codigoEmpleado, valorArbolRaiz, valorRamaArbol, valorDepartamento,
+    Usuario(codigo, usuario, pNombre, sNombre, pApellido, sApellido, valorPais, codigoEbs, correo, telTrabajo, codigoEmpleado, valorArbolRaiz, valorRamaArbol, valorDepartamento,
         valorTipoCajero, valorJornadaLaboral, valorNivelCajero, puertoImpre) {
 
         this.escribirInputSeguro('input[data-placeholder="Código"]', codigo);
@@ -38,6 +38,7 @@ class UsuarioPomCy{
 
         this.seleccionarComboUser(valorPais, "País");
 
+        this.escribirInputSeguro('input[data-placeholder="Código de usuario en Esb"]', codigoEbs);
         this.escribirInputSeguro('input[data-placeholder="Código del empleado"]', codigoEmpleado);
         this.escribirInputSeguro('input[data-placeholder="Correo electrónico"]', correo);
         this.escribirInputSeguro('input[data-placeholder="Teléfono del trabajo"]', telTrabajo);
