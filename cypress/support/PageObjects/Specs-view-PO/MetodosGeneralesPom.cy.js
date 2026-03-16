@@ -12,19 +12,19 @@ class MetodosGeneralesPomCy{
                     .click({ force: true });
             });
     }
-BtnAgregarRegistros() {
-    cy.log('Clic en botón ADD');
-    cy.wait(1500);
-    
-    // Buscar el botón que contiene el ícono "add"
-    cy.get('button.mat-fab[color="warn"]', { timeout: 15000 })
-        .should('exist')
-        .filter(':has(mat-icon:contains("add"))')  // Filtra los que tienen ícono "add"
-        .first()  // Toma el primero (por si acaso)
-        .click({ force: true });
-    
-    cy.log('✅ Botón ADD clickeado');
-}
+    BtnAgregarRegistros() {
+        cy.log('Clic en botón ADD');
+        cy.wait(1500);
+        
+        // Buscar el botón que contiene el ícono "add"
+        cy.get('button.mat-fab[color="warn"]', { timeout: 15000 })
+            .should('exist')
+            .filter(':has(mat-icon:contains("add"))')  // Filtra los que tienen ícono "add"
+            .first()  // Toma el primero (por si acaso)
+            .click({ force: true });
+        
+        cy.log('✅ Botón ADD clickeado');
+    }
 
     // BtnIframe(textoBoton, opciones = {}, filtroClase = null) {
     //     const {
@@ -368,7 +368,7 @@ BtnAceptarRegistroF() {
     });
 }
 
-   // Boton para cancelar la insercion del registro.
+    // Boton para cancelar la insercion del registro.
     BtnCancelarRegistro() {
         cy.log('Clic en botón CANCELAR');
 
@@ -2252,8 +2252,10 @@ BuscarRegistroEnTabla(criterios) {
 
             // Usar XPath para encontrar el label que contiene el texto exacto (ignorando mayúsculas/minúsculas)
             // Esto es más flexible y evita problemas de estructura
-            const xpathLabel = `//label[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜ', 'abcdefghijklmnopqrstuvwxyzáéíóúü'), translate('${labelText}', 'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜ', 'abcdefghijklmnopqrstuvwxyzáéíóúü'))]`;
-
+            const xpathLabel = `//label[contains(
+                translate(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜ', 'abcdefghijklmnopqrstuvwxyzáéíóúü'), 'áéíóúüñ', 'aeioun'),
+                translate(translate('${labelText}', 'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜ', 'abcdefghijklmnopqrstuvwxyzáéíóúü'), 'áéíóúüñ', 'aeioun')
+            )]`;
             cy.xpath(xpathLabel, { timeout }).should('be.visible').then($label => {
                 // Una vez encontrado el label, buscar el mat-slide-toggle asociado
                 // Puede ser:
@@ -2794,7 +2796,7 @@ seleccionarMediosNotificacion(medios, textoFila, opciones = {}) {
             });
         });
     }
-
+    
     seleccionarComboEspecial(valor, labelText, opciones = {}) {
         const {
             timeout = 10000

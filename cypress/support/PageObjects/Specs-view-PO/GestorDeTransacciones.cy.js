@@ -28,33 +28,33 @@ class GestorPomCy{
             this.Generales.IngresarFechaIframe(validoDesde, "Valido desde", { timeout: 10000, skipContext: true });
             this.Generales.IngresarFechaIframe(validoHasta, "Valido hasta", { timeout: 10000, skipContext: true });
             this.Generales.llenarCampoIframe(descripcion, "Descripción", { timeout: 10000, skipContext: true });
-            this.Generales.checkboxIframe(esconderMenu, "Esconder en menú", { timeout: 10000, skipContext: true });
-            this.Generales.checkboxIframe(permiteReversion, "Permite reversión", { timeout: 10000, skipContext: true });
-            this.Generales.checkboxIframe(modoOffline, "Modo offline", { timeout: 10000, skipContext: true });
-            this.Generales.checkboxIframe(requiereSupervisor, "Requiere supervisor", { timeout: 10000, skipContext: true });
-            this.Generales.checkboxIframe(requiereValidarAcceso, "Se requiere validar acceso", { timeout: 10000, skipContext: true });
+            this.Generales.slideToggleIframe(esconderMenu, "Esconder en menú", { timeout: 10000, skipContext: true });
+            this.Generales.slideToggleIframe(permiteReversion, "Permite reversión", { timeout: 10000, skipContext: true });
+            this.Generales.slideToggleIframe(modoOffline, "Modo offline", { timeout: 10000, skipContext: true });
+            this.Generales.slideToggleIframe(requiereSupervisor, "Requiere supervisor", { timeout: 10000, skipContext: true });
+            this.Generales.slideToggleIframe(requiereValidarAcceso, "Se requiere validar acceso", { timeout: 10000, skipContext: true });
             if (seEnviaHost) {
-                this.Generales.checkboxIframe(seEnviaHost, "Se envía al host", { timeout: 10000, skipContext: true });
+                this.Generales.slideToggleIframe(seEnviaHost, "Se envía al host", { timeout: 10000, skipContext: true });
                 this.Generales.llenarCampoIframe(tiempoEspera, "Tiempo de espera", { timeout: 10000, force: true, skipContext: true });
                 this.Generales.seleccionarComboIframe(accionPorDemora, "Acción por demora", { timeout: 10000, force: true, skipContext: true });      
             }else{
                 cy.log("Se envía al host no está activo, no se ingresan los datos relacionados a esta opción", { timeout: 10000, skipContext: true });
             }
             if (tienePagoServicio) {
-                this.Generales.checkboxIframe(tienePagoServicio, "Es pago de servicio", { timeout: 10000, skipContext: true });
+                this.Generales.slideToggleIframe(tienePagoServicio, "Es pago de servicio", { timeout: 10000, skipContext: true });
                 this.Generales.seleccionarComboIframe(PagoServicio, "Pago de servicio", { timeout: 10000, skipContext: true });
                 this.Generales.seleccionarComboIframe(pasoConfirmacionServicio, "Incluye paso para confirmar datos", { timeout: 10000, skipContext: true });
             }else{
                 cy.log("Es pago de servicio no está activo, no se ingresan los datos relacionados a esta opción");
             }
             if (permiteReimpresion) {
-                this.Generales.checkboxIframe(permiteReimpresion, "Permite reimpresión", { timeout: 10000, skipContext: true });
+                this.Generales.slideToggleIframe(permiteReimpresion, "Permite reimpresión", { timeout: 10000, skipContext: true });
                 this.Generales.llenarCampoIframe(diasPermitidoReimpresion, "Dias permitidos para reimprimir", { timeout: 10000, force: true, skipContext: true });
             }else{
                 cy.log("Permite reimpresión no está activo, no se ingresan los datos relacionados a esta opción");
             }
             if (presentarResumen) {
-                this.Generales.checkboxIframe(presentarResumen, "Presentar resumen de transaccion", { timeout: 10000, skipContext: true });
+                this.Generales.slideToggleIframe(presentarResumen, "Presentar resumen de transaccion", { timeout: 10000, skipContext: true });
                 this.Generales.llenarCampoIframe(mensajeResumen, "Mensaje despues del proceso", { timeout: 10000, force: true, skipContext: true });
                 this.Generales.seleccionarComboIframe(tipoMensaje, "Tipo de mensaje", { timeout: 10000, skipContext: true });    
             } else {
