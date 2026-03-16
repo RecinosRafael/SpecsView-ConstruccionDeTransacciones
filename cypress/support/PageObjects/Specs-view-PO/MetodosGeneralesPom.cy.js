@@ -2535,108 +2535,108 @@ BuscarRegistroEnTabla(criterios) {
     /**
      * metodo para seleccionar medio de notificacion
      */
-seleccionarMediosNotificacion(medios, textoFila, opciones = {}) {
-    const {
-        timeout = 10000,
-        force = false,
-        skipContext = false,
-        esperarHabilitado = true,
-        ignorarDeshabilitados = true // true: solo advierte, false: lanza error
-    } = opciones;
+    seleccionarMediosNotificacion(medios, textoFila, opciones = {}) {
+        const {
+            timeout = 10000,
+            force = false,
+            skipContext = false,
+            esperarHabilitado = true,
+            ignorarDeshabilitados = true // true: solo advierte, false: lanza error
+        } = opciones;
 
-    // Función para interpretar el string de medios
-    const parseMedios = (input) => {
-        if (input == null) return { sms: false, email: false };
-        if (typeof input === 'boolean') return { sms: input, email: input };
-        if (Array.isArray(input)) {
-            return {
-                sms: input.some(m => m.toLowerCase().includes('sms')),
-                email: input.some(m => m.toLowerCase().includes('email') || m.toLowerCase().includes('e-mail'))
-            };
-        }
-        if (typeof input === 'string') {
-            const m = input.toLowerCase().trim();
-            // Eliminar llaves si existen
-            const sinLlaves = m.replace(/[{}]/g, '');
-            // Separar por comas o espacios
-            const partes = sinLlaves.split(/[,\s]+/).filter(p => p.length > 0);
-            if (partes.length === 0) return { sms: false, email: false };
-            // Si contiene 'ambos' o alguna parte incluye ambos
-            if (partes.includes('ambos')) return { sms: true, email: true };
-            return {
-                sms: partes.some(p => p.includes('sms')),
-                email: partes.some(p => p.includes('email') || p.includes('e-mail'))
-            };
-        }
-        return { sms: false, email: false };
-    };
-
-    const ejecutar = () => {
-        // Validar valor vacío (solo si es string vacío o null)
-        if (medios == null || (typeof medios === 'string' && medios.trim() === '')) {
-            cy.log(`⏭️ Valor vacío para la fila "${textoFila}", se omite.`);
-            return;
-        }
-
-        // Mostrar todas las etiquetas para depuración
-        cy.log('📋 Etiquetas disponibles en la tabla:');
-        cy.get('tbody tr td.cdk-column-label', { timeout }).each($el => {
-            cy.log('   "' + $el.text().trim() + '"');
-        });
-
-        // Interpretar los medios solicitados
-        const { sms: activarSMS, email: activarEmail } = parseMedios(medios);
-        cy.log(`🔍 Fila "${textoFila}" → SMS: ${activarSMS}, eMail: ${activarEmail}`);
-
-        // Buscar la fila por el texto exacto (ignorando espacios)
-        cy.contains('tbody tr td.cdk-column-label', new RegExp(`^\\s*${textoFila}\\s*$`), { timeout })
-            .should('be.visible')
-            .then(($td) => {
-                const $fila = $td.closest('tr');
-
-                const procesarCheckbox = (columna, debeEstarMarcado) => {
-                    const selector = `td.cdk-column-${columna} mat-checkbox`;
-                    cy.wrap($fila).find(selector).should('exist').then($cb => {
-                        const isDisabled = $cb.hasClass('mdc-checkbox--disabled') || $cb.find('input').is(':disabled');
-                        
-                        if (isDisabled) {
-                            if (debeEstarMarcado) {
-                                const msg = `⚠️ El checkbox ${columna} en fila "${textoFila}" está deshabilitado pero se solicita marcarlo.`;
-                                if (ignorarDeshabilitados) {
-                                    cy.log(msg + ' Se omite (ignorarDeshabilitados=true).');
-                                } else {
-                                    throw new Error(msg);
-                                }
-                            } else {
-                                cy.log(`⏭️ ${columna} en fila "${textoFila}" está deshabilitado y no necesita cambios.`);
-                            }
-                            return;
-                        }
-
-                        if (esperarHabilitado) {
-                            cy.wrap($cb).should('not.have.class', 'mdc-checkbox--disabled');
-                        }
-
-                        const isChecked = $cb.hasClass('mat-mdc-checkbox-checked') || $cb.find('input').is(':checked');
-                        if (debeEstarMarcado && !isChecked) {
-                            cy.wrap($cb).click({ force });
-                            cy.log(`✅ Marcado ${columna} en fila "${textoFila}"`);
-                        } else if (!debeEstarMarcado && isChecked) {
-                            cy.wrap($cb).click({ force });
-                            cy.log(`✅ Desmarcado ${columna} en fila "${textoFila}"`);
-                        } else {
-                            cy.log(`⏭️ ${columna} en fila "${textoFila}" ya en estado deseado`);
-                        }
-                    });
+        // Función para interpretar el string de medios
+        const parseMedios = (input) => {
+            if (input == null) return { sms: false, email: false };
+            if (typeof input === 'boolean') return { sms: input, email: input };
+            if (Array.isArray(input)) {
+                return {
+                    sms: input.some(m => m.toLowerCase().includes('sms')),
+                    email: input.some(m => m.toLowerCase().includes('email') || m.toLowerCase().includes('e-mail'))
                 };
+            }
+            if (typeof input === 'string') {
+                const m = input.toLowerCase().trim();
+                // Eliminar llaves si existen
+                const sinLlaves = m.replace(/[{}]/g, '');
+                // Separar por comas o espacios
+                const partes = sinLlaves.split(/[,\s]+/).filter(p => p.length > 0);
+                if (partes.length === 0) return { sms: false, email: false };
+                // Si contiene 'ambos' o alguna parte incluye ambos
+                if (partes.includes('ambos')) return { sms: true, email: true };
+                return {
+                    sms: partes.some(p => p.includes('sms')),
+                    email: partes.some(p => p.includes('email') || p.includes('e-mail'))
+                };
+            }
+            return { sms: false, email: false };
+        };
 
-                if (activarSMS !== undefined) procesarCheckbox('SMS', activarSMS);
-                if (activarEmail !== undefined) procesarCheckbox('eMail', activarEmail);
+        const ejecutar = () => {
+            // Validar valor vacío (solo si es string vacío o null)
+            if (medios == null || (typeof medios === 'string' && medios.trim() === '')) {
+                cy.log(`⏭️ Valor vacío para la fila "${textoFila}", se omite.`);
+                return;
+            }
+
+            // Mostrar todas las etiquetas para depuración
+            cy.log('📋 Etiquetas disponibles en la tabla:');
+            cy.get('tbody tr td.cdk-column-label', { timeout }).each($el => {
+                cy.log('   "' + $el.text().trim() + '"');
             });
-    };
 
-    this._ejecutarEnContexto(ejecutar, skipContext);
-}
+            // Interpretar los medios solicitados
+            const { sms: activarSMS, email: activarEmail } = parseMedios(medios);
+            cy.log(`🔍 Fila "${textoFila}" → SMS: ${activarSMS}, eMail: ${activarEmail}`);
+
+            // Buscar la fila por el texto exacto (ignorando espacios)
+            cy.contains('tbody tr td.cdk-column-label', new RegExp(`^\\s*${textoFila}\\s*$`), { timeout })
+                .should('be.visible')
+                .then(($td) => {
+                    const $fila = $td.closest('tr');
+
+                    const procesarCheckbox = (columna, debeEstarMarcado) => {
+                        const selector = `td.cdk-column-${columna} mat-checkbox`;
+                        cy.wrap($fila).find(selector).should('exist').then($cb => {
+                            const isDisabled = $cb.hasClass('mdc-checkbox--disabled') || $cb.find('input').is(':disabled');
+                            
+                            if (isDisabled) {
+                                if (debeEstarMarcado) {
+                                    const msg = `⚠️ El checkbox ${columna} en fila "${textoFila}" está deshabilitado pero se solicita marcarlo.`;
+                                    if (ignorarDeshabilitados) {
+                                        cy.log(msg + ' Se omite (ignorarDeshabilitados=true).');
+                                    } else {
+                                        throw new Error(msg);
+                                    }
+                                } else {
+                                    cy.log(`⏭️ ${columna} en fila "${textoFila}" está deshabilitado y no necesita cambios.`);
+                                }
+                                return;
+                            }
+
+                            if (esperarHabilitado) {
+                                cy.wrap($cb).should('not.have.class', 'mdc-checkbox--disabled');
+                            }
+
+                            const isChecked = $cb.hasClass('mat-mdc-checkbox-checked') || $cb.find('input').is(':checked');
+                            if (debeEstarMarcado && !isChecked) {
+                                cy.wrap($cb).click({ force });
+                                cy.log(`✅ Marcado ${columna} en fila "${textoFila}"`);
+                            } else if (!debeEstarMarcado && isChecked) {
+                                cy.wrap($cb).click({ force });
+                                cy.log(`✅ Desmarcado ${columna} en fila "${textoFila}"`);
+                            } else {
+                                cy.log(`⏭️ ${columna} en fila "${textoFila}" ya en estado deseado`);
+                            }
+                        });
+                    };
+
+                    if (activarSMS !== undefined) procesarCheckbox('SMS', activarSMS);
+                    if (activarEmail !== undefined) procesarCheckbox('eMail', activarEmail);
+                });
+        };
+
+        this._ejecutarEnContexto(ejecutar, skipContext);
+    }
 
 
     seleccionarCombo(valor, labelText, opciones = {}) {
@@ -3458,6 +3458,143 @@ seleccionarMediosNotificacion(medios, textoFila, opciones = {}) {
         cy.log('✅ Click en ADD de Características exitoso');
     }
 
+    dragCaracteristica(labelText, opciones = {}) {
+        const {
+            timeout = 15000,
+            force = false,
+            skipContext = false,
+            esperarEnDestino = true
+        } = opciones;
+
+        cy.log(`🔍 Arrastrando característica "${labelText}"`);
+
+        const ejecutar = () => {
+            const xpathOrigen = `//div[@id='characteristics']//div[contains(@class, 'cdk-drag') and .//mat-card-title[contains(translate(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜ', 'abcdefghijklmnopqrstuvwxyzáéíóúü'), 'áéíóúüñ', 'aeioun'), translate(translate('${labelText}', 'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜ', 'abcdefghijklmnopqrstuvwxyzáéíóúü'), 'áéíóúüñ', 'aeioun'))]]`;
+
+            cy.xpath(xpathOrigen, { timeout }).should('be.visible').first().then($source => {
+                const $handle = $source.find('.cdk-drag-handle');
+                if ($handle.length === 0) {
+                    throw new Error(`No se encontró el handle de arrastre para "${labelText}"`);
+                }
+
+                // Guardar cantidad inicial en destino
+                cy.get('#characteristicsTCA').then($targetContainer => {
+                    const initialCount = $targetContainer.find('.cdk-drag').length;
+                    cy.wrap(initialCount).as('initialCount');
+                    cy.log(`📊 Elementos iniciales en destino: ${initialCount}`);
+                });
+
+                cy.get('#characteristicsTCA', { timeout }).should('be.visible').then($target => {
+                    const handleRect = $handle[0].getBoundingClientRect();
+                    const targetRect = $target[0].getBoundingClientRect();
+
+                    const startX = handleRect.left + handleRect.width / 2;
+                    const startY = handleRect.top + handleRect.height / 2;
+                    const targetX = targetRect.left + targetRect.width / 2;
+                    const targetY = targetRect.top + targetRect.height / 2;
+
+                    cy.log(`📍 Handle: (${startX.toFixed(0)}, ${startY.toFixed(0)})`);
+                    cy.log(`📍 Destino: (${targetX.toFixed(0)}, ${targetY.toFixed(0)})`);
+
+                    // --- DRAG ---
+                    cy.wrap($handle).realMouseDown({ button: 'left', position: 'center', force });
+                    cy.wrap($handle).realMouseMove(startX, startY + 5, { steps: 3 });
+                    cy.wait(100);
+
+                    const steps = 10;
+                    for (let i = 1; i <= steps; i++) {
+                        const factor = i / steps;
+                        const intermediateX = startX + (targetX - startX) * factor;
+                        const intermediateY = startY + (targetY - startY) * factor;
+                        cy.wrap($handle).realMouseMove(intermediateX, intermediateY, { steps: 2 });
+                        cy.wait(20);
+                    }
+
+                    cy.wrap($handle).realMouseUp();
+                    cy.log('✅ Eventos de drag completados');
+                    cy.wait(500);
+
+                    this.BtnIframe("Cerrar", { timeout: 10000, force: true, skipContext: true })
+
+
+                    // --- VERIFICACIONES ---
+                    // 1. El destino incrementó su número de elementos
+                    cy.get('@initialCount').then(initialCount => {
+                        cy.get('#characteristicsTCA', { timeout }).should('have.length', initialCount + 1);
+                        cy.log(`✅ Destino ahora tiene ${initialCount + 1} elementos`);
+                    });
+
+                    // 2. La característica con el texto aparece en el destino
+                    cy.get('#characteristicsTCA ')
+                        .contains('mat-card-title', labelText, { matchCase: false })
+                        .should('be.visible');
+                    cy.log(`✅ Característica "${labelText}" confirmada en el destino.`);
+
+                    // (Opcional) Si deseas usar XPath para mayor precisión, puedes mantenerlo,
+                    // pero con contains es suficiente.
+                });
+            });
+        };
+
+        this._ejecutarEnContexto(ejecutar, skipContext);
+    }
+
+    arrastrarCaracteristica(nombre) {
+
+        return cy.contains("mat-card-title", nombre)
+            .scrollIntoView()
+            .should("be.visible")
+            .parents(".cdk-drag")
+            .find(".cdk-drag-handle")
+            .then(($handle) => {
+
+                const rect = $handle[0].getBoundingClientRect()
+
+                cy.wrap($handle)
+                    .realMouseDown({ position: "center" })
+
+                // Angular necesita pequeño movimiento inicial
+                cy.root().realMouseMove(rect.x + 5, rect.y + 5)
+
+                // mover al dropzone
+                cy.get("#characteristicsTCA")
+                    .realMouseMove(10, 10, { position: "center" })
+
+                // soltar
+                cy.root().realMouseUp()
+
+            })
+    }
+
+    seleccionarRadio(valor, opciones = {}) {
+        const {
+            timeout = 10000,
+            force = false,
+            skipContext = false
+        } = opciones;
+
+        cy.log(`🔍 Seleccionando radio operación: "${valor}"`);
+
+        const ejecutar = () => {
+            const xpath = `//mat-radio-button//input[@type='radio' and @value='${valor}']`;
+
+            cy.xpath(xpath, { timeout })
+                .should('exist')
+                .then($input => {
+                    // Verificar si ya está seleccionado
+                    if ($input.is(':checked')) {
+                        cy.log(`⏭️ Radio "${valor}" ya está seleccionado`);
+                        return;
+                    }
+
+                    // Seleccionar el radio
+                    cy.wrap($input).check({ force });
+                    cy.log(`✅ Radio "${valor}" seleccionado`);
+                });
+        };
+
+        this._ejecutarEnContexto(ejecutar, skipContext);
+    }
 
 }
 

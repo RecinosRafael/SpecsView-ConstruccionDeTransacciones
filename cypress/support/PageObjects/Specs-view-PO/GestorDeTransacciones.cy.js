@@ -7,9 +7,49 @@ class GestorPomCy{
     }
 
 
+    //Totales a afectar gestor de TX`s
+    AsignarMoneda(caracteristformaAfectarTotalesica, metodoAsignacionMoneda, correlativoMoneda){  
+
+        // this.Generales.BtnIframe('editar', { force: true, skipContext: true }, 'add-button', false);
+        this.Generales.seleccionarComboIframe(caracteristformaAfectarTotalesica, "Forma afectar totales", { timeout: 10000, force: true, skipContext: true } )
+        this.Generales.seleccionarComboIframe(metodoAsignacionMoneda, "Método asignación de moneda", { timeout: 10000, skipContext: true, force: true } )
+        this.Generales.seleccionarComboIframe(correlativoMoneda, "Moneda", { timeout: 10000, skipContext: true, force: true } )
+    }
 
 
 
+    //Totales a afectar gestor de TX`s
+    TotalesAfectar(caracteristica, totalCajero, operacion, exp1, operacion2, exp2){
+
+        // this.Generales.dragCaracteristica(caracteristica,  { timeout: 10000, skipContext: true, force: true });
+        this.Generales.arrastrarCaracteristica(caracteristica)
+
+        cy.wait(2500)
+      
+        this.Generales.seleccionarComboIframe(totalCajero, "Total de Cajero", { timeout: 10000, force: true, skipContext: true } )
+        this.Generales.seleccionarRadio(operacion, "Operacion", { timeout: 10000, skipContext: true, force: true } )
+        
+        
+
+        //##########################  PENDIENTE PASOS PARA VALIDAR COMO SE MANEJARA LAS EXPRESIONES ##########################
+
+
+        // this.Generales.llenarCampoIframe("C(5)", "Expresion 1", { timeout: 10000, skipContext: true, force: true } )
+        // if(exp1){
+        //     this.Generales.BtnIframe("Cerrar")
+        //     cy.wait(1500)
+        // }else{
+        //     cy.log("expresion 1 vacia")
+        // }
+        // this.Generales.seleccionarComboIframe(operacion2, "Operacion", { timeout: 10000, skipContext: true, force: true } )
+        // this.Generales.llenarCampoIframe(exp2, "Expresion 2", { timeout: 10000, skipContext: true, force: true } )
+        // if(exp2){
+        //     this.Generales.BtnIframe("Cerrar")
+        //     cy.wait(1500)
+        // }else{
+        //     cy.log("expresion 1 vacia")
+        // }
+    }
 
     //Gestor de transacciones
     GestorTransacciones(
@@ -349,7 +389,7 @@ class GestorPomCy{
     }
 
 
-    // ===========================
+// ===========================
 // MÉTODOS PARA ARRASTRAR CARACTERÍSTICAS (SIN IFRAME)
 // ===========================
 
@@ -757,445 +797,6 @@ class GestorPomCy{
             });
     }
 
-    //DRAG AND DROP
-
-    // ===========================
-    // 1️⃣ Arrastrar una característica
-    // ===========================
-    arrastrarCaracteristica(nombreCaracteristica) {
-        cy.get("div.content-characteristics .cdk-drag", {timeout: 10000})
-            .contains(nombreCaracteristica)
-            .should("be.visible")
-            .realMouseDown({button: "left", position: "center"})
-            .realMouseMove(0, 10, {position: "center"})
-            .wait(500);
-
-        cy.get("div.cdk-drop-list#step")
-            .should("exist")
-            .realMouseMove(0, 0, {position: "center"})
-            .realMouseUp();
-
-        cy.wait(800);
-    }
-
-    // ===========================
-    // 2️⃣ Validar que la característica llegó al paso
-    // ===========================
-    validarCaracteristicaEnPaso(nombreCaracteristica) {
-        cy.get("div.cdk-drop-list#characteristics", {timeout: 20000})
-            .should("exist")
-            .within(() => {
-                cy.contains("mat-card-title", nombreCaracteristica, {
-                    timeout: 20000,
-                }).should("be.visible");
-            });
-    }
-
-    // ===========================
-    // 3️⃣ Arrastrar y configurar todo en un solo método
-    // ===========================
-    arrastrarYConfigurarCaracteristica(config) {
-        const self = this;
-
-        cy.get("iframe.frame", {timeout: 15000})
-            .should("be.visible")
-            .its("0.contentDocument.body")
-            .should("not.be.empty")
-            .then(cy.wrap)
-            .within(() => {
-                self.arrastrarCaracteristica(config.nombre);
-                self.validarCaracteristicaEnPaso(config.nombre);
-                self.configurarCaracteristica(config);
-            });
-    }
-
-    // ===========================
-    // 4️⃣ Configurar los detalles de la característica
-    // ===========================
-    marcarSwitchPorTexto(textoLabel, valor) {
-        if (valor?.toLowerCase() !== "si") return;
-
-        cy.xpath(
-            `
-    //app-input-switch
-      [.//label[normalize-space()='${textoLabel}']]
-      //button[@role='switch' and @aria-checked='false']
-  `
-        )
-            .scrollIntoView()
-            .should("be.visible")
-            .click({force: true});
-    }
-
-    configurarCaracteristica(config) {
-        // Ya estamos dentro del iframe desde arrastrarYConfigurarCaracteristica
-        // No necesitamos volver a buscarlo
-        cy.wrap(null).then(() => {
-            // 🔤 Tamaño de letra
-            if (config.tamanioLetra) {
-                cy.xpath(
-                    "//mat-form-field[.//mat-label[normalize-space()='Tamaño de letra']]//mat-select"
-                ).click({force: true});
-
-                cy.xpath("//input[@placeholder='Buscar']")
-                    .clear()
-                    .type(`${config.tamanioLetra}`, {force: true});
-
-                cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                    .first()
-                    .click({force: true});
-            }
-
-            this.marcarSwitchPorTexto("Proteger", config.proteger);
-            this.marcarSwitchPorTexto("Obligatorio", config.obligatorio);
-            this.marcarSwitchPorTexto("Negrita", config.negrita);
-            this.marcarSwitchPorTexto("Ver firmas", config.verFirmas);
-
-            //  Regla
-            if (config.regla) {
-                cy.xpath(
-                    "//mat-label[normalize-space()='Reglas para condicionar campo']/ancestor::mat-form-field//textarea"
-                )
-                    .filter(":visible:not([disabled])")
-                    .first()
-                    .scrollIntoView()
-                    .should("be.visible")
-                    .type(config.regla, {force: true});
-            }
-            //mensaje de error
-            if (config.mensajeError) {
-                cy.xpath(
-                    "//mat-label[normalize-space()='Mensaje de error']/ancestor::mat-form-field//textarea"
-                )
-                    .filter(":visible:not([disabled])")
-                    .first()
-                    .scrollIntoView()
-                    .should("be.visible")
-                    .type(config.mensajeError, {force: true});
-            }
-
-            if (config.correlativo) {
-                cy.xpath(
-                    "//mat-form-field[.//mat-label[normalize-space()='Correlativo']]//input"
-                )
-                    .filter(":visible:not([disabled])")
-                    .first()
-                    .scrollIntoView()
-                    .should("be.visible")
-                    .type(config.correlativo, {force: true});
-            }
-
-            if (config.tieneProductos.toLowerCase() == "si" && config.productos) {
-                cy.xpath(
-                    "//mat-form-field[.//mat-label[normalize-space()='Productos']]//mat-select"
-                )
-                    .filter(":visible:not([disabled])")
-                    .first()
-                    .scrollIntoView()
-                    .should("be.visible")
-                    .click({force: true});
-
-                cy.xpath("//input[@placeholder='Buscar']").type(`${config.productos}`, {
-                    force: true,
-                });
-                cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                    .first()
-                    .click({force: true});
-            }
-
-            //✔ Guardar
-            cy.xpath(
-                "//button[@mat-mini-fab and @color='primary'][.//mat-icon[text()='check']]"
-            )
-                .filter(":visible:not([disabled])")
-                .first()
-                .scrollIntoView()
-                .should("be.visible")
-                .click({force: true});
-
-            cy.get(".mdc-circular-progress", {timeout: 40000}).should("not.exist");
-        });
-    }
-
-    //SELECCION TIPOS DE CAJERO
-    //TOTALES A AFECTAR
-    totalesAfectar(
-        tieneTotalAfectar,
-        typeFormaAfectarTotales,
-        typeMetodoAsignacionMoneda,
-        typeMondeatipoTrx,
-        typeCorrelativoMoneda
-    ) {
-        cy.get("iframe.frame", {timeout: 10000})
-            .should("be.visible")
-            .invoke("css", "pointer-events", "auto")
-            .its("0.contentDocument.body")
-            .should("not.be.empty")
-            .then(cy.wrap)
-            .within(() => {
-                if (tieneTotalAfectar.toLowerCase() == "si") {
-                    cy.xpath(
-                        "//mat-expansion-panel-header[.//mat-panel-title//h2[contains(text(), 'Totales a Afectar')]]"
-                    )
-                        .filter(":visible:not([disabled])")
-                        .first()
-                        .scrollIntoView()
-                        .should("be.visible")
-                        .click({force: true});
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Forma afectar totales']]//mat-select"
-                    ).click({force: true});
-                    cy.xpath("//input[@placeholder='Buscar']").type(
-                        typeFormaAfectarTotales,
-                        {
-                            force: true,
-                        }
-                    );
-                    cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)", {
-                        timeout: 10000,
-                    })
-                        .should("be.visible")
-                        .first()
-                        .click({force: true});
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Método asignación de moneda']]//mat-select"
-                    )
-
-                        .filter(":visible:not([disabled])")
-                        .first()
-                        .scrollIntoView()
-                        .should("be.visible")
-                        .click({force: true});
-                    cy.xpath("//input[@placeholder='Buscar']").type(
-                        typeMetodoAsignacionMoneda,
-                        {force: true}
-                    );
-                    cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)", {
-                        timeout: 10000,
-                    })
-                        .should("be.visible")
-                        .first()
-                        .click({force: true});
-
-                    if (typeMetodoAsignacionMoneda.toLowerCase == "transacción") {
-                        cy.xpath(
-                            "//mat-form-field[.//mat-label[normalize-space()='Moneda']]//mat-select"
-                        )
-                            .filter(":visible:not([disabled])")
-                            .first()
-                            .scrollIntoView()
-                            .should("be.visible")
-                            .click({force: true});
-                        cy.xpath("//input[@placeholder='Buscar']").type(typeMondeatipoTrx, {
-                            force: true,
-                        });
-                        cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)", {
-                            timeout: 10000,
-                        })
-                            .should("be.visible")
-                            .first()
-                            .click({force: true});
-                    }
-
-                    if (typeMetodoAsignacionMoneda.toLowerCase == "Campo") {
-                        cy.xpath(
-                            "//mat-form-field[.//mat-label[normalize-space()='Correlativo de moneda']]//mat-select"
-                        )
-                            .filter(":visible:not([disabled])")
-                            .first()
-                            .scrollIntoView()
-                            .should("be.visible")
-                            .click({force: true});
-                        cy.xpath("//input[@placeholder='Buscar']").type(
-                            typeCorrelativoMoneda,
-                            {
-                                force: true,
-                            }
-                        );
-                        cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)", {
-                            timeout: 10000,
-                        })
-                            .should("be.visible")
-                            .first()
-                            .click({force: true});
-                    }
-
-                    cy.xpath(
-                        "//button[contains(@class, 'mat-mdc-mini-fab') and @color='accent' and .//mat-icon[text()='save']]"
-                    )
-                        .filter(":visible:not([disabled])")
-                        .first()
-                        .scrollIntoView()
-                        .should("be.visible")
-                        .click({force: true});
-                } else {
-                    cy.log("no tiene totales a afectar");
-                }
-            });
-    }
-
-    //DRAG AND DRIOP PARA TOTALES A AFECTAR
-    arrastrarYConfigurarCaracteristicaTCA(config) {
-        const self = this;
-
-        cy.get("iframe.frame", {timeout: 15000})
-            .should("be.visible")
-            .its("0.contentDocument.body")
-            .should("not.be.empty")
-            .then(cy.wrap)
-            .within(() => {
-                console.log("=== INICIANDO DRAG AND DROP PARA:", config.nombre);
-
-                // ===========================
-                // 1. DEPURAR: VER QUÉ HAY ANTES DE ARRASTRAR
-                // ===========================
-                console.log("=== DEPURACIÓN PRE-DRAG ===");
-                console.log("Buscando característica origen:", config.nombre);
-
-                cy.get("div.content-characteristics .cdk-drag", {
-                    timeout: 10000,
-                }).then(($caracteristicas) => {
-                    console.log(
-                        "Total de características encontradas:",
-                        $caracteristicas.length
-                    );
-                    $caracteristicas.each((i, el) => {
-                        const $el = Cypress.$(el);
-                        const titulo = $el.find("mat-card-title").text().trim();
-                        console.log(`Característica ${i + 1}: "${titulo}"`);
-                    });
-                });
-
-                // ===========================
-                // 2. ENCONTRAR LA CARACTERÍSTICA ESPECÍFICA
-                // ===========================
-                cy.get("div.content-characteristics .cdk-drag")
-                    .contains("mat-card-title", config.nombre)
-                    .should("be.visible")
-                    .then(($titulo) => {
-                        console.log("✅ Título encontrado:", $titulo.text());
-
-                        return $titulo.parents(".cdk-drag");
-                    })
-                    .then(($dragElement) => {
-                        console.log("✅ Elemento arrastrable encontrado");
-                        console.log("HTML del elemento:", $dragElement[0].outerHTML);
-
-                        // Tomar screenshot del elemento
-                        cy.screenshot(
-                            `caracteristica-origen-${config.nombre.replace(/\s+/g, "-")}`
-                        );
-
-                        // ===========================
-                        // 3. REALIZAR EL DRAG AND DROP
-                        // ===========================
-                        cy.wrap($dragElement)
-                            .realMouseDown({button: "left", position: "center"})
-                            .then(() => {
-                                console.log("✅ Mouse down realizado");
-                                return cy.wrap($dragElement);
-                            })
-                            .realMouseMove(0, 10, {position: "center"})
-                            .wait(500);
-
-                        // ===========================
-                        // 4. MOVER AL DESTINO Y SOLTAR
-                        // ===========================
-                        cy.get("div.cdk-drop-list#characteristicsTCA")
-                            .should("exist")
-                            .then(($dropZone) => {
-                                console.log("✅ Zona de destino encontrada");
-                                console.log("Clases del drop zone:", $dropZone.attr("class"));
-                                console.log(
-                                    "Contenido INICIAL del drop zone:",
-                                    $dropZone.html()
-                                );
-
-                                return cy.wrap($dropZone);
-                            })
-                            .realMouseMove(0, 0, {position: "center"})
-                            .realMouseUp();
-
-                        console.log("✅ Drag and drop completado");
-                        cy.wait(2000); // Esperar más tiempo para animaciones
-
-                        // ===========================
-                        // 5. AHORA SÍ ABRIR Y CONFIGURAR LA CARACTERÍSTICA
-                        // ===========================
-
-                        // Primero, hacer clic en el botón de editar (ícono de lápiz)
-                        // Buscar el botón dentro del drop zone
-
-                        cy.wait(1000); // Esperar a que se abra el diálogo/modal
-
-                        // Ahora llamar a configurarCaracteristicaTCA
-                        self.configurarCaracteristicaTCA(config);
-                    });
-            });
-    }
-
-    // MANTÉN TU configurarCaracteristicaTCA IGUAL
-    configurarCaracteristicaTCA(config) {
-        // Ya estamos dentro del iframe
-
-        // 🌳 Árbol raíz
-        if (config.arbolRaiz) {
-            cy.xpath(
-                "//mat-form-field[.//mat-label[normalize-space()='Árbol Raíz']]//mat-select"
-            )
-                .filter(":visible:not([disabled])")
-                .first()
-                .scrollIntoView()
-                .click({force: true});
-
-            cy.xpath("//input[@placeholder='Buscar']").type(config.arbolRaiz, {
-                force: true,
-            });
-
-            cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                .first()
-                .click({force: true});
-        }
-
-        // 💰 Total de cajero
-        if (config.totalCajero) {
-            cy.xpath(
-                "//mat-form-field[.//mat-label[normalize-space()='Total de Cajero']]//mat-select"
-            )
-                .filter(":visible:not([disabled])")
-                .first()
-                .scrollIntoView()
-                .click({force: true});
-
-            cy.xpath("//input[@placeholder='Buscar']").type(config.totalCajero, {
-                force: true,
-            });
-
-            cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                .first()
-                .click({force: true});
-        }
-
-        // ➕➖ Operación
-        if (config.operacion) {
-            cy.xpath(
-                `//mat-radio-group//input[@type='radio' and @value='${config.operacion.trim()}']`
-            )
-                .should("exist")
-                .check({force: true});
-        }
-
-        // 💾 Guardar
-        cy.xpath("//button[contains(@class, 'add-button') and @color='accent']")
-            .filter(":visible:not([disabled])")
-            .first()
-            .scrollIntoView()
-            .should("be.visible")
-            .click({force: true});
-
-        // Esperar a que se cierre el diálogo/modal
-        cy.wait(3000);
-    }
 
 //Fin Gestor de transacciones
 }
