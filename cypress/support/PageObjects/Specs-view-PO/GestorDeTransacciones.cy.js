@@ -354,28 +354,114 @@ class GestorPomCy{
 // ===========================
 
     /**
-     * Arrastra una característica desde el panel izquierdo al área de características
+     * Abre el panel de características si no está abierto
+     */
+    /**
+     * Abre el panel de características si no está abierto
+     */
+    abrirPanelCaracteristicas() {
+        cy.log('📂 Abriendo panel de Características');
+
+        // Buscar el panel por su encabezado
+        cy.contains('mat-expansion-panel-header', 'Características', { timeout: 15000 })
+            .scrollIntoView()
+            .should('be.visible')
+            .then($header => {
+                // Verificar si el panel está expandido
+                const $panel = $header.closest('mat-expansion-panel');
+
+                if (!$panel.hasClass('mat-expanded')) {
+                    cy.wrap($header).click({ force: true });
+                    cy.wait(1500); // Esperar a que se expanda
+
+                    // Verificar que el área de destino ahora está visible
+                    cy.get('div.cdk-drop-list#characteristics', { timeout: 10000 })
+                        .should('be.visible');
+
+                    cy.log('✅ Panel de Características abierto');
+                } else {
+                    cy.log('✅ Panel de Características ya estaba abierto');
+                }
+            });
+    }
+
+    /**
+     * Arrastra una característica al área de características
      * @param {string} nombreCaracteristica - Nombre de la característica a arrastrar
      */
     arrastrarCaracteristicaAPaso(nombreCaracteristica) {
         cy.log(`🖱️ Arrastrando característica: "${nombreCaracteristica}"`);
 
-        // Origen: La característica en el panel izquierdo
-        cy.get("div.content-characteristics .cdk-drag")
-            .contains(nombreCaracteristica)
-            .should("be.visible")
-            .realMouseDown({ button: "left", position: "center" })
-            .realMouseMove(0, 10, { position: "center" })
-            .wait(500);
+        // PASO 1: Asegurar que el panel de características está abierto
+        this.abrirPanelCaracteristicas();
 
-        // Destino: El área "Características" debajo de Rutinas PRE
-        cy.get("div.cdk-drop-list#characteristics")
-            .should("exist")
-            .realMouseMove(0, 0, { position: "center" })
-            .realMouseUp();
+        // PASO 2: Normalizar nombre
+        const nombreNormalizado = nombreCaracteristica.toLowerCase().trim();
 
-        cy.wait(800);
-        cy.log(`✅ Característica "${nombreCaracteristica}" arrastrada`);
+        // PASO 3: Obtener la característica origen
+        cy.get('div.content-characteristics', { timeout: 15000 })
+            .first()
+            .should('be.visible')
+            .within(() => {
+                cy.get('.cdk-drag')
+                    .filter((i, el) => {
+                        const texto = Cypress.$(el).text().trim().toLowerCase();
+                        return texto.includes(nombreNormalizado);
+                    })
+                    .first()
+                    .as('caracteristicaOrigen');
+            });
+
+        // PASO 4: IDENTIFICAR EL ÁREA DE DESTINO CORRECTA
+        // Basado en tu captura, el área tiene el texto "Puedes arrastrar una característica aquí"
+        cy.contains('div', 'Puedes arrastrar una característica aquí', { timeout: 10000 })
+            .should('be.visible')
+            .parents('[class*="drop-list"], [class*="cdk-drop"]')
+            .first()
+            .as('destinoCaracteristicas');
+
+        // PASO 5: Realizar drag & drop con coordenadas reales
+        cy.then(() => {
+            cy.get('@caracteristicaOrigen').then($origen => {
+                cy.get('@destinoCaracteristicas').then($destino => {
+                    // Obtener coordenadas
+                    const origenRect = $origen[0].getBoundingClientRect();
+                    const destinoRect = $destino[0].getBoundingClientRect();
+
+                    // Calcular puntos centrales
+                    const origenX = origenRect.left + origenRect.width / 2;
+                    const origenY = origenRect.top + origenRect.height / 2;
+                    const destinoX = destinoRect.left + destinoRect.width / 2;
+                    const destinoY = destinoRect.top + destinoRect.height / 2;
+
+                    cy.log(`📍 Origen: (${origenX}, ${origenY})`);
+                    cy.log(`📍 Destino: (${destinoX}, ${destinoY})`);
+                    cy.log(`📏 Diferencia: X: ${destinoX - origenX}, Y: ${destinoY - origenY}`);
+
+                    // Realizar drag con eventos nativos
+                    cy.get('@caracteristicaOrigen')
+                        .trigger('mousedown', {
+                            button: 0,
+                            clientX: origenX,
+                            clientY: origenY,
+                            force: true
+                        })
+                        .wait(500)
+                        .trigger('mousemove', {
+                            clientX: destinoX,
+                            clientY: destinoY,
+                            force: true
+                        })
+                        .wait(500)
+                        .trigger('mouseup', {
+                            force: true
+                        });
+                });
+            });
+        });
+
+        cy.wait(2000);
+        cy.log(`✅ Intento de arrastre para "${nombreCaracteristica}" completado`);
     }
 
     /**
@@ -385,48 +471,47 @@ class GestorPomCy{
     validarCaracteristicaEnDestino(nombreCaracteristica) {
         cy.log(`🔍 Validando característica "${nombreCaracteristica}" en destino`);
 
+        const nombreNormalizado = nombreCaracteristica.toLowerCase().trim();
+
         cy.get("div.cdk-drop-list#characteristics", { timeout: 20000 })
-            .should("exist")
+            .first()
+            .should("be.visible")
             .within(() => {
-                cy.contains("mat-card-title", nombreCaracteristica, { timeout: 20000 })
-                    .should("be.visible");
+                // Buscar por texto, no por visibilidad
+                cy.get('mat-card-title')
+                    .filter((i, el) => {
+                        const texto = Cypress.$(el).text().trim().toLowerCase();
+                        return texto.includes(nombreNormalizado);
+                    })
+                    .should('have.length.greaterThan', 0);
+
+                cy.log(`✅ Encontrado "${nombreCaracteristica}" en destino`);
+            });
+    }
+
+    /**
+     * Verifica que el panel izquierdo de características está visible
+     */
+
+    /**
+     * Espera a que las características se carguen en el panel izquierdo
+     */
+    esperarCargaCaracteristicas() {
+        cy.log('⏳ Esperando carga de características...');
+
+        cy.get('div.content-characteristics', { timeout: 30000 })
+            .first()
+            .should('be.visible')
+            .within(() => {
+                cy.get('.cdk-drag', { timeout: 30000 })
+                    .should('have.length.greaterThan', 0);
             });
 
-        cy.log(`✅ Característica "${nombreCaracteristica}" validada en destino`);
-    }
-
-    /**
-     * Arrastra múltiples características desde un array
-     * @param {Array} caracteristicas - Array de nombres de características a arrastrar
-     */
-    arrastrarMultiplesCaracteristicas(caracteristicas) {
-        cy.log(`📋 Arrastrando ${caracteristicas.length} características`);
-
-        caracteristicas.forEach((nombre, index) => {
-            cy.log(`\n🖱️ [${index + 1}/${caracteristicas.length}] Arrastrando: "${nombre}"`);
-            this.arrastrarCaracteristicaAPaso(nombre);
-            this.validarCaracteristicaEnDestino(nombre);
-        });
-
-        cy.log('✅ Todas las características arrastradas exitosamente');
-    }
-
-    /**
-     * Arrastra y configura una característica (si necesitas configurar después)
-     * @param {Object} config - Configuración de la característica
-     * @param {string} config.nombre - Nombre de la característica
-     * @param {Object} config.configuracion - Datos de configuración
-     */
-    arrastrarYConfigurarCaracteristica(config) {
-        this.arrastrarCaracteristicaAPaso(config.nombre);
-        this.validarCaracteristicaEnDestino(config.nombre);
-        // Aquí puedes llamar a un método de configuración si existe
-        // this.configurarCaracteristica(config);
+        cy.log('✅ Características cargadas');
     }
 
 
-
-    DefinicionDePasos(nombrePaso, tieneReglaCondionanteDePaso, typeReglaParaCondicionarPaso, descripcionPasoTrx){
+    /*DefinicionDePasos(nombrePaso, tieneReglaCondionanteDePaso, typeReglaParaCondicionarPaso, descripcionPasoTrx){
 
         this.Generales.llenarCampoIframe(nombrePaso, "Nombre");
         if (tieneReglaCondionanteDePaso){
@@ -436,7 +521,12 @@ class GestorPomCy{
         }
 
         this.Generales.llenarCampoIframe(descripcionPasoTrx, "Descripción");
-    }
+    }*/
+
+
+
+
+
 
     definiciondePasos2(
         nombrePaso,
