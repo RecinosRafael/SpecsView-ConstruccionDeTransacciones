@@ -84,7 +84,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                 .then(cy.wrap)
                 .within(() => {
                     // Buscar el botón con color primary (el de confirmar)
-                    cy.get('button[color="primary"]').then($btn => {
+                    cy.get('mat-dialog-container button[color="primary"]').then($btn => {
                         if ($btn.length > 0) {
                             cy.log('✅ Diálogo detectado, haciendo clic en Confirmar');
                             cy.wrap($btn.first()).click({ force: true });

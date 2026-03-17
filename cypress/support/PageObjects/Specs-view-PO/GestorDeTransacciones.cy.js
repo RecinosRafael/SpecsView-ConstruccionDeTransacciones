@@ -181,7 +181,7 @@ class GestorPomCy{
 
     //Comprobante de impresion
     ComprobantesImpresion( tipoFormato, comprobante, esMandatorio, verComprobante, notificaComprobante,
-                           impAntesConsultarFirmas, copiasImprimir, etiqueta, etiqueta2)
+                           impAntesConsultarFirmas, copiasImprimir, ...etiquetas)
     {
         this.Generales.seleccionarComboIframe(tipoFormato, "Tipo de Formato", { timeout: 10000,  skipContext: true, force: true })
         this.Generales.seleccionarComboIframe(comprobante, "Comprobante", { timeout: 10000, skipContext: true, force: true })
@@ -190,8 +190,12 @@ class GestorPomCy{
         this.Generales.slideToggleIframe(notificaComprobante, "Se notifica comprobante al menos por un medio", { timeout: 10000, skipContext: true, force: true })
         this.Generales.slideToggleIframe(impAntesConsultarFirmas, "Imprimir antes de consultar Firmas", { timeout: 10000, skipContext: true, force: true })
         this.Generales.llenarCampoIframe(copiasImprimir, "Copias a imprimir", { timeout: 10000, skipContext: true, force: true })
-        this.Generales.llenarCampoEnTablaIframe(etiqueta, "Etiqueta", 1, { timeout: 10000, skipContext: true, force: true });
-        this.Generales.llenarCampoEnTablaIframe(etiqueta2, "Etiqueta", 2, { timeout: 10000, skipContext: true, force: true });
+        //llenar etiquetas con N cantidad de copias a imprimir
+        const numEtiquetas = parseInt(copiasImprimir, 10) || 0;
+        for (let i = 0; i < numEtiquetas; i++) {
+        const valorEtiqueta = i < etiquetas.length ? etiquetas[i] : '';
+        this.Generales.llenarCampoEnTablaIframe(valorEtiqueta, "Etiqueta", i + 1, { timeout: 10000, skipContext: true, force: true });        
+        }
     }
 
     //Comprobante notificacion electronica

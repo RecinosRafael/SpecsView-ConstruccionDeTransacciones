@@ -9,9 +9,8 @@
       "notificaComprobante": true,
       "impAntesConsultarFirmas": false,
       "copiasImprimir": "2",
-      "etiqueta":"Banco",
-      "etiqueta2":"Cliente"
-    },    
+      "etiquetas": ["Banco", "Cliente"]
+    },
     {
       "codigoTX": "700",
       "tipoFormato": "Online",
@@ -21,9 +20,8 @@
       "notificaComprobante": true,
       "impAntesConsultarFirmas": false,
       "copiasImprimir": "2",
-      "etiqueta":"Bank",
-      "etiqueta2":"Client"
-    },    
+      "etiquetas": ["Bank", "Client"]
+    },
     {
       "codigoTX": "1600",
       "tipoFormato": "Certificación",
@@ -33,9 +31,8 @@
       "notificaComprobante": true,
       "impAntesConsultarFirmas": false,
       "copiasImprimir": "1",
-      "etiqueta":"Original",
-      "etiqueta2":""
-    },    
+      "etiquetas": ["Original"]
+    },
     {
       "codigoTX": "1600",
       "tipoFormato": "Libreta",
@@ -45,9 +42,8 @@
       "notificaComprobante": false,
       "impAntesConsultarFirmas": false,
       "copiasImprimir": "1",
-      "etiqueta":"",
-      "etiqueta2":""
-    },    
+      "etiquetas": [""]
+    },
     {
       "codigoTX": "1610",
       "tipoFormato": "Certificación",
@@ -57,9 +53,8 @@
       "notificaComprobante": false,
       "impAntesConsultarFirmas": false,
       "copiasImprimir": "2",
-      "etiqueta":"Banco",
-      "etiqueta2":"Cliente"
-    },    
+      "etiquetas": ["Banco", "Cliente"]
+    },
     {
       "codigoTX": "1700",
       "tipoFormato": "Certificación",
@@ -69,9 +64,8 @@
       "notificaComprobante": true,
       "impAntesConsultarFirmas": false,
       "copiasImprimir": "2",
-      "etiqueta":"Banco",
-      "etiqueta2":"Cliente"
-    },    
+      "etiquetas": ["Banco", "Cliente"]
+    },
     {
       "codigoTX": "1700",
       "tipoFormato": "Libreta",
@@ -81,9 +75,8 @@
       "notificaComprobante": false,
       "impAntesConsultarFirmas": false,
       "copiasImprimir": "1",
-      "etiqueta":"posteo",
-      "etiqueta2":""
-    },    
+      "etiquetas": ["posteo"]
+    },
     {
       "codigoTX": "1710",
       "tipoFormato": "Certificación",
@@ -93,8 +86,7 @@
       "notificaComprobante": true,
       "impAntesConsultarFirmas": false,
       "copiasImprimir": "2",
-      "etiqueta":"Original",
-      "etiqueta2":"Cliente"
+      "etiquetas": ["Original", "Cliente"]
     }
   ]
 }
