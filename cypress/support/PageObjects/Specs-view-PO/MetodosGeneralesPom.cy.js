@@ -3447,7 +3447,6 @@ BuscarRegistroEnTabla(criterios) {
         intentarAbrir();
     }
 
-    // En tu POM (Page Object Model)
     clickAddCaracteristica() {
         cy.log('➕ Haciendo clic en botón ADD de Características');
 
@@ -3458,6 +3457,7 @@ BuscarRegistroEnTabla(criterios) {
         cy.log('✅ Click en ADD de Características exitoso');
     }
 
+<<<<<<< HEAD
     dragCaracteristica(labelText, opciones = {}) {
         const {
             timeout = 15000,
@@ -3595,6 +3595,58 @@ BuscarRegistroEnTabla(criterios) {
 
         this._ejecutarEnContexto(ejecutar, skipContext);
     }
+=======
+    // En tu GestorDeTransacciones.cy.js
+
+    /**
+     * Hace click en el botón + del tab activo para agregar un paso
+     */
+    /*clickAgregarPaso() {
+        cy.log('🖱️ Haciendo click en botón + para agregar paso');
+
+        cy.get('div[role="tab"][aria-selected="true"]')
+            .find('button.add-button mat-icon')
+            .contains('add')
+            .click({ force: true });
+
+        cy.wait(1000);
+    }*/
+
+    /**
+     * Hace click en el botón + para agregar paso, verificando que no esté ya desplegado
+     */
+    clickAgregarPaso() {
+        cy.log('🖱️ Verificando botón + para agregar paso');
+
+        // Primero verificar si ya hay un formulario abierto
+        cy.get('body').then($body => {
+            const formularioAbierto = $body.find('h2:contains("Nueva definición de paso")').length > 0;
+
+            if (formularioAbierto) {
+                cy.log('✅ Formulario de paso ya está abierto, no es necesario hacer click');
+                return;
+            }
+
+            // Si no está abierto, hacer click en el botón +
+            cy.log('🖱️ Haciendo click en botón + para abrir formulario');
+            cy.get('div[role="tab"][aria-selected="true"]')
+                .find('button.add-button mat-icon')
+                .contains('add')
+                .click({ force: true });
+
+            // Esperar a que el formulario se abra
+            cy.wait(2000);
+
+            // Verificar que se abrió correctamente
+            cy.contains('h2', 'Nueva definición de paso', { timeout: 10000 })
+                .should('be.visible')
+                .then(() => {
+                    cy.log('✅ Formulario de paso abierto correctamente');
+                });
+        });
+    }
+
+>>>>>>> 3ffda79d7bd440c9ffaaff192a3feec0c212ac80
 
 }
 

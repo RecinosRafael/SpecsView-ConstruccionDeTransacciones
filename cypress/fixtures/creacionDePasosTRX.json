@@ -1,0 +1,40 @@
+{
+  "agregar": [
+    {
+      "codigoTRX": "700",
+      "nombrePaso": "Cuenta",
+      "tieneReglaCondionanteDePaso": "",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "ingreso de cuenta"
+    },
+    {
+      "codigoTRX": "700",
+      "nombrePaso": "Confirmación",
+      "tieneReglaCondionanteDePaso": "",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Confirmación de transacción deposito monetari"
+    },
+    {
+      "codigoTRX": "600",
+      "nombrePaso": "Cuenta",
+      "tieneReglaCondionanteDePaso": "",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "ingreso de cuenta"
+    },
+    {
+      "codigoTRX": "600",
+      "codigoIso": "Confirmación",
+      "nombre": "Confirmación de transacción deposito monetario",
+      "codigoNumerico": "840",
+      "decimales": "2",
+      "puntoFlotante": ""
+    },
+    {
+      "codigoTRX": "600",
+      "nombrePaso": "Final",
+      "tieneReglaCondionanteDePaso": "",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "ingreso de cuenta"
+    }
+  ]
+}
