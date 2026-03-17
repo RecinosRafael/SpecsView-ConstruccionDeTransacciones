@@ -3457,7 +3457,6 @@ BuscarRegistroEnTabla(criterios) {
         cy.log('✅ Click en ADD de Características exitoso');
     }
 
-<<<<<<< HEAD
     dragCaracteristica(labelText, opciones = {}) {
         const {
             timeout = 15000,
@@ -3595,7 +3594,6 @@ BuscarRegistroEnTabla(criterios) {
 
         this._ejecutarEnContexto(ejecutar, skipContext);
     }
-=======
     // En tu GestorDeTransacciones.cy.js
 
     /**
@@ -3646,7 +3644,6 @@ BuscarRegistroEnTabla(criterios) {
         });
     }
 
->>>>>>> 3ffda79d7bd440c9ffaaff192a3feec0c212ac80
 
 }
 
