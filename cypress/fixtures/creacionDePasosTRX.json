@@ -1,6 +1,23 @@
 {
   "agregar": [
-
+    {
+      "codigoTRX": "600",
+      "nombrePaso": "Paso1",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": ""
+    },
+    {
+      "codigoTRX": "700",
+      "nombrePaso": "Cuenta",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "ingreso de cuenta"
+    },
+    {
+      "codigoTRX": "700",
+      "nombrePaso": "Confirmación",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Confirmación de transacción deposito monetario"
+    },
     {
       "codigoTRX": "1600",
       "nombrePaso": "Captura de cuenta",
