@@ -8,14 +8,43 @@ class GestorPomCy{
 
 
     //Totales a afectar gestor de TX`s
-    AsignarMoneda(caracteristformaAfectarTotalesica, metodoAsignacionMoneda, correlativoMoneda){  
+    AsignarMoneda(formaAfectarTotales, metodoAsignacionMoneda, correlativoMoneda) {
+    //por si acaso el boton de edit aparece de lo contrario no pasa nada 
+    cy.root().then(($root) => {
+        // Obtener el nodo DOM real (si $root es jQuery)
+        const contextNode = $root.get ? $root.get(0) : $root[0];
+        if (!contextNode) {
+        cy.log('No se pudo obtener el nodo raíz');
+        return;
+        }
 
-        // this.Generales.BtnIframe('editar', { force: true, skipContext: true }, 'add-button', false);
-        this.Generales.seleccionarComboIframe(caracteristformaAfectarTotalesica, "Forma afectar totales", { timeout: 10000, force: true, skipContext: true } )
-        this.Generales.seleccionarComboIframe(metodoAsignacionMoneda, "Método asignación de moneda", { timeout: 10000, skipContext: true, force: true } )
-        this.Generales.seleccionarComboIframe(correlativoMoneda, "Moneda", { timeout: 10000, skipContext: true, force: true } )
+        const xpath = './/button[contains(@class, "add-button") and .//mat-icon[text()="edit"]]';
+        // Usar document.evaluate con el tipo numérico 9 (equivalente a XPathResult.FIRST_ORDERED_NODE_TYPE)
+        const result = document.evaluate(xpath, contextNode, null, 9, null);
+        const node = result.singleNodeValue;
+
+        if (node) {
+        cy.log('✅ Botón "edit" encontrado, haciendo clic');
+        cy.wrap(node).click({ force: true });
+        } else {
+        cy.log('ℹ️ Botón "edit" no está presente');
+        }
+    });
+
+    this.Generales.seleccionarComboIframe(formaAfectarTotales, "Forma afectar totales", { timeout: 10000, force: true, skipContext: true });
+    this.Generales.seleccionarComboIframe(metodoAsignacionMoneda, "Método asignación de moneda", { timeout: 10000, skipContext: true, force: true });
+  //  this.Generales.seleccionarComboIframe(correlativoMoneda, "Moneda", { timeout: 10000, skipContext: true, force: true });
+    cy.wait(1000)
+    this.Generales.seleccionarComboIframe(
+    correlativoMoneda, ["Moneda", "Correlativo de moneda"],
+    {
+        timeout: 10000,
+        skipContext: true,
+        force: true,
+        usarBusqueda: true
     }
-
+);
+}
 
 
     //Totales a afectar gestor de TX`s
