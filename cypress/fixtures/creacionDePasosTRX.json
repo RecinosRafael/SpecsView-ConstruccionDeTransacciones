@@ -37,7 +37,7 @@
       "descripcionPasoTrx": ""
     },
     {
-      "codigoTRX": "1600",
+      "codigoTRX": "1610",
       "nombrePaso": "Confirmación de datos",
       "typeReglaParaCondicionarPaso": "",
       "descripcionPasoTrx": "Paso de confirmación de datos "

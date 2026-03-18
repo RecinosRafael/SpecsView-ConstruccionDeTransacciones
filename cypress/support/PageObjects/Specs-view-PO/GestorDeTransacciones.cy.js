@@ -603,9 +603,6 @@ class GestorPomCy{
         this.Generales.llenarCampoIframe2(descripcionPasoTrx, "Descripción", { timeout: 10000, skipContext: true});
     }
 
-
-
-
     definiciondePasos(
         nombrePaso,
         tieneReglaCondionanteDePaso,
@@ -698,218 +695,17 @@ class GestorPomCy{
 
 
 
-    rutinasPre(
-        tieneRutinaPre,
-        typeRutinaPre,
-        typeEstado,
-        correlativoPre,
-        requiereLoginPre,
-        typeRutinaLoginPre,
-        descripcionRutinaPre,
-        fechaInicioPre,
-        fechaFinPre,
-        parametrosRutinaPre
-    ) {
-        cy.get("iframe.frame", {timeout: 10000})
-            .should("be.visible")
-            .invoke("css", "pointer-events", "auto")
-            .its("0.contentDocument.body")
-            .should("not.be.empty")
-            .then(cy.wrap)
-            .within(() => {
-                cy.xpath(
-                    "//div[@role='tab'][.//span[normalize-space()='Paso 1']]"
-                ).click({force: true});
-                if (tieneRutinaPre.toLowerCase() == "si") {
-                    cy.xpath(
-                        "//mat-panel-title[contains(., 'Rutinas PRE')]//button[contains(@class, 'btn-add-mini')]"
-                    ).click({force: true});
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Rutina']]//mat-select"
-                    ).click({force: true});
-                    cy.xpath("//input[@placeholder='Buscar']").type(typeRutinaPre, {
-                        force: true,
-                    });
-                    cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                        .first()
-                        .click({force: true});
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Estado']]//mat-select"
-                    )
-                        .filter(":visible:not([disabled])")
-                        .first()
-                        .scrollIntoView()
-                        .should("be.visible")
-                        .click({force: true});
-
-                    cy.xpath("//input[@placeholder='Buscar']").type(typeEstado, {
-                        force: true,
-                    });
-                    cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                        .first()
-                        .click({force: true});
-
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Correlativo']]//input"
-                    ).type(correlativoPre, {force: true});
-                    if (requiereLoginPre.toLowerCase == "si") {
-                        cy.xpath(
-                            "//div[contains(@class,'switch-wrapper')][.//label[normalize-space()='Requiere Login']]//button[@role='switch']"
-                        ).click({force: true});
-                        cy.xpath(
-                            "//mat-form-field[.//mat-label[normalize-space()='Rutina Login']]//mat-select"
-                        ).click({force: true});
-                        cy.xpath("//input[@placeholder='Buscar']").type(
-                            typeRutinaLoginPre,
-                            {force: true}
-                        );
-                        cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                            .first()
-                            .click({force: true});
-                    }
-                    cy.xpath(
-                        "//mat-label[normalize-space()='Descripción']/ancestor::mat-form-field //textarea"
-                    )
-                        .filter(":visible:not([disabled])")
-                        .first()
-                        .scrollIntoView()
-                        .should("be.visible")
-                        .type(descripcionRutinaPre, {force: true});
-                    cy.xpath(
-                        "//mat-form-field   [.//mat-label[normalize-space()='Fecha de Inicio']]   //button[@aria-label='Open calendar']"
-                    ).click({force: true});
-                    cy.selectMatDate(fechaInicioPre);
-                    if (fechaFinPre && fechaFinPre.trim()) {
-                        // 1️⃣ Abrir calendario SOLO si hay fecha
-                        cy.xpath(
-                            "//mat-form-field   [.//mat-label[normalize-space()='Fecha de Fin']]   //button[@aria-label='Open calendar']"
-                        ).click({
-                            force: true,
-                        });
-
-                        cy.selectMatDate(fechaFinPre);
-                    }
-                    cy.xpath(
-                        "//mat-label[normalize-space()='Parámetros']/ancestor::mat-form-field //textarea"
-                    ).type(parametrosRutinaPre, {force: true});
-                    cy.xpath(
-                        "//button[@mat-mini-fab and @color='primary'][.//mat-icon[text()='check']]"
-                    ).click({force: true});
-                } else {
-                    cy.log("No entra a flujo ya que no tiene rutina PRE");
-                }
-            });
-    }
-
-    rutinasPos(
-        tieneRutinaPos,
-        typeRutinaPos,
-        typeEstado,
-        correlativoPos,
-        requiereLoginPos,
-        typeRutinaLoginPos,
-        descripcionRutinaPos,
-        fechaInicioPos,
-        fechaFinPos,
-        parametrosRutinaPos
-    ) {
-        cy.get("iframe.frame", {timeout: 10000})
-            .should("be.visible")
-            .invoke("css", "pointer-events", "auto")
-            .its("0.contentDocument.body")
-            .should("not.be.empty")
-            .then(cy.wrap)
-            .within(() => {
-                cy.xpath(
-                    "//div[@role='tab'][.//span[normalize-space()='Paso 1']]"
-                ).click({force: true});
-                if (tieneRutinaPos.toLowerCase() == "si") {
-                    cy.xpath(
-                        "//mat-panel-title[contains(., 'Rutinas POS')]//button[contains(@class, 'btn-add-mini')]"
-                    ).click({force: true});
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Rutina']]//mat-select"
-                    )
-                        .filter(":visible:not([disabled])")
-                        .first()
-                        .scrollIntoView()
-                        .should("be.visible")
-                        .click({force: true});
-                    cy.xpath("//input[@placeholder='Buscar']").type(typeRutinaPos, {
-                        force: true,
-                    });
-                    cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                        .first()
-                        .click({force: true});
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Estado']]//mat-select"
-                    )
-                        .filter(":visible:not([disabled])")
-                        .first()
-                        .scrollIntoView()
-                        .should("be.visible")
-                        .click({force: true});
-
-                    cy.xpath("//input[@placeholder='Buscar']").type(typeEstado, {
-                        force: true,
-                    });
-                    cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                        .first()
-                        .click({force: true});
-
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Correlativo']]//input"
-                    ).type(correlativoPos, {force: true});
-                    if (requiereLoginPos.toLowerCase == "si") {
-                        cy.xpath(
-                            "//div[contains(@class,'switch-wrapper')][.//label[normalize-space()='Requiere Login']]//button[@role='switch']"
-                        ).click({force: true});
-                        cy.xpath(
-                            "//mat-form-field[.//mat-label[normalize-space()='Rutina Login']]//mat-select"
-                        ).click({force: true});
-                        cy.xpath("//input[@placeholder='Buscar']").type(
-                            typeRutinaLoginPos,
-                            {force: true}
-                        );
-                        cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                            .first()
-                            .click({force: true});
-                    }
-                    cy.xpath(
-                        "//mat-label[normalize-space()='Descripción']/ancestor::mat-form-field //textarea"
-                    )
-                        .filter(":visible:not([disabled])")
-                        .first()
-                        .scrollIntoView()
-                        .should("be.visible")
-                        .type(descripcionRutinaPos, {force: true});
-                    cy.xpath(
-                        "//mat-form-field   [.//mat-label[normalize-space()='Fecha de Inicio']]   //button[@aria-label='Open calendar']"
-                    ).click({force: true});
-                    cy.selectMatDate(fechaInicioPos);
-                    if (fechaFinPos && fechaFinPos.trim()) {
-                        // 1️⃣ Abrir calendario SOLO si hay fecha
-                        cy.xpath(
-                            "//mat-form-field   [.//mat-label[normalize-space()='Fecha de Fin']]   //button[@aria-label='Open calendar']"
-                        ).click({
-                            force: true,
-                        });
-
-                        cy.selectMatDate(fechaFinPos);
-                    }
-                    cy.xpath(
-                        "//mat-label[normalize-space()='Parámetros']/ancestor::mat-form-field //textarea"
-                    ).type(parametrosRutinaPos, {force: true});
-                    cy.xpath(
-                        "//button[@mat-mini-fab and @color='primary'][.//mat-icon[text()='check']]"
-                    ).click({force: true});
-                } else {
-                    cy.log("No entra a flujo ya que no tiene rutina POS");
-                }
-            });
+    RutinasTRX(rutina, estado, correlativo, requiereLogin, descripcion, fechaInicio, fechaFin, paremetros){
+        this.Generales.seleccionarComboIframe(rutina, "Rutina", { timeout: 10000,  skipContext: true, force: true })
+        this.Generales.seleccionarComboIframe(estado, "Estado", { timeout: 10000, skipContext: true, force: true })
+        this.Generales.llenarCampoIframe(correlativo, "Correlativo", { timeout: 10000, skipContext: true, force: true })
+        this.Generales.slideToggleIframe(requiereLogin, "Requiere Login", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.llenarDescripcionIframe(descripcion, "Descripción", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.IngresarFechaIframe(fechaInicio, "Fecha de Inicio", { timeout: 10000, skipContext: true });
+        this.Generales.IngresarFechaIframe(fechaFin, "Fecha de Fin", { timeout: 10000, skipContext: true });
+        this.Generales.llenarCampoIframe(paremetros, "Parámetros", { timeout: 10000, skipContext: true, force: true });
     }
 
 
-//Fin Gestor de transacciones
 }
 export default GestorPomCy;
