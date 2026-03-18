@@ -8,7 +8,7 @@ class GestorPomCy{
 
 
     //Totales a afectar gestor de TX`s
-    AsignarMoneda(caracteristformaAfectarTotalesica, metodoAsignacionMoneda, correlativoMoneda){  
+    AsignarMoneda(caracteristformaAfectarTotalesica, metodoAsignacionMoneda, correlativoMoneda){
 
         // this.Generales.BtnIframe('editar', { force: true, skipContext: true }, 'add-button', false);
         this.Generales.seleccionarComboIframe(caracteristformaAfectarTotalesica, "Forma afectar totales", { timeout: 10000, force: true, skipContext: true } )
@@ -25,11 +25,11 @@ class GestorPomCy{
         this.Generales.arrastrarCaracteristica(caracteristica)
 
         cy.wait(2500)
-      
+
         this.Generales.seleccionarComboIframe(totalCajero, "Total de Cajero", { timeout: 10000, force: true, skipContext: true } )
         this.Generales.seleccionarRadio(operacion, "Operacion", { timeout: 10000, skipContext: true, force: true } )
-        
-        
+
+
 
         //##########################  PENDIENTE PASOS PARA VALIDAR COMO SE MANEJARA LAS EXPRESIONES ##########################
 
@@ -54,56 +54,56 @@ class GestorPomCy{
     //Gestor de transacciones
     GestorTransacciones(
         tipo, codigo, codAlternativo, nombre, etiqueta, estado, validoDesde, validoHasta, tipoMovimientoBoveda, descripcion,
-        esconderMenu, permiteReversion, modoOffline, requiereSupervisor, requiereValidarAcceso, seEnviaHost, tiempoEspera, 
-        accionPorDemora, tienePagoServicio, PagoServicio, pasoConfirmacionServicio, permiteReimpresion, diasPermitidoReimpresion, 
+        esconderMenu, permiteReversion, modoOffline, requiereSupervisor, requiereValidarAcceso, seEnviaHost, tiempoEspera,
+        accionPorDemora, tienePagoServicio, PagoServicio, pasoConfirmacionServicio, permiteReimpresion, diasPermitidoReimpresion,
         presentarResumen, mensajeResumen, tipoMensaje, icono, DepartamentodeAutorizacion, textoAyuda, logo
     ){
-            this.Generales.seleccionarComboIframe(tipo, "Tipo", { timeout: 10000, skipContext: true } );
-            this.Generales.llenarCampoIframe(codigo, "Código", { timeout: 10000, skipContext: true }); 
-            this.Generales.llenarCampoIframe(codAlternativo, "Código alternativo", { timeout: 10000, skipContext: true });
-            this.Generales.llenarCampoIframe(nombre, "Nombre", { timeout: 10000, skipContext: true });
-            this.Generales.llenarCampoIframe(etiqueta, "Etiqueta", { timeout: 10000, skipContext: true });
-            this.Generales.seleccionarComboIframe(estado, "Estado", { timeout: 10000, skipContext: true });
-            this.Generales.seleccionarComboIframe(tipoMovimientoBoveda, "Tipo movimiento en bóveda", { timeout: 10000, skipContext: true, force: true });            
-            this.Generales.IngresarFechaIframe(validoDesde, "Valido desde", { timeout: 10000, skipContext: true });
-            this.Generales.IngresarFechaIframe(validoHasta, "Valido hasta", { timeout: 10000, skipContext: true });
-            this.Generales.llenarCampoIframe(descripcion, "Descripción", { timeout: 10000, skipContext: true });
-            this.Generales.slideToggleIframe(esconderMenu, "Esconder en menú", { timeout: 10000, skipContext: true });
-            this.Generales.slideToggleIframe(permiteReversion, "Permite reversión", { timeout: 10000, skipContext: true });
-            this.Generales.slideToggleIframe(modoOffline, "Modo offline", { timeout: 10000, skipContext: true });
-            this.Generales.slideToggleIframe(requiereSupervisor, "Requiere supervisor", { timeout: 10000, skipContext: true });
-            this.Generales.slideToggleIframe(requiereValidarAcceso, "Se requiere validar acceso", { timeout: 10000, skipContext: true });
-            if (seEnviaHost) {
-                this.Generales.slideToggleIframe(seEnviaHost, "Se envía al host", { timeout: 10000, skipContext: true });
-                this.Generales.llenarCampoIframe(tiempoEspera, "Tiempo de espera", { timeout: 10000, force: true, skipContext: true });
-                this.Generales.seleccionarComboIframe(accionPorDemora, "Acción por demora", { timeout: 10000, force: true, skipContext: true });      
-            }else{
-                cy.log("Se envía al host no está activo, no se ingresan los datos relacionados a esta opción", { timeout: 10000, skipContext: true });
-            }
-            if (tienePagoServicio) {
-                this.Generales.slideToggleIframe(tienePagoServicio, "Es pago de servicio", { timeout: 10000, skipContext: true });
-                this.Generales.seleccionarComboIframe(PagoServicio, "Pago de servicio", { timeout: 10000, skipContext: true });
-                this.Generales.seleccionarComboIframe(pasoConfirmacionServicio, "Incluye paso para confirmar datos", { timeout: 10000, skipContext: true });
-            }else{
-                cy.log("Es pago de servicio no está activo, no se ingresan los datos relacionados a esta opción");
-            }
-            if (permiteReimpresion) {
-                this.Generales.slideToggleIframe(permiteReimpresion, "Permite reimpresión", { timeout: 10000, skipContext: true });
-                this.Generales.llenarCampoIframe(diasPermitidoReimpresion, "Dias permitidos para reimprimir", { timeout: 10000, force: true, skipContext: true });
-            }else{
-                cy.log("Permite reimpresión no está activo, no se ingresan los datos relacionados a esta opción");
-            }
-            if (presentarResumen) {
-                this.Generales.slideToggleIframe(presentarResumen, "Presentar resumen de transaccion", { timeout: 10000, skipContext: true });
-                this.Generales.llenarCampoIframe(mensajeResumen, "Mensaje despues del proceso", { timeout: 10000, force: true, skipContext: true });
-                this.Generales.seleccionarComboIframe(tipoMensaje, "Tipo de mensaje", { timeout: 10000, skipContext: true });    
-            } else {
-                cy.log("Presentar resumen no está activo, no se ingresan los datos relacionados a esta opción");
-            }
-            this.Generales.llenarCampoIframe(icono, "Ícono", { timeout: 10000, skipContext: true });
-            this.Generales.seleccionarComboIframe(DepartamentodeAutorizacion, "Departamento de autorización", { timeout: 10000, force: true, skipContext: true });
-            this.Generales.llenarCampoIframe(textoAyuda, "Texto de ayuda", { timeout: 10000, skipContext: true });
-                // Carga de logo this.Generales.cargarArchivo(logo, "Logo"); pendiente
+        this.Generales.seleccionarComboIframe(tipo, "Tipo", { timeout: 10000, skipContext: true } );
+        this.Generales.llenarCampoIframe(codigo, "Código", { timeout: 10000, skipContext: true });
+        this.Generales.llenarCampoIframe(codAlternativo, "Código alternativo", { timeout: 10000, skipContext: true });
+        this.Generales.llenarCampoIframe(nombre, "Nombre", { timeout: 10000, skipContext: true });
+        this.Generales.llenarCampoIframe(etiqueta, "Etiqueta", { timeout: 10000, skipContext: true });
+        this.Generales.seleccionarComboIframe(estado, "Estado", { timeout: 10000, skipContext: true });
+        this.Generales.seleccionarComboIframe(tipoMovimientoBoveda, "Tipo movimiento en bóveda", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.IngresarFechaIframe(validoDesde, "Valido desde", { timeout: 10000, skipContext: true });
+        this.Generales.IngresarFechaIframe(validoHasta, "Valido hasta", { timeout: 10000, skipContext: true });
+        this.Generales.llenarCampoIframe(descripcion, "Descripción", { timeout: 10000, skipContext: true });
+        this.Generales.slideToggleIframe(esconderMenu, "Esconder en menú", { timeout: 10000, skipContext: true });
+        this.Generales.slideToggleIframe(permiteReversion, "Permite reversión", { timeout: 10000, skipContext: true });
+        this.Generales.slideToggleIframe(modoOffline, "Modo offline", { timeout: 10000, skipContext: true });
+        this.Generales.slideToggleIframe(requiereSupervisor, "Requiere supervisor", { timeout: 10000, skipContext: true });
+        this.Generales.slideToggleIframe(requiereValidarAcceso, "Se requiere validar acceso", { timeout: 10000, skipContext: true });
+        if (seEnviaHost) {
+            this.Generales.slideToggleIframe(seEnviaHost, "Se envía al host", { timeout: 10000, skipContext: true });
+            this.Generales.llenarCampoIframe(tiempoEspera, "Tiempo de espera", { timeout: 10000, force: true, skipContext: true });
+            this.Generales.seleccionarComboIframe(accionPorDemora, "Acción por demora", { timeout: 10000, force: true, skipContext: true });
+        }else{
+            cy.log("Se envía al host no está activo, no se ingresan los datos relacionados a esta opción", { timeout: 10000, skipContext: true });
+        }
+        if (tienePagoServicio) {
+            this.Generales.slideToggleIframe(tienePagoServicio, "Es pago de servicio", { timeout: 10000, skipContext: true });
+            this.Generales.seleccionarComboIframe(PagoServicio, "Pago de servicio", { timeout: 10000, skipContext: true });
+            this.Generales.seleccionarComboIframe(pasoConfirmacionServicio, "Incluye paso para confirmar datos", { timeout: 10000, skipContext: true });
+        }else{
+            cy.log("Es pago de servicio no está activo, no se ingresan los datos relacionados a esta opción");
+        }
+        if (permiteReimpresion) {
+            this.Generales.slideToggleIframe(permiteReimpresion, "Permite reimpresión", { timeout: 10000, skipContext: true });
+            this.Generales.llenarCampoIframe(diasPermitidoReimpresion, "Dias permitidos para reimprimir", { timeout: 10000, force: true, skipContext: true });
+        }else{
+            cy.log("Permite reimpresión no está activo, no se ingresan los datos relacionados a esta opción");
+        }
+        if (presentarResumen) {
+            this.Generales.slideToggleIframe(presentarResumen, "Presentar resumen de transaccion", { timeout: 10000, skipContext: true });
+            this.Generales.llenarCampoIframe(mensajeResumen, "Mensaje despues del proceso", { timeout: 10000, force: true, skipContext: true });
+            this.Generales.seleccionarComboIframe(tipoMensaje, "Tipo de mensaje", { timeout: 10000, skipContext: true });
+        } else {
+            cy.log("Presentar resumen no está activo, no se ingresan los datos relacionados a esta opción");
+        }
+        this.Generales.llenarCampoIframe(icono, "Ícono", { timeout: 10000, skipContext: true });
+        this.Generales.seleccionarComboIframe(DepartamentodeAutorizacion, "Departamento de autorización", { timeout: 10000, force: true, skipContext: true });
+        this.Generales.llenarCampoIframe(textoAyuda, "Texto de ayuda", { timeout: 10000, skipContext: true });
+        // Carga de logo this.Generales.cargarArchivo(logo, "Logo"); pendiente
     }
 
     //Seleccionar tipos de cajero del gestor de TX`s
@@ -551,62 +551,55 @@ class GestorPomCy{
     }
 
 
-    /*DefinicionDePasos(nombrePaso, tieneReglaCondionanteDePaso, typeReglaParaCondicionarPaso, descripcionPasoTrx){
+    DefinicionDePasos(nombrePaso, tieneReglaCondionanteDePaso, typeReglaParaCondicionarPaso, descripcionPasoTrx){
 
-        this.Generales.llenarCampoIframe(nombrePaso, "Nombre");
+        this.Generales.llenarCampoIframe2(nombrePaso, "Nombre", { timeout: 10000, skipContext: true});
         if (tieneReglaCondionanteDePaso){
-            this.Generales.seleccionarComboIframe(typeReglaParaCondicionarPaso, "Regla para condicionar paso" );
+            this.Generales.seleccionarComboIframe(typeReglaParaCondicionarPaso, "Regla para condicionar paso", { timeout: 10000, skipContext: true, force: true } );
         }else{
             console.log("No tiene regla para condicionar pasos...");
         }
 
-        this.Generales.llenarCampoIframe(descripcionPasoTrx, "Descripción");
-    }*/
+        this.Generales.llenarCampoIframe2(descripcionPasoTrx, "Descripción", { timeout: 10000, skipContext: true});
+    }
 
 
 
+// ============================================
+// MÉTODOS PARA DEFINICIÓN DE PASOS (SIN IFRAME)
+// ============================================
 
-
-
-    definiciondePasos2(
+    definiciondePasos(
         nombrePaso,
         tieneReglaCondionanteDePaso,
         typeReglaParaCondicionarPaso,
         descripcionPasoTrx
     ) {
-        cy.get("iframe.frame", {timeout: 10000})
-            .should("be.visible")
-            .invoke("css", "pointer-events", "auto")
-            .its("0.contentDocument.body")
-            .should("not.be.empty")
-            .then(cy.wrap)
-            .within(($body) => {
-                cy.log("definicion de pasos de una trx");
-                cy.xpath(
-                    "//div[@role='tab' and @aria-selected='true']//button[contains(@class,'add-button')]"
-                ).click({force: true});
-                cy.xpath(
-                    "//mat-form-field[.//mat-label[normalize-space()='Nombre']]//input"
-                ).type(nombrePaso, {force: true});
-                cy.xpath(
-                    "//mat-form-field[.//mat-label[normalize-space()='Regla para condicionar paso']]//mat-select"
-                ).click({force: true});
-                if (tieneReglaCondionanteDePaso.toLowerCase() == "si") {
-                    cy.xpath("//input[@placeholder='Buscar']").type(
-                        typeReglaParaCondicionarPaso,
-                        {force: true}
-                    );
-                    cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                        .first()
-                        .click({force: true});
-                    cy.xpath(
-                        "//mat-label[normalize-space()='Descripción']/ancestor::mat-form-field //textarea"
-                    ).type(descripcionPasoTrx, {force: true});
-                }
-            });
+        cy.log("definicion de pasos de una trx");
+        cy.xpath(
+            "//div[@role='tab' and @aria-selected='true']//button[contains(@class,'add-button')]"
+        ).click({force: true});
+        cy.xpath(
+            "//mat-form-field[.//mat-label[normalize-space()='Nombre']]//input"
+        ).type(nombrePaso, {force: true});
+        cy.xpath(
+            "//mat-form-field[.//mat-label[normalize-space()='Regla para condicionar paso']]//mat-select"
+        ).click({force: true});
+        if (tieneReglaCondionanteDePaso.toLowerCase() == "si") {
+            cy.xpath("//input[@placeholder='Buscar']").type(
+                typeReglaParaCondicionarPaso,
+                {force: true}
+            );
+            cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
+                .first()
+                .click({force: true});
+            cy.xpath(
+                "//mat-label[normalize-space()='Descripción']/ancestor::mat-form-field //textarea"
+            ).type(descripcionPasoTrx, {force: true});
+        }
     }
 
-    _definirPaso(
+    definirPaso(
         nombrePaso,
         tieneReglaCondionanteDePaso,
         typeReglaParaCondicionarPaso,
@@ -618,6 +611,7 @@ class GestorPomCy{
             "//div[@role='tab' and @aria-selected='true']//button[contains(@class,'add-button')]"
         ).click({force: true});
         cy.wait(1500);
+
         cy.xpath(
             "//mat-form-field[.//mat-label[normalize-space()='Nombre']]//input"
         )
@@ -641,14 +635,21 @@ class GestorPomCy{
                 .first()
                 .click({force: true});
         }
-        cy.xpath(
-            "//mat-label[normalize-space()='Descripción']/ancestor::mat-form-field//textarea"
-        )
-            .filter(":visible:not([disabled])")
-            .first()
-            .scrollIntoView()
-            .should("be.visible")
-            .type(descripcionPasoTrx, {force: true});
+
+        // VALIDACIÓN: Solo hacer type si descripcionPasoTrx no está vacío
+        if (descripcionPasoTrx && descripcionPasoTrx.trim() !== '') {
+            cy.xpath(
+                "//mat-label[normalize-space()='Descripción']/ancestor::mat-form-field//textarea"
+            )
+                .filter(":visible:not([disabled])")
+                .first()
+                .scrollIntoView()
+                .should("be.visible")
+                .type(descripcionPasoTrx, {force: true});
+        } else {
+            cy.log('ℹ️ Descripción vacía, se omite el type');
+        }
+
         cy.xpath("//button[.//mat-icon[text()='check']]")
             .filter(":visible:not([disabled])")
             .first()
@@ -657,24 +658,8 @@ class GestorPomCy{
             .click({force: true});
     }
 
-    definiciondePasos(pasos) {
-        cy.get("iframe.frame", {timeout: 10000})
-            .should("be.visible")
-            .invoke("css", "pointer-events", "auto")
-            .its("0.contentDocument.body")
-            .should("not.be.empty")
-            .then(cy.wrap)
-            .within(() => {
-                pasos.forEach((paso) => {
-                    this._definirPaso(
-                        paso.nombrePaso,
-                        paso.tieneRegla,
-                        paso.tipoRegla,
-                        paso.descripcion
-                    );
-                });
-            });
-    }
+
+
 
     rutinasPre(
         tieneRutinaPre,

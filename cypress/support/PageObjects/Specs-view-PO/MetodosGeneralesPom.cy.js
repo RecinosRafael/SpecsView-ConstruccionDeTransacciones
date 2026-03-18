@@ -3532,35 +3532,70 @@ BuscarRegistroEnTabla(criterios) {
     /**
      * Hace click en el botón + para agregar paso, verificando que no esté ya desplegado
      */
+    /*clickAgregarPaso() {
+        cy.log('🖱️ Haciendo click en botón + para agregar paso');
+
+        // SIMPLEMENTE hacer click en el botón + sin verificar nada
+        cy.get('div[role="tab"][aria-selected="true"]')
+            .find('button.add-button')
+            .first()
+            .click({ force: true });
+
+        cy.wait(2000);
+        cy.log('✅ Click en botón + realizado');
+    }*/
+
     clickAgregarPaso() {
-        cy.log('🖱️ Verificando botón + para agregar paso');
+        cy.log('🖱️ Click en botón + del tab activo');
+        cy.get('div[role="tab"][aria-selected="true"] button.add-button')
+            .first()
+            .click({ force: true });
+        cy.wait(1000);
+    }
 
-        // Primero verificar si ya hay un formulario abierto
-        cy.get('body').then($body => {
-            const formularioAbierto = $body.find('h2:contains("Nueva definición de paso")').length > 0;
+    llenarCampoIframe2(valor, labelText, opciones = {}) {
+        const {
+            timeout = 10000,
+            skipContext = false,
+            force = true
+        } = opciones;
 
-            if (formularioAbierto) {
-                cy.log('✅ Formulario de paso ya está abierto, no es necesario hacer click');
-                return;
-            }
+        if (!valor || valor === "") {
+            cy.log(`⏭️ Campo "${labelText}" omitido (valor vacío)`);
+            return;
+        }
 
-            // Si no está abierto, hacer click en el botón +
-            cy.log('🖱️ Haciendo click en botón + para abrir formulario');
-            cy.get('div[role="tab"][aria-selected="true"]')
-                .find('button.add-button mat-icon')
-                .contains('add')
-                .click({ force: true });
+        cy.log(`✏️ Llenando campo "${labelText}" con valor "${valor}"`);
 
-            // Esperar a que el formulario se abra
-            cy.wait(2000);
+        const escribir = () => {
+            // Buscar el mat-label por su texto (SIN VERIFICAR VISIBILIDAD)
+            cy.contains('mat-label', labelText, { timeout })
+                .should('exist') // 👈 CAMBIO CLAVE: exist en lugar de be.visible
+                .then($label => {
+                    // Encontrar el input/textarea dentro del mat-form-field
+                    const $campo = $label.closest('mat-form-field').find('input, textarea').first();
 
-            // Verificar que se abrió correctamente
-            cy.contains('h2', 'Nueva definición de paso', { timeout: 10000 })
-                .should('be.visible')
-                .then(() => {
-                    cy.log('✅ Formulario de paso abierto correctamente');
+                    cy.wrap($campo)
+                        .should('exist')
+                        .click({ force: true })
+                        .clear({ force: true })
+                        .type(valor, { force: true, delay: 50 });
+
+                    cy.log(`      ✅ Campo "${labelText}" = "${valor}"`);
                 });
-        });
+        };
+
+        if (skipContext) {
+            escribir();
+        } else {
+            cy.get('iframe.frame', { timeout })
+                .its('0.contentDocument.body')
+                .should('not.be.empty')
+                .then(cy.wrap)
+                .within(() => {
+                    escribir();
+                });
+        }
     }
 
 

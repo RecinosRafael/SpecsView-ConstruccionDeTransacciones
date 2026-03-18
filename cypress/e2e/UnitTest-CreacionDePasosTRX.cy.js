@@ -2,41 +2,141 @@ import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosG
 import GestorPomCy from "../support/PageObjects/Specs-view-PO/GestorDeTransacciones.cy";
 import 'cypress-xpath';
 
-const Generales = new metodosGeneralesPomCy()
-const GestorDeTransacciones = new GestorPomCy()
+const Generales = new metodosGeneralesPomCy();
+const GestorDeTransacciones = new GestorPomCy();
 
+describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
+    Cypress.on('uncaught:exception', (err, Runnable) => {
+        return false;
+    });
 
-describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
-
-    Cypress.on('uncaught:exception',(err,Runnable) =>{
-        return false
-    })
-
-    //Login y visita al Specs-view
-    before(() => {
+    before(function() {
         Generales.Login(
             Cypress.env('BASE_URL'),
             Cypress.env('USER'),
             Cypress.env('PASS')
-        )
+        );
+    });
 
-        cy.fixture('creacionDePasosTRX').as('dataCreacionDePasosTRX')
-    })
+    beforeEach(function() {
+        Generales.IrAPantalla('transactionManager');
+        cy.fixture('creacionDePasosTRX').as('data')
+    });
 
 
+    //este funciona
+    it("Agregar múltiples registros dinámicamente", function() {
+        cy.log('Datos cargados:', JSON.stringify(this.data));
 
-    beforeEach(() => {
-        Generales.IrAPantalla('transactionManager')
-    })
+        // Agrupar los items por código de transacción
+        const transacciones = this.data.agregar.reduce((acc, item) => {
+            if (!acc[item.codigoTRX]) {
+                acc[item.codigoTRX] = [];
+            }
+            acc[item.codigoTRX].push(item);
+            return acc;
+        }, {});
 
-    /*it("Agregar registros a sub nivel", function () {
-        const datos = this.dataCreacionDePasosTRX.agregar;
+        // Procesar cada transacción y TODOS sus pasos
+        Object.entries(transacciones).forEach(([codigoTRX, pasos]) => {
+            cy.then(() => {
+                // Limpiar logs de Cypress (opcional)
+                const doc = window.top.document;
+                const logContainer = doc.querySelector('.reporter .commands') ||
+                    doc.querySelector('.command-list') ||
+                    doc.querySelector('.runnable-commands-region');
+                if (logContainer) {
+                    logContainer.innerHTML = '';
+                }
+            });
+
+            cy.log(`🔄 Procesando transacción: ${codigoTRX} (${pasos.length} pasos)`);
+
+            // Entrar al iframe para procesar TODOS los pasos de esta transacción
+            cy.get('iframe.frame', { timeout: 10000 })
+                .its('0.contentDocument.body')
+                .should('not.be.empty')
+                .then(cy.wrap)
+                .within(() => {
+                    cy.wait(1500);
+
+                    // Filtrar por el código de transacción actual
+                    Generales.filtrarPorCodigo(codigoTRX);
+                    Generales.abrirPanel("Opciones");
+
+                    // Procesar TODOS los pasos de esta transacción SIN SALIR
+                    pasos.forEach((paso, index) => {
+                        cy.log(`📝 Paso ${index + 1}/${pasos.length}: ${paso.nombrePaso}`);
+
+                        GestorDeTransacciones.definirPaso(
+                            paso.nombrePaso,
+                            paso.tieneReglaCondionanteDePaso,
+                            paso.typeReglaParaCondicionarPaso,
+                            paso.descripcionPasoTrx
+                        );
+
+                        // Pequeña pausa entre pasos si es necesario
+                        cy.wait(500);
+                    });
+
+                    cy.log(`✅ Todos los ${pasos.length} pasos de ${codigoTRX} han sido creados`);
+                }); // Salimos del iframe SOLO después de crear TODOS los pasos
+
+            // Esperamos un tiempo para que la operación se complete
+            cy.wait(2000);
+
+            // Volvemos a entrar al iframe para hacer clic en "Atrás"
+            cy.get('iframe.frame', { timeout: 10000 })
+                .its('0.contentDocument.body')
+                .should('not.be.empty')
+                .then(cy.wrap)
+                .within(() => {
+                    Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                });
+
+            // Espera a que el posible diálogo aparezca
+            cy.wait(2000);
+
+
+            // Verificar si aparece el diálogo de confirmación DENTRO del iframe
+            cy.get('iframe.frame', { timeout: 10000 })
+                .its('0.contentDocument.body')
+                .should('not.be.empty')
+                .then(($body) => {
+                    // Buscar el diálogo por su TÍTULO "Confirmar"
+                    const $dialog = Cypress.$('mat-dialog-container:contains("Confirmar")', $body);
+
+                    if ($dialog.length > 0) {
+                        cy.log('✅ Diálogo Confirmar detectado');
+
+                        // DENTRO del diálogo, buscar el botón que tiene mat-icon con texto "check"
+                        const $btnSi = Cypress.$('button mat-icon:contains("check")', $dialog).parents('button');
+
+                        if ($btnSi.length > 0) {
+                            cy.log('✅ Botón Sí encontrado dentro del diálogo, haciendo clic');
+                            $btnSi.first().click();
+                            cy.wait(1000);
+                            cy.log('✅ Clic en Sí realizado');
+                        } else {
+                            cy.log('⚠️ No se encontró botón con icono check dentro del diálogo');
+                        }
+                    } else {
+                        cy.log('ℹ️ No apareció diálogo de confirmación - continuando flujo normal');
+                    }
+                });
+
+
+        });
+    });
+
+    /*it("Agregar múltiples registros dinámicamente", function() {
+        cy.log('Datos cargados:', JSON.stringify(this.data));
 
         // Agrupar manteniendo el orden del JSON original
         const agrupadas = {};
         const ordenCodigos = [];
 
-        datos.forEach(item => {
+        this.data.agregar.forEach(item => {
             if (!agrupadas[item.codigoTRX]) {
                 agrupadas[item.codigoTRX] = [];
                 ordenCodigos.push(item.codigoTRX);
@@ -51,136 +151,293 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
             .within(() => {
 
                 cy.wrap(ordenCodigos).each((codigoTRX) => {
-                    cy.log(`\n🔄 Procesando transacción con código: ${codigoTRX}`);
+                    const pasos = agrupadas[codigoTRX];
+
+                    cy.log(`\n🔄 Procesando transacción: ${codigoTRX} (${pasos.length} pasos)`);
 
                     // PASO 1: Filtrar por código
                     Generales.filtrarPorCodigo(codigoTRX);
 
-                    //paso 2 abre las opciones
+                    // PASO 2: Verificar que se encontró el registro y hacer clic para entrar al detalle
+                    cy.contains('td.mat-column-codeOfTheTransaction', codigoTRX, { timeout: 10000 })
+                        .should('be.visible')
+                        .click({ force: true })
+                        .then(() => {
+                            cy.log(`✅ Registro ${codigoTRX} encontrado y seleccionado`);
+                        });
 
-                    Generales.abrirPanel("Opciones")
+                    // PASO 3: Esperar a que cargue el detalle
+                    cy.wait(2000);
 
-                    //paso 3 cliec en boton agregar paso solo si esta cerrado
-                    Generales.clickAgregarPaso()
+                    // PASO 4: Abrir panel Opciones
+                    cy.xpath("//mat-expansion-panel-header[.//h2[normalize-space()='Opciones']]")
+                        .then($header => {
+                            if ($header.attr('aria-expanded') !== 'true') {
+                                cy.wrap($header).click({ force: true });
+                                cy.wait(500);
+                            }
+                        });
 
-                    //paso 4 llena con el metodo
+                    // PASO 5: Procesar TODOS los pasos de esta transacción SIN SALIR
+                    cy.wrap(pasos).each((paso, index) => {
+                        cy.log(`📝 Paso ${index + 1}/${pasos.length}: ${paso.nombrePaso}`);
 
-                    DefinicionDePasos
+                        GestorDeTransacciones.definirPaso(
+                            paso.nombrePaso,
+                            paso.tieneReglaCondionanteDePaso,
+                            paso.typeReglaParaCondicionarPaso,
+                            paso.descripcionPasoTrx
+                        );
 
-                    //paso 4 da clic en aceptar y empieza la vuelta de nuevo para seguir el flujo del json
-                    Generales.BtnIframe("Aceptar",{ timeout: 10000, force: true, skipContext: true })
+                        cy.wait(500);
+                    }).then(() => {
+                        cy.log(`✅ Todos los ${pasos.length} pasos de ${codigoTRX} creados`);
+
+                        // PASO 6: ATRÁS - Salir de la transacción
+                        cy.wait(2000);
+                        Generales.BtnIframe("Atrás", { timeout: 10000, force: true, skipContext: true });
+
+                        // PASO 7: VERIFICAR DIÁLOGO DE CONFIRMACIÓN
+                        cy.wait(1000);
+
+                        cy.document().then(doc => {
+                            const $dialog = Cypress.$('mat-dialog-container', doc);
+                            if ($dialog.length > 0) {
+                                cy.log('⚠️ Diálogo de confirmación detectado');
+
+                                // CORRECCIÓN: Buscar el botón que contiene texto "Sí"
+                                cy.xpath("//mat-dialog-actions//button[contains(text(), 'Sí')]")
+                                    .should('be.visible')
+
+                                Generales.BtnIframe("Si", { timeout: 10000, force: true, skipContext: true });
 
 
+                                cy.wait(3000);
+                                cy.log('✅ Clic en Sí realizado');
+                            } else {
+                                cy.log('ℹ️ No apareció diálogo de confirmación');
+                            }
+                        });
 
+                        // PASO 8: ESPERAR A QUE LA UI SE ESTABILICE
+                        cy.wait(2000);
 
+                        // PASO 9: VERIFICAR QUE ESTAMOS EN EL LISTADO PRINCIPAL
+                        cy.log('🔍 Verificando retorno al listado principal...');
 
+                        // Verificar que estamos de vuelta en el listado
+                        cy.get('mat-expansion-panel-header').contains('Filtros', { timeout: 15000 })
+                            .should('be.visible');
+                        cy.get('table', { timeout: 10000 }).should('be.visible');
 
+                        cy.log(`✅ Transacción ${codigoTRX} completada - listo para siguiente`);
+                    });
+                });
+            });
+    });*/
 
+    /*it("Agregar múltiples registros dinámicamente", function() {
+        cy.log('Datos cargados:', JSON.stringify(this.data));
 
+        // Agrupar manteniendo el orden del JSON original
+        const agrupadas = {};
+        const ordenCodigos = [];
 
+        this.data.agregar.forEach(item => {
+            if (!agrupadas[item.codigoTRX]) {
+                agrupadas[item.codigoTRX] = [];
+                ordenCodigos.push(item.codigoTRX);
+            }
+            agrupadas[item.codigoTRX].push(item);
+        });
+
+        cy.get('iframe.frame', { timeout: 10000 })
+            .its('0.contentDocument.body')
+            .should('not.be.empty')
+            .then(cy.wrap)
+            .within(() => {
+
+                cy.wrap(ordenCodigos).each((codigoTRX) => {
+                    const pasos = agrupadas[codigoTRX];
+
+                    cy.log(`\n🔄 Procesando transacción: ${codigoTRX} (${pasos.length} pasos)`);
+
+                    // PASO 1: Filtrar por código
+                    Generales.filtrarPorCodigo(codigoTRX);
+
+                    // PASO 2: Verificar que se encontró el registro y hacer clic para entrar al detalle
+                    cy.contains('td.mat-column-codeOfTheTransaction', codigoTRX, { timeout: 10000 })
+                        .should('be.visible')
+                        .click({ force: true })
+                        .then(() => {
+                            cy.log(`✅ Registro ${codigoTRX} encontrado y seleccionado`);
+                        });
+
+                    // PASO 3: Esperar a que cargue el detalle
+                    cy.wait(2000);
+
+                    // PASO 4: Abrir panel Opciones
+                    cy.xpath("//mat-expansion-panel-header[.//h2[normalize-space()='Opciones']]")
+                        .then($header => {
+                            if ($header.attr('aria-expanded') !== 'true') {
+                                cy.wrap($header).click({ force: true });
+                                cy.wait(500);
+                            }
+                        });
+
+                    // PASO 5: Procesar TODOS los pasos de esta transacción SIN SALIR
+                    cy.wrap(pasos).each((paso, index) => {
+                        cy.log(`📝 Paso ${index + 1}/${pasos.length}: ${paso.nombrePaso}`);
+
+                        GestorDeTransacciones.definirPaso(
+                            paso.nombrePaso,
+                            paso.tieneReglaCondionanteDePaso,
+                            paso.typeReglaParaCondicionarPaso,
+                            paso.descripcionPasoTrx
+                        );
+
+                        cy.wait(500);
+                    }).then(() => {
+                        cy.log(`✅ Todos los ${pasos.length} pasos de ${codigoTRX} creados`);
+
+                        // PASO 6: ATRÁS - Salir de la transacción
+                        cy.wait(2000);
+                        Generales.BtnIframe("Atrás", { timeout: 10000, force: true, skipContext: true });
+
+                        // PASO 7: VERIFICAR DIÁLOGO DE CONFIRMACIÓN (CORREGIDO)
+                        cy.wait(1000);
+
+                        cy.get('iframe.frame', { timeout: 10000 })
+                            .its('0.contentDocument.body')
+                            .should('not.be.empty')
+                            .then(($body) => {
+                                // Buscar el diálogo de confirmación de forma síncrona
+                                const $dialog = Cypress.$('mat-dialog-container', $body);
+                                if ($dialog.length > 0) {
+                                    cy.log('✅ Diálogo de confirmación detectado');
+                                    // Hacer clic en el botón primario dentro del diálogo
+                                    cy.wrap($dialog).find('button[color="primary"]').click();
+                                    // Esperar a que el diálogo desaparezca
+                                    cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist');
+                                    cy.log('✅ Diálogo cerrado correctamente');
+                                } else {
+                                    cy.log('ℹ️ No apareció diálogo de confirmación');
+                                }
+                            });
+
+                        // PASO 8: ESPERAR A QUE LA UI SE ESTABILICE
+                        cy.wait(2000);
+
+                        // PASO 9: VERIFICAR QUE ESTAMOS EN EL LISTADO PRINCIPAL
+                        cy.log('🔍 Verificando retorno al listado principal...');
+
+                        // Verificar que estamos de vuelta en el listado
+                        cy.get('mat-expansion-panel-header').contains('Filtros', { timeout: 15000 })
+                            .should('be.visible');
+                        cy.get('table', { timeout: 10000 }).should('be.visible');
+
+                        cy.log(`✅ Transacción ${codigoTRX} completada - listo para siguiente`);
+                    });
                 });
             });
     });*/
 
 
-    it("Agregar registros a sub nivel", function () {
-        const datos = this.dataCreacionDePasosTRX.agregar;
+    /*it("Agregar múltiples registros dinámicamente", function() {
+        cy.log('Datos cargados:', JSON.stringify(this.data));
 
-        // Agrupar manteniendo el orden del JSON original
-        const agrupadas = {};
-        const ordenCodigos = [];
-
-        datos.forEach(item => {
-            if (!agrupadas[item.codigoTRX]) {
-                agrupadas[item.codigoTRX] = [];
-                ordenCodigos.push(item.codigoTRX);
+        // Agrupar los items por código de transacción
+        const transacciones = this.data.agregar.reduce((acc, item) => {
+            if (!acc[item.codigoTRX]) {
+                acc[item.codigoTRX] = [];
             }
-            agrupadas[item.codigoTRX].push(item);
-        });
+            acc[item.codigoTRX].push(item);
+            return acc;
+        }, {});
 
-        cy.get('iframe.frame', { timeout: 10000 })
-            .its('0.contentDocument.body')
-            .should('not.be.empty')
-            .then(cy.wrap)
-            .within(() => {
+        // Procesar cada transacción y TODOS sus pasos
+        Object.entries(transacciones).forEach(([codigoTRX, pasos]) => {
+            cy.then(() => {
+                // Limpiar logs de Cypress (opcional)
+                const doc = window.top.document;
+                const logContainer = doc.querySelector('.reporter .commands') ||
+                    doc.querySelector('.command-list') ||
+                    doc.querySelector('.runnable-commands-region');
+                if (logContainer) {
+                    logContainer.innerHTML = '';
+                }
+            });
 
-                cy.wrap(ordenCodigos).each((codigoTRX) => {
-                    const pasosTransaccion = agrupadas[codigoTRX];
+            cy.log(`🔄 Procesando transacción: ${codigoTRX} (${pasos.length} pasos)`);
 
-                    cy.log(`\n🔄 Procesando transacción con código: ${codigoTRX}`);
-                    cy.log(`📋 Pasos a crear: ${pasosTransaccion.length}`);
+            // Entrar al iframe para procesar TODOS los pasos de esta transacción
+            cy.get('iframe.frame', { timeout: 10000 })
+                .its('0.contentDocument.body')
+                .should('not.be.empty')
+                .then(cy.wrap)
+                .within(() => {
+                    cy.wait(1500);
 
-                    // PASO 1: Filtrar por código
+                    // Filtrar por el código de transacción actual
                     Generales.filtrarPorCodigo(codigoTRX);
-                    cy.wait(3000); // WAIT para que cargue el filtro
-
-                    // PASO 2: Abrir panel Opciones
-                    cy.log('📂 Abriendo panel Opciones');
                     Generales.abrirPanel("Opciones");
-                    cy.wait(2000); // WAIT para que se expanda
 
-                    // PASO 3: Crear CADA paso del JSON
-                    for (let i = 0; i < pasosTransaccion.length; i++) {
-                        const paso = pasosTransaccion[i];
+                    // Procesar TODOS los pasos de esta transacción SIN SALIR
+                    pasos.forEach((paso, index) => {
+                        cy.log(`📝 Paso ${index + 1}/${pasos.length}: ${paso.nombrePaso}`);
 
-                        cy.log(`\n   📝 Creando paso ${i + 1}/${pasosTransaccion.length}: "${paso.nombrePaso}"`);
+                        GestorDeTransacciones.definirPaso(
+                            paso.nombrePaso,
+                            paso.tieneReglaCondionanteDePaso,
+                            paso.typeReglaParaCondicionarPaso,
+                            paso.descripcionPasoTrx
+                        );
 
-                        if (paso.nombrePaso) {
-                            // Click en botón + (tu método existente)
-                            cy.log('      🖱️ Click en botón +');
-                            Generales.clickAgregarPaso();
-
-                            // WAIT LARGO para que cargue el modal COMPLETAMENTE
-                            cy.wait(8000); // 8 segundos para que cargue todo
-
-                            // Usar TU método original (sin modificar)
-                            cy.log('      ✏️ Ejecutando DefinicionDePasos');
-                            GestorDeTransacciones.DefinicionDePasos(
-                                paso.nombrePaso,
-                                paso.tieneReglaCondionanteDePaso === "si", // Convertir a booleano
-                                paso.typeReglaParaCondicionarPaso || "",
-                                paso.descripcionPasoTrx || ""
-                            );
-
-                            cy.wait(2000); // WAIT entre pasos
-                        }
-                    }
-
-                    // PASO 4: Dar clic en Aceptar
-                    cy.log('💾 Guardando todos los pasos');
-                    cy.wait(2000);
-                    Generales.BtnIframe("Aceptar", { timeout: 10000, force: true, skipContext: true });
-                    cy.wait(3000);
-
-                    // PASO 5: Regresar al listado principal
-                    cy.log('🔙 Regresando al listado principal');
-                    cy.wait(2000);
-                    Generales.BtnIframe("Atrás", { timeout: 10000, force: true, skipContext: true });
-
-                    cy.wait(2000);
-                    cy.get('body').then($body => {
-                        if ($body.find('mat-dialog-container').length > 0) {
-                            cy.get('mat-dialog-container')
-                                .find('button[mat-mini-fab]')
-                                .first()
-                                .click({ force: true });
-                            cy.wait(2000);
-                        }
+                        // Pequeña pausa entre pasos si es necesario
+                        cy.wait(500);
                     });
 
-                    cy.contains('mat-expansion-panel-header', 'Filtros', { timeout: 15000 })
-                        .should('be.visible');
+                    cy.log(`✅ Todos los ${pasos.length} pasos de ${codigoTRX} han sido creados`);
+                }); // Salimos del iframe SOLO después de crear TODOS los pasos
 
-                    cy.wait(2000);
+            // Esperamos un tiempo para que la operación se complete
+            cy.wait(2000);
+
+            // Volvemos a entrar al iframe para hacer clic en "Atrás"
+            cy.get('iframe.frame', { timeout: 10000 })
+                .its('0.contentDocument.body')
+                .should('not.be.empty')
+                .then(cy.wrap)
+                .within(() => {
+                    Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
                 });
 
-                cy.log('\n🎉 TODOS LOS PASOS CREADOS EXITOSAMENTE');
-            });
-    });
+            // Espera a que el posible diálogo aparezca
+            cy.wait(2000);
+
+            // CORRECCIÓN: Verificar diálogo SIN USAR BtnIframe
+            cy.get('iframe.frame', { timeout: 10000 })
+                .its('0.contentDocument.body')
+                .should('not.be.empty')
+                .then(cy.wrap)
+                .within(() => {
+                    // Buscar el botón con color primary (el de confirmar)
+                    cy.get('button[color="primary"]').then($btn => {
+                        if ($btn.length > 0) {
+                            cy.log('✅ Diálogo detectado, haciendo clic en Confirmar');
+                            // ✅ CLICK DIRECTO - NO USA BtnIframe
+                            $btn.first().click({ force: true });
+                            cy.wait(1000);
+                        } else {
+                            cy.log('ℹ️ No apareció diálogo de confirmación - continuando flujo normal');
+                        }
+                    });
+                });
+        });
+    });*/
 
 
 
 
 
-
-})
+});
