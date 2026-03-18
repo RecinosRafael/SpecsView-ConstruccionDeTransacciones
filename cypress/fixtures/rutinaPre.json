@@ -1,0 +1,102 @@
+{
+  "agregar": [
+    {
+      "codigoTRX": "600",
+      "paso": "Paso 1",
+      "rutina": "Secuencia No documento",
+      "estado": "Lanzado",
+      "correlativo": "1",
+      "requiereLogin": false,
+      "descripcion": "",
+      "fechaInicio": "01/01/2026",
+      "fechaFin": "",
+      "paremetros": ""
+    },
+    {
+      "codigoTRX": "7665",
+      "paso": "Paso 1",
+      "rutina": "Secuencia No documento",
+      "estado": "Lanzado",
+      "correlativo": "1",
+      "requiereLogin": false,
+      "descripcion": "",
+      "fechaInicio": "04/12/2025",
+      "fechaFin": "",
+      "paremetros": ""
+    },
+    {
+      "codigoTRX": "7680",
+      "paso": "Paso 1",
+      "rutina": "Secuencia No documento",
+      "estado": "Lanzado",
+      "correlativo": "1",
+      "requiereLogin": false,
+      "descripcion": "",
+      "fechaInicio": "04/12/2025",
+      "fechaFin": "",
+      "paremetros": ""
+    },
+    {
+      "codigoTRX": "7680",
+      "paso": "Paso 1",
+      "rutina": "Secuencia No documento",
+      "estado": "Lanzado",
+      "correlativo": "1",
+      "requiereLogin": false,
+      "descripcion": "",
+      "fechaInicio": "04/12/2025",
+      "fechaFin": "",
+      "paremetros": ""
+    },
+    {
+      "codigoTRX": "7760",
+      "paso": "Paso 1",
+      "rutina": "Secuencia No documento",
+      "estado": "Lanzado",
+      "correlativo": "1",
+      "requiereLogin": false,
+      "descripcion": "",
+      "fechaInicio": "04/12/2025",
+      "fechaFin": "",
+      "paremetros": ""
+    },
+    {
+      "codigoTRX": "7765",
+      "paso": "Paso 1",
+      "rutina": "Secuencia No documento",
+      "estado": "Lanzado",
+      "correlativo": "1",
+      "requiereLogin": false,
+      "descripcion": "",
+      "fechaInicio": "04/12/2025",
+      "fechaFin": "",
+      "paremetros": ""
+    },
+    {
+      "codigoTRX": "7780",
+      "paso": "Paso 1",
+      "rutina": "Secuencia No documento",
+      "estado": "Lanzado",
+      "correlativo": "1",
+      "requiereLogin": false,
+      "descripcion": "",
+      "fechaInicio": "04/12/2025",
+      "fechaFin": "",
+      "paremetros": ""
+    },
+    {
+      "codigoTRX": "9671",
+      "paso": "Paso 1",
+      "rutina": "Secuencia No documento",
+      "estado": "Lanzado",
+      "correlativo": "1",
+      "requiereLogin": false,
+      "descripcion": "",
+      "fechaInicio": "04/12/2025",
+      "fechaFin": "",
+      "paremetros": ""
+    }
+
+
+  ]
+}

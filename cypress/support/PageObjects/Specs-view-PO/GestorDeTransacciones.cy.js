@@ -21,11 +21,65 @@ class GestorPomCy{
             cy.log('No se pudo obtener el nodo raíz');
             return;
             }
+    AsignarMoneda(formaAfectarTotales, metodoAsignacionMoneda, correlativoMoneda) {
+        //por si acaso el boton de edit aparece de lo contrario no pasa nada
+        cy.root().then(($root) => {
+            // Obtener el nodo DOM real (si $root es jQuery)
+            const contextNode = $root.get ? $root.get(0) : $root[0];
+            if (!contextNode) {
+                cy.log('No se pudo obtener el nodo raíz');
+                return;
+            }
 
             const xpath = './/button[contains(@class, "add-button") and .//mat-icon[text()="edit"]]';
             // Usar document.evaluate con el tipo numérico 9 (equivalente a XPathResult.FIRST_ORDERED_NODE_TYPE)
             const result = document.evaluate(xpath, contextNode, null, 9, null);
             const node = result.singleNodeValue;
+            const xpath = './/button[contains(@class, "add-button") and .//mat-icon[text()="edit"]]';
+            // Usar document.evaluate con el tipo numérico 9 (equivalente a XPathResult.FIRST_ORDERED_NODE_TYPE)
+            const result = document.evaluate(xpath, contextNode, null, 9, null);
+            const node = result.singleNodeValue;
+
+            if (node) {
+                cy.log('✅ Botón "edit" encontrado, haciendo clic');
+                cy.wrap(node).click({ force: true });
+            } else {
+                cy.log('ℹ️ Botón "edit" no está presente');
+            }
+        });
+
+        this.Generales.seleccionarComboIframe(formaAfectarTotales, "Forma afectar totales", { timeout: 10000, force: true, skipContext: true });
+        this.Generales.seleccionarComboIframe(metodoAsignacionMoneda, "Método asignación de moneda", { timeout: 10000, skipContext: true, force: true });
+        //  this.Generales.seleccionarComboIframe(correlativoMoneda, "Moneda", { timeout: 10000, skipContext: true, force: true });
+        cy.wait(1000)
+        this.Generales.seleccionarComboIframe(
+            correlativoMoneda, ["Moneda", "Correlativo de moneda"],
+            {
+                timeout: 10000,
+                skipContext: true,
+                force: true,
+                usarBusqueda: true
+            }
+        );
+    }
+    //Totales a afectar gestor de TX`s
+    AsignarMoneda(caracteristformaAfectarTotalesica, metodoAsignacionMoneda, correlativoMoneda){
+
+        // this.Generales.BtnIframe('editar', { force: true, skipContext: true }, 'add-button', false);
+        this.Generales.seleccionarComboIframe(caracteristformaAfectarTotalesica, "Forma afectar totales", { timeout: 10000, force: true, skipContext: true } )
+        this.Generales.seleccionarComboIframe(metodoAsignacionMoneda, "Método asignación de moneda", { timeout: 10000, skipContext: true, force: true } )
+        this.Generales.seleccionarComboIframe(correlativoMoneda, "Moneda", { timeout: 10000, skipContext: true, force: true } )
+    }
+
+
+
+    //Totales a afectar gestor de TX`s
+    TotalesAfectar(caracteristica, totalCajero, operacion, exp1, operacion2, exp2){
+
+        // this.Generales.dragCaracteristica(caracteristica,  { timeout: 10000, skipContext: true, force: true });
+        this.Generales.arrastrarCaracteristica(caracteristica)
+
+        cy.wait(2500)
 
             if (node) {
             cy.log('✅ Botón "edit" encontrado, haciendo clic');
@@ -37,6 +91,28 @@ class GestorPomCy{
     
         this.Generales.seleccionarComboIframe(totalCajero, "Total de Cajero", { timeout: 10000, force: true, skipContext: true } )
         this.Generales.seleccionarRadio(operacion, "Operacion", { timeout: 10000, skipContext: true, force: true } )
+
+
+
+        //##########################  PENDIENTE PASOS PARA VALIDAR COMO SE MANEJARA LAS EXPRESIONES ##########################
+
+
+        // this.Generales.llenarCampoIframe("C(5)", "Expresion 1", { timeout: 10000, skipContext: true, force: true } )
+        // if(exp1){
+        //     this.Generales.BtnIframe("Cerrar")
+        //     cy.wait(1500)
+        // }else{
+        //     cy.log("expresion 1 vacia")
+        // }
+        // this.Generales.seleccionarComboIframe(operacion2, "Operacion", { timeout: 10000, skipContext: true, force: true } )
+        // this.Generales.llenarCampoIframe(exp2, "Expresion 2", { timeout: 10000, skipContext: true, force: true } )
+        // if(exp2){
+        //     this.Generales.BtnIframe("Cerrar")
+        //     cy.wait(1500)
+        // }else{
+        //     cy.log("expresion 1 vacia")
+        // }
+    }
         this.Generales.llenarCampoReadonlySinClick(exp1, "Expresion 1", { timeout: 10000, skipContext: true, force: true } )        // if(exp1){
         this.Generales.seleccionarComboIframe(operacion2, "Operacion", { timeout: 10000, skipContext: true, force: true } )
         this.Generales.llenarCampoReadonlySinClick(exp2, "Expresion 2", { timeout: 10000, skipContext: true, force: true } )
@@ -195,7 +271,7 @@ class GestorPomCy{
         const numEtiquetas = parseInt(copiasImprimir, 10) || 0;
         for (let i = 0; i < numEtiquetas; i++) {
         const valorEtiqueta = i < etiquetas.length ? etiquetas[i] : '';
-        this.Generales.llenarCampoEnTablaIframe(valorEtiqueta, "Etiqueta", i + 1, { timeout: 10000, skipContext: true, force: true });        
+        this.Generales.llenarCampoEnTablaIframe(valorEtiqueta, "Etiqueta", i + 1, { timeout: 10000, skipContext: true, force: true });
         }
     }
 
@@ -617,62 +693,49 @@ class GestorPomCy{
     }
 
 
-    /*DefinicionDePasos(nombrePaso, tieneReglaCondionanteDePaso, typeReglaParaCondicionarPaso, descripcionPasoTrx){
+    DefinicionDePasos(nombrePaso, tieneReglaCondionanteDePaso, typeReglaParaCondicionarPaso, descripcionPasoTrx){
 
-        this.Generales.llenarCampoIframe(nombrePaso, "Nombre");
+        this.Generales.llenarCampoIframe2(nombrePaso, "Nombre", { timeout: 10000, skipContext: true});
         if (tieneReglaCondionanteDePaso){
-            this.Generales.seleccionarComboIframe(typeReglaParaCondicionarPaso, "Regla para condicionar paso" );
+            this.Generales.seleccionarComboIframe(typeReglaParaCondicionarPaso, "Regla para condicionar paso", { timeout: 10000, skipContext: true, force: true } );
         }else{
             console.log("No tiene regla para condicionar pasos...");
         }
 
-        this.Generales.llenarCampoIframe(descripcionPasoTrx, "Descripción");
-    }*/
+        this.Generales.llenarCampoIframe2(descripcionPasoTrx, "Descripción", { timeout: 10000, skipContext: true});
+    }
 
-
-
-
-
-
-    definiciondePasos2(
+    definiciondePasos(
         nombrePaso,
         tieneReglaCondionanteDePaso,
         typeReglaParaCondicionarPaso,
         descripcionPasoTrx
     ) {
-        cy.get("iframe.frame", {timeout: 10000})
-            .should("be.visible")
-            .invoke("css", "pointer-events", "auto")
-            .its("0.contentDocument.body")
-            .should("not.be.empty")
-            .then(cy.wrap)
-            .within(($body) => {
-                cy.log("definicion de pasos de una trx");
-                cy.xpath(
-                    "//div[@role='tab' and @aria-selected='true']//button[contains(@class,'add-button')]"
-                ).click({force: true});
-                cy.xpath(
-                    "//mat-form-field[.//mat-label[normalize-space()='Nombre']]//input"
-                ).type(nombrePaso, {force: true});
-                cy.xpath(
-                    "//mat-form-field[.//mat-label[normalize-space()='Regla para condicionar paso']]//mat-select"
-                ).click({force: true});
-                if (tieneReglaCondionanteDePaso.toLowerCase() == "si") {
-                    cy.xpath("//input[@placeholder='Buscar']").type(
-                        typeReglaParaCondicionarPaso,
-                        {force: true}
-                    );
-                    cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                        .first()
-                        .click({force: true});
-                    cy.xpath(
-                        "//mat-label[normalize-space()='Descripción']/ancestor::mat-form-field //textarea"
-                    ).type(descripcionPasoTrx, {force: true});
-                }
-            });
+        cy.log("definicion de pasos de una trx");
+        cy.xpath(
+            "//div[@role='tab' and @aria-selected='true']//button[contains(@class,'add-button')]"
+        ).click({force: true});
+        cy.xpath(
+            "//mat-form-field[.//mat-label[normalize-space()='Nombre']]//input"
+        ).type(nombrePaso, {force: true});
+        cy.xpath(
+            "//mat-form-field[.//mat-label[normalize-space()='Regla para condicionar paso']]//mat-select"
+        ).click({force: true});
+        if (tieneReglaCondionanteDePaso.toLowerCase() == "si") {
+            cy.xpath("//input[@placeholder='Buscar']").type(
+                typeReglaParaCondicionarPaso,
+                {force: true}
+            );
+            cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
+                .first()
+                .click({force: true});
+            cy.xpath(
+                "//mat-label[normalize-space()='Descripción']/ancestor::mat-form-field //textarea"
+            ).type(descripcionPasoTrx, {force: true});
+        }
     }
 
-    _definirPaso(
+    definirPaso(
         nombrePaso,
         tieneReglaCondionanteDePaso,
         typeReglaParaCondicionarPaso,
@@ -684,6 +747,7 @@ class GestorPomCy{
             "//div[@role='tab' and @aria-selected='true']//button[contains(@class,'add-button')]"
         ).click({force: true});
         cy.wait(1500);
+
         cy.xpath(
             "//mat-form-field[.//mat-label[normalize-space()='Nombre']]//input"
         )
@@ -707,14 +771,21 @@ class GestorPomCy{
                 .first()
                 .click({force: true});
         }
-        cy.xpath(
-            "//mat-label[normalize-space()='Descripción']/ancestor::mat-form-field//textarea"
-        )
-            .filter(":visible:not([disabled])")
-            .first()
-            .scrollIntoView()
-            .should("be.visible")
-            .type(descripcionPasoTrx, {force: true});
+
+        // VALIDACIÓN: Solo hacer type si descripcionPasoTrx no está vacío
+        if (descripcionPasoTrx && descripcionPasoTrx.trim() !== '') {
+            cy.xpath(
+                "//mat-label[normalize-space()='Descripción']/ancestor::mat-form-field//textarea"
+            )
+                .filter(":visible:not([disabled])")
+                .first()
+                .scrollIntoView()
+                .should("be.visible")
+                .type(descripcionPasoTrx, {force: true});
+        } else {
+            cy.log('ℹ️ Descripción vacía, se omite el type');
+        }
+
         cy.xpath("//button[.//mat-icon[text()='check']]")
             .filter(":visible:not([disabled])")
             .first()
@@ -723,237 +794,20 @@ class GestorPomCy{
             .click({force: true});
     }
 
-    definiciondePasos(pasos) {
-        cy.get("iframe.frame", {timeout: 10000})
-            .should("be.visible")
-            .invoke("css", "pointer-events", "auto")
-            .its("0.contentDocument.body")
-            .should("not.be.empty")
-            .then(cy.wrap)
-            .within(() => {
-                pasos.forEach((paso) => {
-                    this._definirPaso(
-                        paso.nombrePaso,
-                        paso.tieneRegla,
-                        paso.tipoRegla,
-                        paso.descripcion
-                    );
-                });
-            });
-    }
 
-    rutinasPre(
-        tieneRutinaPre,
-        typeRutinaPre,
-        typeEstado,
-        correlativoPre,
-        requiereLoginPre,
-        typeRutinaLoginPre,
-        descripcionRutinaPre,
-        fechaInicioPre,
-        fechaFinPre,
-        parametrosRutinaPre
-    ) {
-        cy.get("iframe.frame", {timeout: 10000})
-            .should("be.visible")
-            .invoke("css", "pointer-events", "auto")
-            .its("0.contentDocument.body")
-            .should("not.be.empty")
-            .then(cy.wrap)
-            .within(() => {
-                cy.xpath(
-                    "//div[@role='tab'][.//span[normalize-space()='Paso 1']]"
-                ).click({force: true});
-                if (tieneRutinaPre.toLowerCase() == "si") {
-                    cy.xpath(
-                        "//mat-panel-title[contains(., 'Rutinas PRE')]//button[contains(@class, 'btn-add-mini')]"
-                    ).click({force: true});
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Rutina']]//mat-select"
-                    ).click({force: true});
-                    cy.xpath("//input[@placeholder='Buscar']").type(typeRutinaPre, {
-                        force: true,
-                    });
-                    cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                        .first()
-                        .click({force: true});
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Estado']]//mat-select"
-                    )
-                        .filter(":visible:not([disabled])")
-                        .first()
-                        .scrollIntoView()
-                        .should("be.visible")
-                        .click({force: true});
 
-                    cy.xpath("//input[@placeholder='Buscar']").type(typeEstado, {
-                        force: true,
-                    });
-                    cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                        .first()
-                        .click({force: true});
 
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Correlativo']]//input"
-                    ).type(correlativoPre, {force: true});
-                    if (requiereLoginPre.toLowerCase == "si") {
-                        cy.xpath(
-                            "//div[contains(@class,'switch-wrapper')][.//label[normalize-space()='Requiere Login']]//button[@role='switch']"
-                        ).click({force: true});
-                        cy.xpath(
-                            "//mat-form-field[.//mat-label[normalize-space()='Rutina Login']]//mat-select"
-                        ).click({force: true});
-                        cy.xpath("//input[@placeholder='Buscar']").type(
-                            typeRutinaLoginPre,
-                            {force: true}
-                        );
-                        cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                            .first()
-                            .click({force: true});
-                    }
-                    cy.xpath(
-                        "//mat-label[normalize-space()='Descripción']/ancestor::mat-form-field //textarea"
-                    )
-                        .filter(":visible:not([disabled])")
-                        .first()
-                        .scrollIntoView()
-                        .should("be.visible")
-                        .type(descripcionRutinaPre, {force: true});
-                    cy.xpath(
-                        "//mat-form-field   [.//mat-label[normalize-space()='Fecha de Inicio']]   //button[@aria-label='Open calendar']"
-                    ).click({force: true});
-                    cy.selectMatDate(fechaInicioPre);
-                    if (fechaFinPre && fechaFinPre.trim()) {
-                        // 1️⃣ Abrir calendario SOLO si hay fecha
-                        cy.xpath(
-                            "//mat-form-field   [.//mat-label[normalize-space()='Fecha de Fin']]   //button[@aria-label='Open calendar']"
-                        ).click({
-                            force: true,
-                        });
-
-                        cy.selectMatDate(fechaFinPre);
-                    }
-                    cy.xpath(
-                        "//mat-label[normalize-space()='Parámetros']/ancestor::mat-form-field //textarea"
-                    ).type(parametrosRutinaPre, {force: true});
-                    cy.xpath(
-                        "//button[@mat-mini-fab and @color='primary'][.//mat-icon[text()='check']]"
-                    ).click({force: true});
-                } else {
-                    cy.log("No entra a flujo ya que no tiene rutina PRE");
-                }
-            });
-    }
-
-    rutinasPos(
-        tieneRutinaPos,
-        typeRutinaPos,
-        typeEstado,
-        correlativoPos,
-        requiereLoginPos,
-        typeRutinaLoginPos,
-        descripcionRutinaPos,
-        fechaInicioPos,
-        fechaFinPos,
-        parametrosRutinaPos
-    ) {
-        cy.get("iframe.frame", {timeout: 10000})
-            .should("be.visible")
-            .invoke("css", "pointer-events", "auto")
-            .its("0.contentDocument.body")
-            .should("not.be.empty")
-            .then(cy.wrap)
-            .within(() => {
-                cy.xpath(
-                    "//div[@role='tab'][.//span[normalize-space()='Paso 1']]"
-                ).click({force: true});
-                if (tieneRutinaPos.toLowerCase() == "si") {
-                    cy.xpath(
-                        "//mat-panel-title[contains(., 'Rutinas POS')]//button[contains(@class, 'btn-add-mini')]"
-                    ).click({force: true});
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Rutina']]//mat-select"
-                    )
-                        .filter(":visible:not([disabled])")
-                        .first()
-                        .scrollIntoView()
-                        .should("be.visible")
-                        .click({force: true});
-                    cy.xpath("//input[@placeholder='Buscar']").type(typeRutinaPos, {
-                        force: true,
-                    });
-                    cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                        .first()
-                        .click({force: true});
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Estado']]//mat-select"
-                    )
-                        .filter(":visible:not([disabled])")
-                        .first()
-                        .scrollIntoView()
-                        .should("be.visible")
-                        .click({force: true});
-
-                    cy.xpath("//input[@placeholder='Buscar']").type(typeEstado, {
-                        force: true,
-                    });
-                    cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                        .first()
-                        .click({force: true});
-
-                    cy.xpath(
-                        "//mat-form-field[.//mat-label[normalize-space()='Correlativo']]//input"
-                    ).type(correlativoPos, {force: true});
-                    if (requiereLoginPos.toLowerCase == "si") {
-                        cy.xpath(
-                            "//div[contains(@class,'switch-wrapper')][.//label[normalize-space()='Requiere Login']]//button[@role='switch']"
-                        ).click({force: true});
-                        cy.xpath(
-                            "//mat-form-field[.//mat-label[normalize-space()='Rutina Login']]//mat-select"
-                        ).click({force: true});
-                        cy.xpath("//input[@placeholder='Buscar']").type(
-                            typeRutinaLoginPos,
-                            {force: true}
-                        );
-                        cy.get(".mat-mdc-option:not(.mdc-list-item--disabled)")
-                            .first()
-                            .click({force: true});
-                    }
-                    cy.xpath(
-                        "//mat-label[normalize-space()='Descripción']/ancestor::mat-form-field //textarea"
-                    )
-                        .filter(":visible:not([disabled])")
-                        .first()
-                        .scrollIntoView()
-                        .should("be.visible")
-                        .type(descripcionRutinaPos, {force: true});
-                    cy.xpath(
-                        "//mat-form-field   [.//mat-label[normalize-space()='Fecha de Inicio']]   //button[@aria-label='Open calendar']"
-                    ).click({force: true});
-                    cy.selectMatDate(fechaInicioPos);
-                    if (fechaFinPos && fechaFinPos.trim()) {
-                        // 1️⃣ Abrir calendario SOLO si hay fecha
-                        cy.xpath(
-                            "//mat-form-field   [.//mat-label[normalize-space()='Fecha de Fin']]   //button[@aria-label='Open calendar']"
-                        ).click({
-                            force: true,
-                        });
-
-                        cy.selectMatDate(fechaFinPos);
-                    }
-                    cy.xpath(
-                        "//mat-label[normalize-space()='Parámetros']/ancestor::mat-form-field //textarea"
-                    ).type(parametrosRutinaPos, {force: true});
-                    cy.xpath(
-                        "//button[@mat-mini-fab and @color='primary'][.//mat-icon[text()='check']]"
-                    ).click({force: true});
-                } else {
-                    cy.log("No entra a flujo ya que no tiene rutina POS");
-                }
-            });
+    RutinasTRX(rutina, estado, correlativo, requiereLogin, descripcion, fechaInicio, fechaFin, paremetros){
+        this.Generales.seleccionarComboIframe(rutina, "Rutina", { timeout: 10000,  skipContext: true, force: true })
+        this.Generales.seleccionarComboIframe(estado, "Estado", { timeout: 10000, skipContext: true, force: true })
+        this.Generales.llenarCampoIframe(correlativo, "Correlativo", { timeout: 10000, skipContext: true, force: true })
+        this.Generales.slideToggleIframe(requiereLogin, "Requiere Login", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.llenarDescripcionIframe(descripcion, "Descripción", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.IngresarFechaIframe(fechaInicio, "Fecha de Inicio", { timeout: 10000, skipContext: true });
+        this.Generales.IngresarFechaIframe(fechaFin, "Fecha de Fin", { timeout: 10000, skipContext: true });
+        this.Generales.llenarCampoIframe(paremetros, "Parámetros", { timeout: 10000, skipContext: true, force: true });
     }
 
 
-//Fin Gestor de transacciones
 }
 export default GestorPomCy;

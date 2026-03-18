@@ -1,40 +1,113 @@
 {
   "agregar": [
     {
+      "codigoTRX": "600",
+      "nombrePaso": "Paso1",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": ""
+    },
+    {
       "codigoTRX": "700",
       "nombrePaso": "Cuenta",
-      "tieneReglaCondionanteDePaso": "",
       "typeReglaParaCondicionarPaso": "",
       "descripcionPasoTrx": "ingreso de cuenta"
     },
     {
       "codigoTRX": "700",
       "nombrePaso": "Confirmación",
-      "tieneReglaCondionanteDePaso": "",
       "typeReglaParaCondicionarPaso": "",
-      "descripcionPasoTrx": "Confirmación de transacción deposito monetari"
+      "descripcionPasoTrx": "Confirmación de transacción deposito monetario"
     },
     {
-      "codigoTRX": "600",
-      "nombrePaso": "Cuenta",
-      "tieneReglaCondionanteDePaso": "",
+      "codigoTRX": "1600",
+      "nombrePaso": "Captura de cuenta",
       "typeReglaParaCondicionarPaso": "",
-      "descripcionPasoTrx": "ingreso de cuenta"
+      "descripcionPasoTrx": ""
     },
     {
-      "codigoTRX": "600",
-      "codigoIso": "Confirmación",
-      "nombre": "Confirmación de transacción deposito monetario",
-      "codigoNumerico": "840",
-      "decimales": "2",
-      "puntoFlotante": ""
+      "codigoTRX": "1600",
+      "nombrePaso": "Confirmación de datos",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Confirmación de datos de transacción"
     },
     {
-      "codigoTRX": "600",
-      "nombrePaso": "Final",
-      "tieneReglaCondionanteDePaso": "",
+      "codigoTRX": "1610",
+      "nombrePaso": "Captura de cuenta",
       "typeReglaParaCondicionarPaso": "",
-      "descripcionPasoTrx": "ingreso de cuenta"
+      "descripcionPasoTrx": ""
+    },
+    {
+      "codigoTRX": "1610",
+      "nombrePaso": "Confirmación de datos",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso de confirmación de datos "
+    },
+    {
+      "codigoTRX": "1700",
+      "nombrePaso": "Captura de cuenta",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": ""
+    },
+    {
+      "codigoTRX": "1700",
+      "nombrePaso": "Confirmación de datos",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": ""
+    },
+    {
+      "codigoTRX": "1710",
+      "nombrePaso": "Captura de cuenta",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Transaccion paso 1"
+    },
+    {
+      "codigoTRX": "1710",
+      "nombrePaso": "Paso 2",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": ""
+    },
+    {
+      "codigoTRX": "7665",
+      "nombrePaso": "Envío a Bóveda General",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": ""
+    },
+    {
+      "codigoTRX": "7680",
+      "nombrePaso": "Entrega efectivo cajero",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": ""
+    },
+    {
+      "codigoTRX": "7760",
+      "nombrePaso": "Solicitud de efectivo a bóveda",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": ""
+    },
+    {
+      "codigoTRX": "7765",
+      "nombrePaso": "Remesa boveda",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": ""
+    },
+    {
+      "codigoTRX": "7780",
+      "nombrePaso": "Efectivo recibido de cajero",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": ""
+    },
+    {
+      "codigoTRX": "9671",
+      "nombrePaso": "Cargar boveda",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": ""
+    },
+    {
+      "codigoTRX": "9692",
+      "nombrePaso": "Traslada saldos boveda",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": ""
     }
+
   ]
 }
