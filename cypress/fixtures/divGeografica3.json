@@ -1,0 +1,34 @@
+{
+  "agregar": [
+    {
+      "codigoDiv": "1",
+      "codigoDiv2": "1",
+      "codigo": "1",
+      "nombre": "Divicion Geografica 3.1"
+    },
+    {
+      "codigoDiv": "1",
+      "codigoDiv2": "1",
+      "codigo": "2",
+      "nombre": "Divicion Geografica 3.2"
+    },
+    {
+      "codigoDiv": "1",
+      "codigoDiv2": "2",
+      "codigo": "1",
+      "nombre": "Divicion Geografica 3.1"
+    },
+    {
+      "codigoDiv": "2",
+      "codigoDiv2": "1",
+      "codigo": "1",
+      "nombre": "Divicion Geografica 3.1"
+    },
+    {
+      "codigoDiv": "2",
+      "codigoDiv2": "2",
+      "codigo": "1",
+      "nombre": "Divicion Geografica 3.1"
+    }
+  ]
+}		

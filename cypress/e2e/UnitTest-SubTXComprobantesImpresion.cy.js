@@ -57,7 +57,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     // item.impAntesConsultarFirmas, item.copiasImprimir, item.etiqueta, item.etiqueta2
 
                     item.tipoFormato, item.comprobante, item.esMandatorio, item.verComprobante, item.notificaComprobante, 
-                    item.impAntesConsultarFirmas, item.copiasImprimir, item.etiqueta, item.etiqueta2
+                    item.impAntesConsultarFirmas, item.copiasImprimir, ...item.etiquetas  
+
 
                 );
 
@@ -78,25 +79,23 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
             // Espera a que el posible diálogo aparezca
             cy.wait(2000);
-
             // Verificar si aparece el diálogo de confirmación DENTRO del iframe
             cy.get('iframe.frame', { timeout: 10000 })
-                .its('0.contentDocument.body')
-                .should('not.be.empty')
-                .then(cy.wrap)
-                .within(() => {
-                    // Buscar el botón con color primary (el de confirmar)
-                    cy.get('button[color="primary"]').then($btn => {
-                        if ($btn.length > 0) {
-                            cy.log('✅ Diálogo detectado, haciendo clic en Confirmar');
-                            cy.wrap($btn.first()).click({ force: true });
-                            // Opcional: esperar a que el diálogo desaparezca
-                            cy.wait(1000);
-                        } else {
-                            cy.log('ℹ️ No apareció diálogo de confirmación');
-                        }
-                    });
-                });
+            .its('0.contentDocument.body')
+            .should('not.be.empty')
+            .then(($body) => {
+                // Buscar el diálogo de confirmación de forma síncrona (no lanza error si no existe)
+                const $dialog = Cypress.$('mat-dialog-container', $body);
+                if ($dialog.length > 0) {
+                cy.log('✅ Diálogo de confirmación detectado');
+                // Hacer clic en el botón primario (color="primary") dentro del diálogo
+                cy.wrap($dialog).find('button[color="primary"]').click();
+                // Opcional: esperar a que el diálogo desaparezca
+                cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist');
+                } else {
+                cy.log('ℹ️ No apareció diálogo de confirmación');
+                }
+            });
         });
     });
 });
