@@ -26,77 +26,7 @@ class MetodosGeneralesPomCy{
         cy.log('✅ Botón ADD clickeado');
     }
 
-    // BtnIframe(textoBoton, opciones = {}, filtroClase = null) {
-    //     const {
-    //         timeout = 10000,
-    //         force = false,
-    //         scrollBehavior = 'center',
-    //         ensureScrollable = true,
-    //         offsetTop = -100,
-    //         ignorarBackdrop = true,
-    //         skipContext = false,
-    //         spinnerTimeout = 30000,
-    //         esperarAparicionSpinner = false
-    //     } = opciones;
-
-    //     const ejecutar = () => {
-    //         if (textoBoton == null || (typeof textoBoton === 'string' && textoBoton.trim() === '')) {
-    //             cy.log(`⏭️ Texto de botón vacío o nulo, se omite clic.`);
-    //             return;
-    //         }
-
-    //         cy.log(`🔍 Buscando elemento con tooltip: "${textoBoton}" usando XPath`);
-
-    //         const normalizarParaXPath = (texto) => {
-    //             return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    //         };
-
-    //         const textoNormalizado = normalizarParaXPath(textoBoton);
-    //         const textoSeguro = textoNormalizado.replace(/'/g, "&apos;");
-
-    //         let xpath = `//*[@aria-describedby=//div[contains(@class,'cdk-describedby-message-container')]//div[translate(translate(text(), 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = translate(translate('${textoSeguro}', 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')]/@id]`;
-
-    //         // Si se proporciona un filtro de clase, lo agregamos
-    //         if (filtroClase) {
-    //             if (typeof filtroClase === 'string') {
-    //                 // Filtramos por clase específica
-    //                 xpath = xpath.replace('/*', `/*[contains(@class, '${filtroClase}')]`);
-    //                 cy.log(`🔍 Filtrando por clase: ${filtroClase}`);
-    //             }
-    //         }
-
-    //         cy.log(`XPath final: ${xpath}`);
-
-    //         cy.xpath(xpath, { timeout })
-    //             .first()
-    //             .scrollIntoView({
-    //                 duration: 300,
-    //                 easing: 'linear',
-    //                 offset: { top: offsetTop, left: 0 },
-    //                 ensureScrollable: ensureScrollable
-    //             })
-    //             .click({ force })
-    //             .then(() => {
-    //                 cy.log(`✅ Clic en elemento con tooltip "${textoBoton}"`);
-    //                 if (this.esperarOcultarSpinner) {
-    //                     this.esperarOcultarSpinner({
-    //                         timeout: spinnerTimeout,
-    //                         esperarAparicion: esperarAparicionSpinner,
-    //                         skipContext: skipContext
-    //                     });
-    //                 }
-    //             });
-    //     };
-
-    //     if (skipContext) {
-    //         ejecutar();
-    //     } else if (this._ejecutarEnContexto) {
-    //         this._ejecutarEnContexto(ejecutar);
-    //     } else {
-    //         ejecutar();
-    //     }
-    // }
-
+    //Metodo para dar click en boton con el label normalizado para iframe y sin iframe
     BtnIframe(textoBoton, opciones = {}, filtroClase = null, porTexto = false) {
     const {
         timeout = 10000,
@@ -193,29 +123,29 @@ class MetodosGeneralesPomCy{
     }
 }
 
-BtnAgregarRegistrosIF() {
-        cy.log('Clic en botón ADD');
-        this.esperarOcultarSpinner();
-              
-        // Detectar iframe
-        cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
-            if ($iframe.length > 0) {
-                cy.log('✅ Iframe detectado');
-                cy.wrap($iframe)
-                    .should("be.visible")
-                    .invoke("css", "pointer-events", "auto")
-                    .its("0.contentDocument.body")
-                    .should("not.be.empty")
-                    .then(cy.wrap)
-                    .within(() => {
-                        intentarClick();
-                    });
-            } else {
-                cy.log('⚠️ Sin iframe');
-                this.BtnAgregarRegistro();
-            }
-        });
-    }
+    // BtnAgregarRegistrosIF() {
+    //         cy.log('Clic en botón ADD');
+    //         this.esperarOcultarSpinner();
+                
+    //         // Detectar iframe
+    //         cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
+    //             if ($iframe.length > 0) {
+    //                 cy.log('✅ Iframe detectado');
+    //                 cy.wrap($iframe)
+    //                     .should("be.visible")
+    //                     .invoke("css", "pointer-events", "auto")
+    //                     .its("0.contentDocument.body")
+    //                     .should("not.be.empty")
+    //                     .then(cy.wrap)
+    //                     .within(() => {
+    //                         intentarClick();
+    //                     });
+    //             } else {
+    //                 cy.log('⚠️ Sin iframe');
+    //                 this.BtnAgregarRegistro();
+    //             }
+    //         });
+    //     }
 
     
     getIframeBody() {
@@ -253,19 +183,20 @@ BtnAgregarRegistrosIF() {
     }
 
     //Boton para agregar registros Angular
-    BtnAgregarAng(){
-     cy.log('Clic en botón ADD');
+//     BtnAgregarAng(){
+//      cy.log('Clic en botón ADD');
 
-    this.getIframeBody().within(() => {
-      cy.xpath("//button[.//mat-icon[normalize-space()='add']]", { timeout: 15000 })
-        .should('be.visible')
-        .click({ force: true });
-    });
-}
+//     this.getIframeBody().within(() => {
+//       cy.xpath("//button[.//mat-icon[normalize-space()='add']]", { timeout: 15000 })
+//         .should('be.visible')
+//         .click({ force: true });
+//     });
+// }
 
 
 
     //Boton agregar en subnivel
+
     BtnAgregarRegistroSubnivel() {
         cy.log("Agregamdp Registro de Subnivel")
         cy.contains('mat-icon', 'add', { timeout: 15000 })
@@ -3672,9 +3603,11 @@ BuscarRegistroEnTabla(criterios) {
 
                 // soltar
                 cy.root().realMouseUp()
+    
+                this.esperarQueSpinnerDesaparezca({ timeout: 10000 })
 
             })
-    }
+   }
 
     seleccionarRadio(valor, opciones = {}) {
         const {
@@ -3756,53 +3689,172 @@ BuscarRegistroEnTabla(criterios) {
     }
 
     // Espera a que desaparezca el spinner, buscando dentro y fuera del iframe
-esperarQueSpinnerDesaparezca(opciones = {}) {
-    const { timeout = 10000, intervalo = 200 } = opciones;
-    cy.log(`⏳ Esperando a que desaparezca el spinner...`);
+    esperarQueSpinnerDesaparezca(opciones = {}) {
+        const { timeout = 10000, intervalo = 200 } = opciones;
+        cy.log(`⏳ Esperando a que desaparezca el spinner...`);
 
-    const verificar = () => {
-        // Buscar en el contexto actual (iframe si estamos dentro)
-        cy.root().then($root => {
-            const existeEnIframe = $root.find('mat-spinner').length > 0;
-            // Buscar en el contexto principal (fuera del iframe)
-            const existeEnPrincipal = Cypress.$('mat-spinner').length > 0;
-            const existe = existeEnIframe || existeEnPrincipal;
-
-            if (existe) {
-                cy.log(`⏳ Spinner presente, esperando ${intervalo}ms...`);
-                cy.wait(intervalo);
-                verificar(); // seguir verificando recursivamente
-            } else {
-                cy.log('✅ Spinner desaparecido o nunca apareció');
-            }
-        });
-    };
-
-    // Ejecutar la verificación con control de timeout
-    cy.then(() => {
-        let tiempoRestante = timeout;
-        const verificarConTimeout = () => {
+        const verificar = () => {
+            // Buscar en el contexto actual (iframe si estamos dentro)
             cy.root().then($root => {
                 const existeEnIframe = $root.find('mat-spinner').length > 0;
+                // Buscar en el contexto principal (fuera del iframe)
                 const existeEnPrincipal = Cypress.$('mat-spinner').length > 0;
                 const existe = existeEnIframe || existeEnPrincipal;
 
                 if (existe) {
-                    if (tiempoRestante > 0) {
-                        cy.wait(intervalo);
-                        tiempoRestante -= intervalo;
-                        verificarConTimeout();
-                    } else {
-                        throw new Error(`⏰ Timeout: el spinner no desapareció después de ${timeout}ms`);
-                    }
+                    cy.log(`⏳ Spinner presente, esperando ${intervalo}ms...`);
+                    cy.wait(intervalo);
+                    verificar(); // seguir verificando recursivamente
                 } else {
                     cy.log('✅ Spinner desaparecido o nunca apareció');
                 }
             });
         };
-        verificarConTimeout();
-    });
-}
+
+        // Ejecutar la verificación con control de timeout
+        cy.then(() => {
+            let tiempoRestante = timeout;
+            const verificarConTimeout = () => {
+                cy.root().then($root => {
+                    const existeEnIframe = $root.find('mat-spinner').length > 0;
+                    const existeEnPrincipal = Cypress.$('mat-spinner').length > 0;
+                    const existe = existeEnIframe || existeEnPrincipal;
+
+                    if (existe) {
+                        if (tiempoRestante > 0) {
+                            cy.wait(intervalo);
+                            tiempoRestante -= intervalo;
+                            verificarConTimeout();
+                        } else {
+                            throw new Error(`⏰ Timeout: el spinner no desapareció después de ${timeout}ms`);
+                        }
+                    } else {
+                        cy.log('✅ Spinner desaparecido o nunca apareció');
+                    }
+                });
+            };
+            verificarConTimeout();
+        });
+    }
+
+    //llena campos readonly que abren otra ventana se uso en expresiones de afectacion de totales
+    llenarCampoReadonlySinClick(valor, labelText, opciones = {}) {
+        const {
+            timeout = 10000,
+            skipContext = false,
+            triggerEvents = true,
+            force = true, // aunque no se usa, lo dejamos por compatibilidad
+            trim = true,
+            normalizarTildes = true,
+            ignorarMayusculas = true
+        } = opciones;
+
+        const ejecutar = () => {
+            if (valor == null || (typeof valor === 'string' && valor.trim() === '')) {
+                cy.log(`⏭️ Valor vacío o nulo para "${labelText}", se omite.`);
+                return;
+            }
+
+            const normalizarTildesFunc = (texto) => {
+                if (!texto) return texto;
+                return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            };
+
+            const normalizarCompleto = (texto) => {
+                if (!texto) return texto;
+                let resultado = String(texto);
+                if (normalizarTildes) {
+                    resultado = normalizarTildesFunc(resultado);
+                }
+                if (ignorarMayusculas) {
+                    resultado = resultado.toLowerCase();
+                }
+                return resultado.trim().replace(/\s+/g, ' ');
+            };
+
+            let valorAEscribir = String(valor);
+            if (trim) valorAEscribir = valorAEscribir.trim();
+            cy.log(`🔍 Valor a establecer: "${valorAEscribir}"`);
+
+            const posiblesLabels = Array.isArray(labelText) ? labelText : [labelText];
+            const opcionesNormalizadas = posiblesLabels.map(l => normalizarCompleto(l));
+
+            let mejorCoincidenciaTexto = ''; // Variable para guardar el texto del label encontrado
+
+            const buscarLabel = () => {
+                return cy.get('label, mat-label, span.label', { timeout })
+                    .then($labels => {
+                        let $mejorCoincidencia = null;
+                        let mejorPuntaje = -1;
+
+                        $labels.each((index, el) => {
+                            const textEl = Cypress.$(el).text().trim();
+                            const textNormalizado = normalizarCompleto(textEl);
+                            opcionesNormalizadas.forEach((opcionNorm, idx) => {
+                                const opcionOrig = posiblesLabels[idx];
+                                let puntaje = 0;
+                                if (textNormalizado === opcionNorm) puntaje = 100;
+                                else if (textNormalizado.replace(/\s*\*\s*/g, '') === opcionNorm) puntaje = 90;
+                                else if (textNormalizado.startsWith(opcionNorm + ' ')) puntaje = 80;
+                                else if (textNormalizado.includes(opcionNorm)) puntaje = 70;
+                                else if (opcionNorm.includes(textNormalizado)) puntaje = 50;
+
+                                if (puntaje > mejorPuntaje) {
+                                    mejorPuntaje = puntaje;
+                                    $mejorCoincidencia = cy.$$(el);
+                                    mejorCoincidenciaTexto = textEl; // Asignamos aquí
+                                }
+                            });
+                        });
+
+                        if ($mejorCoincidencia && mejorPuntaje >= 50) {
+                            cy.log(`✅ Mejor coincidencia: "${mejorCoincidenciaTexto}" (puntaje: ${mejorPuntaje})`);
+                            return cy.wrap($mejorCoincidencia);
+                        }
+
+                        cy.log('❌ No se encontró label');
+                        throw new Error(`No se encontró campo para label: ${posiblesLabels.join(', ')}`);
+                    });
+            };
+
+            buscarLabel()
+                .should('be.visible')
+                .then($label => {
+                    const inputId = $label.attr('for');
+                    const encontrarInput = () => {
+                        if (inputId) {
+                            return cy.get(`#${inputId}`);
+                        } else {
+                            return cy.wrap($label)
+                                .parents('.mat-form-field, .form-group')
+                                .find('input, textarea, select')
+                                .first();
+                        }
+                    };
+                    encontrarInput()
+                        .should('exist')
+                        .then($input => {
+                            cy.wrap($input).scrollIntoView({ duration: 300, offset: { top: -100 } });
+                            cy.wait(200);
+                            cy.wrap($input).invoke('val', valorAEscribir);
+                            if (triggerEvents) {
+                                cy.wrap($input).trigger('input', { force: true }).trigger('change', { force: true });
+                            }
+                            // Ahora mejorCoincidenciaTexto está definida porque se asignó en el paso anterior
+                            cy.log(`✅ Valor "${valorAEscribir}" establecido en campo "${mejorCoincidenciaTexto}"`);
+                        });
+                });
+        };
+
+        if (skipContext) {
+            ejecutar();
+        } else if (this._ejecutarEnContexto) {
+            this._ejecutarEnContexto(ejecutar);
+        } else {
+            ejecutar();
+        }
+    }
+
 
 }
 

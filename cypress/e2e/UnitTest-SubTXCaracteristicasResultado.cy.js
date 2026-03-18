@@ -22,7 +22,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('subTxAfectaTotales').as('data');
+        cy.fixture('subTxCaracteristicResult').as('data');
     });
 
     it("Agregar múltiples registros dinámicamente", function() {
@@ -62,7 +62,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     Generales.filtrarPorCodigo(codigoTX); // o item.codigoTX - 777 para pruebas 
 
                     return cy.wrap(agrupadas[codigoTX]).each((item) => {
-                    Generales.abrirPanel("Totales a Afectar", {timeout: 20000, force: true});
+                    Generales.abrirPanel("Características del resultado", {timeout: 20000, force: true});
                     cy.wait(500)
                     GestorDeTransacciones.TotalesAfectar(
                        //caracteristica, totalCajero, operacion, exp1, operacion2, exp2
