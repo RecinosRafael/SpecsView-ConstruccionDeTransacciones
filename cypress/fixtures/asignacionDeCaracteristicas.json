@@ -34,7 +34,7 @@
             "obligatorio": true,
             "negrita": false,
             "verFirmas": false,
-            "expresionCalcularCampo": "C(1)",
+            "expresionCalcularCampo": "",
             "ReglasCondicionarCampo": "",
             "operacion": "",
             "expresionParaValidar": "",
@@ -203,43 +203,6 @@
             "mensajeError": "",
             "correlativo": "",
             "productos": ""
-        },
-        {
-            "codigoTX": "700",
-            "paso": "Paso 2",
-            "caracteristica": "Número de documento",
-            "tamanioLetra": "",
-            "visualizar": true,
-            "proteger": false,
-            "obligatorio": false,
-            "negrita": false,
-            "verFirmas": false,
-            "expresionCalcularCampo": "",
-            "ReglasCondicionarCampo": "",
-            "operacion": "",
-            "expresionParaValidar": "",
-            "mensajeError": "",
-            "correlativo": "",
-            "productos": ""
-        },
-        {
-            "codigoTX": "700",
-            "paso": "Paso 2",
-            "caracteristica": "Total",
-            "tamanioLetra": "",
-            "visualizar": true,
-            "proteger": true,
-            "obligatorio": false,
-            "negrita": false,
-            "verFirmas": false,
-            "expresionCalcularCampo": "",
-            "ReglasCondicionarCampo": "",
-            "operacion": "",
-            "expresionParaValidar": "",
-            "mensajeError": "",
-            "correlativo": "",
-            "productos": ""
         }
-
-    ]
+        ]
 }

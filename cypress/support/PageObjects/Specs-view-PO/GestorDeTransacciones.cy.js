@@ -15,8 +15,8 @@ class GestorPomCy{
 
         this.Generales.arrastrarCaracteristica(caracteristica)
         cy.wait(1500)
-        
-            //por si acaso el boton de edit aparece de lo contrario no pasa nada 
+
+            //por si acaso el boton de edit aparece de lo contrario no pasa nada
         cy.root().then(($root) => {
             // Obtener el nodo DOM real (si $root es jQuery)
             const contextNode = $root.get ? $root.get(0) : $root[0];
@@ -53,17 +53,17 @@ class GestorPomCy{
     //Gestor de transacciones
     GestorTransacciones(
         tipo, codigo, codAlternativo, nombre, etiqueta, estado, validoDesde, validoHasta, tipoMovimientoBoveda, descripcion,
-        esconderMenu, permiteReversion, modoOffline, requiereSupervisor, requiereValidarAcceso, seEnviaHost, tiempoEspera, 
-        accionPorDemora, tienePagoServicio, PagoServicio, pasoConfirmacionServicio, permiteReimpresion, diasPermitidoReimpresion, 
+        esconderMenu, permiteReversion, modoOffline, requiereSupervisor, requiereValidarAcceso, seEnviaHost, tiempoEspera,
+        accionPorDemora, tienePagoServicio, PagoServicio, pasoConfirmacionServicio, permiteReimpresion, diasPermitidoReimpresion,
         presentarResumen, mensajeResumen, tipoMensaje, icono, DepartamentodeAutorizacion, textoAyuda, logo
     ){
             this.Generales.seleccionarComboIframe(tipo, "Tipo", { timeout: 10000, skipContext: true } );
-            this.Generales.llenarCampoIframe(codigo, "Código", { timeout: 10000, skipContext: true }); 
+            this.Generales.llenarCampoIframe(codigo, "Código", { timeout: 10000, skipContext: true });
             this.Generales.llenarCampoIframe(codAlternativo, "Código alternativo", { timeout: 10000, skipContext: true });
             this.Generales.llenarCampoIframe(nombre, "Nombre", { timeout: 10000, skipContext: true });
             this.Generales.llenarCampoIframe(etiqueta, "Etiqueta", { timeout: 10000, skipContext: true });
             this.Generales.seleccionarComboIframe(estado, "Estado", { timeout: 10000, skipContext: true });
-            this.Generales.seleccionarComboIframe(tipoMovimientoBoveda, "Tipo movimiento en bóveda", { timeout: 10000, skipContext: true, force: true });            
+            this.Generales.seleccionarComboIframe(tipoMovimientoBoveda, "Tipo movimiento en bóveda", { timeout: 10000, skipContext: true, force: true });
             this.Generales.IngresarFechaIframe(validoDesde, "Valido desde", { timeout: 10000, skipContext: true });
             this.Generales.IngresarFechaIframe(validoHasta, "Valido hasta", { timeout: 10000, skipContext: true });
             this.Generales.llenarCampoIframe(descripcion, "Descripción", { timeout: 10000, skipContext: true });
@@ -75,7 +75,7 @@ class GestorPomCy{
             if (seEnviaHost) {
                 this.Generales.slideToggleIframe(seEnviaHost, "Se envía al host", { timeout: 10000, skipContext: true });
                 this.Generales.llenarCampoIframe(tiempoEspera, "Tiempo de espera", { timeout: 10000, force: true, skipContext: true });
-                this.Generales.seleccionarComboIframe(accionPorDemora, "Acción por demora", { timeout: 10000, force: true, skipContext: true });      
+                this.Generales.seleccionarComboIframe(accionPorDemora, "Acción por demora", { timeout: 10000, force: true, skipContext: true });
             }else{
                 cy.log("Se envía al host no está activo, no se ingresan los datos relacionados a esta opción", { timeout: 10000, skipContext: true });
             }
@@ -95,7 +95,7 @@ class GestorPomCy{
             if (presentarResumen) {
                 this.Generales.slideToggleIframe(presentarResumen, "Presentar resumen de transaccion", { timeout: 10000, skipContext: true });
                 this.Generales.llenarCampoIframe(mensajeResumen, "Mensaje despues del proceso", { timeout: 10000, force: true, skipContext: true });
-                this.Generales.seleccionarComboIframe(tipoMensaje, "Tipo de mensaje", { timeout: 10000, skipContext: true });    
+                this.Generales.seleccionarComboIframe(tipoMensaje, "Tipo de mensaje", { timeout: 10000, skipContext: true });
             } else {
                 cy.log("Presentar resumen no está activo, no se ingresan los datos relacionados a esta opción");
             }
@@ -218,9 +218,9 @@ class GestorPomCy{
 
     }
 
-    //Asignar moneda en totales a afectar gestor de TX`s 
+    //Asignar moneda en totales a afectar gestor de TX`s
     AsignarMoneda(formaAfectarTotales, metodoAsignacionMoneda, correlativoMoneda) {
-    //por si acaso el boton de edit aparece de lo contrario no pasa nada 
+    //por si acaso el boton de edit aparece de lo contrario no pasa nada
         cy.root().then(($root) => {
             // Obtener el nodo DOM real (si $root es jQuery)
             const contextNode = $root.get ? $root.get(0) : $root[0];
@@ -253,16 +253,16 @@ class GestorPomCy{
     TotalesAfectar(caracteristica, totalCajero, operacion, exp1, operacion2, exp2){
 
         this.Generales.arrastrarCaracteristica(caracteristica)
-        cy.wait(500)     
+        cy.wait(500)
         this.Generales.seleccionarComboIframe(totalCajero, "Total de Cajero", { timeout: 10000, force: true, skipContext: true } )
         this.Generales.seleccionarRadio(operacion, "Operacion", { timeout: 10000, skipContext: true, force: true } )
         this.Generales.llenarCampoReadonlySinClick(exp1, "Expresion 1", { timeout: 10000, skipContext: true, force: true } )        // if(exp1){
         this.Generales.seleccionarComboIframe(operacion2, "Operacion", { timeout: 10000, skipContext: true, force: true } )
         this.Generales.llenarCampoReadonlySinClick(exp2, "Expresion 2", { timeout: 10000, skipContext: true, force: true } )
-    
+
         /*
-        C = Correlativo 
-        CS = Id caracteristica        
+        C = Correlativo
+        CS = Id caracteristica
         VG = Valor global
         R = Recurso
         CT = Constante - - - - - - - - - - - - - - - - - - - - - - - - - - - - - permite escribir
@@ -278,7 +278,7 @@ class GestorPomCy{
         TRXCODE = Retorna codigo de transaccion
         */
     }
-    
+
     configurarEfectivos(config) {
         cy.get("iframe.frame", {timeout: 10000})
             .should("be.visible")
@@ -511,7 +511,7 @@ class GestorPomCy{
         this.Generales.llenarCampoIframe(ReglasCondicionarCampo, "Reglas para condicionar campo", { timeout: 10000, skipContext: true });
         this.Generales.seleccionarComboIframe(operacion, "Operación", { timeout: 10000, force: true, skipContext: true } )
         this.Generales.llenarCampoReadonlySinClick(expresionParaValidar, "Expresión para validar", { timeout: 10000, skipContext: true, force: true } );
-        this.Generales.llenarCampoIframe(mensajeError, "Mensaje de error", { timeout: 10000, skipContext: true });
+        this.Generales.llenarCampoIframe(mensajeError, "Mensaje de error", { timeout: 10000, skipContext: true, force: true  });
         this.Generales.llenarCampoIframe(correlativo, "Correlativo", { timeout: 10000, skipContext: true });
         this.Generales.seleccionarComboIframe(productos, "Productos", { timeout: 10000, force: true, skipContext: true } )
     }

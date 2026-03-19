@@ -189,11 +189,13 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                         } else if (!pasoRequerido) {
                             // Fallback si no hay paso
                             Generales.BtnIframe("Cuenta", { timeout: 10000, force: true, skipContext: true });
-                            Cy.wait(1500)
+                            cy.wait(1500)
                         } else {
                             cy.log(`Paso "${pasoRequerido}" ya está seleccionado, se omite clic.`);
                         }
 
+
+                        cy.wait(2500)
                         GestorDeTransacciones.AsignacionDCaracteristicaAPaso(
                             item.caracteristica,
                             item.tamanioLetra,
