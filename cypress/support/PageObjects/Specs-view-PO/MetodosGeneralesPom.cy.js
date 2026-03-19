@@ -3965,7 +3965,7 @@ BuscarRegistroEnTabla(criterios) {
     }*/
 
     //Este casi sirve
-    /*arrastrarCaracteristicaC(nombre, opciones = {}) {
+    arrastrarCaracteristicaC(nombre, opciones = {}) {
         const {
             destinoSelector = '#step .drop-placeholder',
             contenedorDestino = '#step',
@@ -4034,7 +4034,7 @@ BuscarRegistroEnTabla(criterios) {
                     this.esperarQueSpinnerDesaparezca({ timeout });
                 });
             });
-    }*/
+    }
 
     //Este si ta mejor
     /*arrastrarCaracteristicaC(nombre, opciones = {}) {
@@ -4258,7 +4258,7 @@ BuscarRegistroEnTabla(criterios) {
             });
     }*/
 
-    arrastrarCaracteristicaC(nombre, opciones = {}) {
+    /*arrastrarCaracteristicaC(nombre, opciones = {}) {
 
         const {
             paso = null,
@@ -4357,7 +4357,7 @@ BuscarRegistroEnTabla(criterios) {
 
                 cy.log(`✅ Arrastre completado para "${nombre}"`);
             });
-    }
+    }*/
 
 
     seleccionarRadio(valor, opciones = {}) {

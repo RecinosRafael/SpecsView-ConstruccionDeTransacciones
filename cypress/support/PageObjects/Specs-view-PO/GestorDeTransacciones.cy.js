@@ -491,16 +491,16 @@ class GestorPomCy{
 
     AsignacionDCaracteristicaAPaso(caracteristica, tamanioLetra, visualizar, proteger, obligatorio, negrita, verFirmas, expresionCalcularCampo,
                                        ReglasCondicionarCampo, operacion, expresionParaValidar, mensajeError, correlativo, productos) {
-        this.Generales.arrastrarCaracteristica(caracteristica);
+
 
         // Llamar a arrastrarCaracteristicaC con las opciones de destino
-        /*this.Generales.arrastrarCaracteristicaC(caracteristica, {
+        this.Generales.arrastrarCaracteristicaC(caracteristica, {
             destinoSelector: '#step .drop-placeholder',
             contenedorDestino: '#step',
             timeout: 10000
-        });*/
+        });
 
-        cy.wait(1500)
+        cy.wait(500)
         this.Generales.seleccionarComboIframe(tamanioLetra, "Tamaño de letra", { timeout: 10000, force: true, skipContext: true } )
         this.Generales.slideToggleIframe(visualizar, "Visualizar", { timeout: 10000, skipContext: true, force: true });
         this.Generales.slideToggleIframe(proteger, "Proteger", { timeout: 10000, skipContext: true, force: true });
