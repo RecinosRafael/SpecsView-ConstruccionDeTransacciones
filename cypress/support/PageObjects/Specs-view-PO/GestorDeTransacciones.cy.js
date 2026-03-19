@@ -9,10 +9,11 @@ class GestorPomCy{
 
 
     //Caracteristicas del Resultado gestor de TX`s
-    CaracteristicaResultado(caracteristica, ...caracteristicaOperar, ...operacioncaracteristicaOperar){
+    CaracteristicaResultado(caracteristica, caracteristicaOperar, operacioncaracteristicaOperar){
 
         this.Generales.arrastrarCaracteristica(caracteristica)
-        cy.wait(500) 
+        cy.wait(1500)
+        
             //por si acaso el boton de edit aparece de lo contrario no pasa nada 
         cy.root().then(($root) => {
             // Obtener el nodo DOM real (si $root es jQuery)
@@ -21,113 +22,32 @@ class GestorPomCy{
             cy.log('No se pudo obtener el nodo raíz');
             return;
             }
-    AsignarMoneda(formaAfectarTotales, metodoAsignacionMoneda, correlativoMoneda) {
-        //por si acaso el boton de edit aparece de lo contrario no pasa nada
-        cy.root().then(($root) => {
-            // Obtener el nodo DOM real (si $root es jQuery)
-            const contextNode = $root.get ? $root.get(0) : $root[0];
-            if (!contextNode) {
-                cy.log('No se pudo obtener el nodo raíz');
-                return;
-            }
 
-            const xpath = './/button[contains(@class, "add-button") and .//mat-icon[text()="edit"]]';
-            // Usar document.evaluate con el tipo numérico 9 (equivalente a XPathResult.FIRST_ORDERED_NODE_TYPE)
-            const result = document.evaluate(xpath, contextNode, null, 9, null);
-            const node = result.singleNodeValue;
-            const xpath = './/button[contains(@class, "add-button") and .//mat-icon[text()="edit"]]';
+            const xpath = '(//button[contains(@class, "mat-mdc-mini-fab") and .//mat-icon[text()="edit"]])[2]';
             // Usar document.evaluate con el tipo numérico 9 (equivalente a XPathResult.FIRST_ORDERED_NODE_TYPE)
             const result = document.evaluate(xpath, contextNode, null, 9, null);
             const node = result.singleNodeValue;
 
-            if (node) {
-                cy.log('✅ Botón "edit" encontrado, haciendo clic');
-                cy.wrap(node).click({ force: true });
-            } else {
-                cy.log('ℹ️ Botón "edit" no está presente');
-            }
-        });
-
-        this.Generales.seleccionarComboIframe(formaAfectarTotales, "Forma afectar totales", { timeout: 10000, force: true, skipContext: true });
-        this.Generales.seleccionarComboIframe(metodoAsignacionMoneda, "Método asignación de moneda", { timeout: 10000, skipContext: true, force: true });
-        //  this.Generales.seleccionarComboIframe(correlativoMoneda, "Moneda", { timeout: 10000, skipContext: true, force: true });
-        cy.wait(1000)
-        this.Generales.seleccionarComboIframe(
-            correlativoMoneda, ["Moneda", "Correlativo de moneda"],
-            {
-                timeout: 10000,
-                skipContext: true,
-                force: true,
-                usarBusqueda: true
-            }
-        );
-    }
-    //Totales a afectar gestor de TX`s
-    AsignarMoneda(caracteristformaAfectarTotalesica, metodoAsignacionMoneda, correlativoMoneda){
-
-        // this.Generales.BtnIframe('editar', { force: true, skipContext: true }, 'add-button', false);
-        this.Generales.seleccionarComboIframe(caracteristformaAfectarTotalesica, "Forma afectar totales", { timeout: 10000, force: true, skipContext: true } )
-        this.Generales.seleccionarComboIframe(metodoAsignacionMoneda, "Método asignación de moneda", { timeout: 10000, skipContext: true, force: true } )
-        this.Generales.seleccionarComboIframe(correlativoMoneda, "Moneda", { timeout: 10000, skipContext: true, force: true } )
-    }
-
-
-
-    //Totales a afectar gestor de TX`s
-    TotalesAfectar(caracteristica, totalCajero, operacion, exp1, operacion2, exp2){
-
-        // this.Generales.dragCaracteristica(caracteristica,  { timeout: 10000, skipContext: true, force: true });
-        this.Generales.arrastrarCaracteristica(caracteristica)
-
-        cy.wait(2500)
-
-            if (node) {
-            cy.log('✅ Botón "edit" encontrado, haciendo clic');
-            cy.wrap(node).click({ force: true });
-            } else {
-            cy.log('ℹ️ Botón "edit" no está presente');
-            }
-        });
-    
-        this.Generales.seleccionarComboIframe(totalCajero, "Total de Cajero", { timeout: 10000, force: true, skipContext: true } )
-        this.Generales.seleccionarRadio(operacion, "Operacion", { timeout: 10000, skipContext: true, force: true } )
-
-
-
-        //##########################  PENDIENTE PASOS PARA VALIDAR COMO SE MANEJARA LAS EXPRESIONES ##########################
-
-
-        // this.Generales.llenarCampoIframe("C(5)", "Expresion 1", { timeout: 10000, skipContext: true, force: true } )
-        // if(exp1){
-        //     this.Generales.BtnIframe("Cerrar")
-        //     cy.wait(1500)
-        // }else{
-        //     cy.log("expresion 1 vacia")
-        // }
-        // this.Generales.seleccionarComboIframe(operacion2, "Operacion", { timeout: 10000, skipContext: true, force: true } )
-        // this.Generales.llenarCampoIframe(exp2, "Expresion 2", { timeout: 10000, skipContext: true, force: true } )
-        // if(exp2){
-        //     this.Generales.BtnIframe("Cerrar")
-        //     cy.wait(1500)
-        // }else{
-        //     cy.log("expresion 1 vacia")
-        // }
-    }
-        this.Generales.llenarCampoReadonlySinClick(exp1, "Expresion 1", { timeout: 10000, skipContext: true, force: true } )        // if(exp1){
-        this.Generales.seleccionarComboIframe(operacion2, "Operacion", { timeout: 10000, skipContext: true, force: true } )
-        this.Generales.llenarCampoReadonlySinClick(exp2, "Expresion 2", { timeout: 10000, skipContext: true, force: true } )
-    
-        /*
-        //llenar etiquetas con N cantidad de copias a imprimir
-        const numEtiquetas = parseInt(copiasImprimir, 10) || 0;
-        for (let i = 0; i < numEtiquetas; i++) {
-        const valorEtiqueta = i < etiquetas.length ? etiquetas[i] : '';
-        this.Generales.llenarCampoEnTablaIframe(valorEtiqueta, "Etiqueta", i + 1, { timeout: 10000, skipContext: true, force: true });        
+        if (node) {
+        cy.log('✅ Botón "edit" encontrado, haciendo clic');
+        cy.wrap(node).click({ force: true });
+        } else {
+        cy.log('ℹ️ Botón "edit" no está presente');
         }
-        */
+    });
+
+    // Suponiendo que tienes caracteristicaOperar y operacioncaracteristicaOperar
+    for (let i = 0; i < caracteristicaOperar.length; i++) {
+        const caracteristica = caracteristicaOperar[i];
+        const operacion = operacioncaracteristicaOperar[i];
+        this.Generales.seleccionarOperacionPorCaracteristica(caracteristica, operacion, {
+            timeout: 10000,
+            skipContext: true,  // o false si no estás dentro del iframe
+            force: true
+        });
     }
 
-
+}
     //Gestor de transacciones
     GestorTransacciones(
         tipo, codigo, codAlternativo, nombre, etiqueta, estado, validoDesde, validoHasta, tipoMovimientoBoveda, descripcion,

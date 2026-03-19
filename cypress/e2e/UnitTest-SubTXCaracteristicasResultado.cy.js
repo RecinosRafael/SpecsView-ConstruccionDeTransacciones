@@ -64,13 +64,13 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     return cy.wrap(agrupadas[codigoTX]).each((item) => {
                     Generales.abrirPanel("Características del resultado", {timeout: 20000, force: true});
                     cy.wait(500)
-                    GestorDeTransacciones.TotalesAfectar(
-                       //caracteristica, totalCajero, operacion, exp1, operacion2, exp2
-                       
-                        item.caracteristica, item.totalCajero, item.operacion,  item.exp1, item.operacion2, item.exp2                       
+                    GestorDeTransacciones.CaracteristicaResultado(
+                       //caracteristica, caracteristicaOperar, operacioncaracteristicaOperar
+                      
+                        item.caracteristica, item.caracteristicaOperar, item.operacioncaracteristicaOperar
                     );
                     // Hacemos clic en Guardar sin interceptar
-                    Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+                    Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
                 }); // Salimos del iframe
             }).then(() => {
 

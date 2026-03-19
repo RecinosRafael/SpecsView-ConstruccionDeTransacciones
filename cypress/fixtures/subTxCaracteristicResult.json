@@ -1,39 +1,40 @@
 {
   "agregar": [
-    { "codigoTX": "600",
+    {
+      "codigoTX": "600",
       "caracteristica": "Total",
-      "caracteristicaOperar": "{Cheques otros bancos, Cheques del exterior, Efectivo físico, Efectivo electrónico}",
-      "operacioncaracteristicaOperar": "{+, +, +, +}" 
+      "caracteristicaOperar": ["Cheques otros bancos", "Cheques del exterior", "Efectivo físico", "Efectivo electrónico"],
+      "operacioncaracteristicaOperar": ["+", "+", "+", "+"]
     },
-    { "codigoTX": "600",
+    {
+      "codigoTX": "700",
       "caracteristica": "Total",
-      "caracteristicaOperar": "{Efectivo electrónico}",
-      "operacioncaracteristicaOperar": "{+}" 
+      "caracteristicaOperar": ["Cheques otros bancos", "Cheques del exterior", "Efectivo físico", "Efectivo electrónico"],
+      "operacioncaracteristicaOperar": ["+", "+", "+", "+"]
     },
-    { "codigoTX": "700",
+    {
+      "codigoTX": "1600",
       "caracteristica": "Total",
-      "caracteristicaOperar": "{Cheques otros bancos, Cheques del exterior, Efectivo físico, Efectivo electrónico}",
-      "operacioncaracteristicaOperar": "{+, +, +, +}" 
+      "caracteristicaOperar": ["Efectivo físico", "Efectivo electrónico"],
+      "operacioncaracteristicaOperar": ["+", "+"]
     },
-    { "codigoTX": "1600",
+    {
+      "codigoTX": "1610",
       "caracteristica": "Total",
-      "caracteristicaOperar": "{Efectivo físico, Efectivo electrónico}",
-      "operacioncaracteristicaOperar": "{+, +}" 
+      "caracteristicaOperar": ["Efectivo físico", "Efectivo electrónico"],
+      "operacioncaracteristicaOperar": ["+", "+"]
     },
-    { "codigoTX": "1610",
+    {
+      "codigoTX": "1700",
       "caracteristica": "Total",
-      "caracteristicaOperar": "{Efectivo físico, Efectivo electrónico}",
-      "operacioncaracteristicaOperar": "{+, +}" 
+      "caracteristicaOperar": ["Cheques otros bancos", "Cheques del exterior", "Efectivo físico", "Efectivo electrónico"],
+      "operacioncaracteristicaOperar": ["+", "+", "+", "+"]
     },
-    { "codigoTX": "1700",
+    {
+      "codigoTX": "1710",
       "caracteristica": "Total",
-      "caracteristicaOperar": "{Cheques otros bancos, Cheques del exterior, Efectivo físico, Efectivo electrónico}",
-      "operacioncaracteristicaOperar": "{+, +, +, +}" 
-    },
-    { "codigoTX": "1710",
-      "caracteristica": "Total",
-      "caracteristicaOperar": "{Cheques otros bancos, Cheques del exterior, Efectivo físico, Efectivo electrónico}",
-      "operacioncaracteristicaOperar": "{+, +, +, +}" 
+      "caracteristicaOperar": ["Cheques otros bancos", "Cheques del exterior", "Efectivo físico", "Efectivo electrónico"],
+      "operacioncaracteristicaOperar": ["+", "+", "+", "+"]
     }
   ]
 }
