@@ -18,6 +18,7 @@
     "xpath": "^0.0.34"
   },
   "devDependencies": {
+    "@4tw/cypress-drag-drop": "^2.3.1",
     "@cypress/xpath": "^2.0.3",
     "cypress-file-upload": "^5.0.8",
     "cypress-mochawesome-reporter": "^4.0.2",

@@ -163,7 +163,6 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                         Generales.abrirPanel("Opciones", {timeout: 20000, force: true});
                         cy.wait(500)
 
-                        // 🔴 USAR EL NUEVO MÉTODO PARA SELECCIONAR EL PASO
                         if (item.paso) {
                             Generales.seleccionarPaso(item.paso, { timeout: 10000, skipContext: true, force: true });
                         } else {

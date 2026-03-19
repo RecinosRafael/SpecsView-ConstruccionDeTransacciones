@@ -1,194 +1,255 @@
 import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosGeneralesPom.cy";
-import gestorDeTransaccionesCy from "../support/PageObjects/Specs-view-PO/GestorDeTransacciones.cy";
-require('@cypress/xpath');
-require('cypress-real-events')
+import GestorPomCy from "../support/PageObjects/Specs-view-PO/GestorDeTransacciones.cy";
+import 'cypress-xpath';
+import "cypress-real-events/support";
+import '@4tw/cypress-drag-drop'
 
 
 const Generales = new metodosGeneralesPomCy();
-const GestorDeTransacciones = new gestorDeTransaccionesCy()
+const GestorDeTransacciones = new GestorPomCy();
 
-describe("Prueba de arrastre de características", () => {
+describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
+    Cypress.on('uncaught:exception', (err, Runnable) => {
+        return false;
+    });
 
-    before(() => {
+    before(function() {
         Generales.Login(
             Cypress.env('BASE_URL'),
             Cypress.env('USER'),
             Cypress.env('PASS')
         );
-        cy.fixture('asignacionDeCaracteristicas').as('dataAsignacionDeCaracteristicas');
     });
 
-    beforeEach(() => {
+    beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
+        cy.fixture('asignacionDeCaracteristicas').as('data');
     });
 
-    /*it("Arrastrar características por transacción", function() {
-        const transacciones = this.dataAsignacionDeCaracteristicas.agregar;
+    /*it("Agregar múltiples registros dinámicamente", function() {
 
-        cy.log(`📋 Procesando ${transacciones.length} transacciones`);
+        const datos = this.data.agregar
 
-        cy.get('iframe.frame', { timeout: 10000 })
-            .its('0.contentDocument.body')
-            .should('not.be.empty')
-            .then(cy.wrap)
-            .within(() => {
+        const agrupadas = datos.reduce((acc, item) => {
+            if (!acc[item.codigoTX]) {
+                acc[item.codigoTX] = []
+            }
+            acc[item.codigoTX].push(item)
+            return acc
+        }, {})
 
-                // Recorrer cada transacción del JSON
-                transacciones.forEach((transaccion, indexTransaccion) => {
-                    const codigoTRX = transaccion.codigoTRX;
-                    const caracteristicas = transaccion.caracteristicasTrx;
 
-                    cy.log(`\n========== TRANSACCIÓN ${indexTransaccion + 1}/${transacciones.length} ==========`);
-                    cy.log(`🔍 Código: ${codigoTRX}`);
-                    cy.log(`📋 Características a arrastrar: ${caracteristicas.length}`);
+        cy.wrap(Object.keys(agrupadas)).each((codigoTX) => {
+            cy.log('Procesando Tx: ' + codigoTX)
 
-                    // PASO 1: Filtrar por código
-                    Generales.filtrarPorCodigo(codigoTRX);
+            cy.then(() => {
+                // Limpiar logs de Cypress (opcional)
+                const doc = window.top.document;
+                const logContainer = doc.querySelector('.reporter .commands') ||
+                    doc.querySelector('.command-list') ||
+                    doc.querySelector('.runnable-commands-region');
+                if (logContainer) {
+                    logContainer.innerHTML = '';
+                }
+            });
 
-                    // PASO 2: Verificar que se encontró el registro
-                    cy.contains('td.mat-column-codeOfTheTransaction', codigoTRX, { timeout: 10000 })
-                        .should('be.visible')
-                        .then(() => {
-                            cy.log(`✅ Registro ${codigoTRX} encontrado`);
-                        });
+            // Entrar al iframe y realizar acciones
+            cy.get('iframe.frame', { timeout: 10000 })
+                .its('0.contentDocument.body')
+                .should('not.be.empty')
+                .then(cy.wrap)
+                .within(() => {
+                    // Dentro del iframe: acciones de edición
+                    Generales.filtrarPorCodigo(codigoTX); // o item.codigoTX - 777 para pruebas
 
-                    // PASO 3: Abrir panel Opciones
-                    cy.xpath("//mat-expansion-panel-header[.//h2[normalize-space()='Opciones']]")
-                        .then($header => {
-                            if ($header.attr('aria-expanded') !== 'true') {
-                                cy.wrap($header).click({ force: true });
-                                cy.wait(500);
-                            }
-                        });
+                    return cy.wrap(agrupadas[codigoTX]).each((item) => {
+                        Generales.abrirPanel("Opciones", {timeout: 20000, force: true});
+                        cy.wait(500)
+                        if (item.paso) {
+                            Generales.seleccionarPaso(item.paso, { timeout: 10000, skipContext: true, force: true });
+                        } else {
+                            // Fallback al método anterior si no hay paso en el JSON
+                            Generales.BtnIframe("Cuenta", { timeout: 10000, force: true, skipContext: true });
+                        }
 
-                    // PASO 4: Arrastrar TODAS las características de ESTA transacción
-                    cy.log(`🖱️ Arrastrando ${caracteristicas.length} características...`);
+                        GestorDeTransacciones.AsignacionDCaracteristicaAPaso(
+                            item.caracteristica,
+                            item.tamanioLetra,
+                            item.visualizar,
+                            item.proteger,
+                            item.obligatorio,
+                            item.negrita,
+                            item.verFirmas,
+                            item.expresionCalcularCampo,
+                            item.ReglasCondicionarCampo,
+                            item.operacion,
+                            item.expresionParaValidar,
+                            item.mensajeError,
+                            item.correlativo,
+                            item.productos
+                        );
+                        // Hacemos clic en Guardar sin interceptar
+                        Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+                    }); // Salimos del iframe
+                }).then(() => {
 
-                    caracteristicas.forEach((caracteristica, idx) => {
-                        cy.log(`   [${idx + 1}/${caracteristicas.length}] "${caracteristica}"`);
+                // Esperamos un tiempo para que la operación se complete (ajusta según sea necesario)
+                cy.wait(2000);
 
-                        // Arrastrar la característica
-                        GestorDeTransacciones.arrastrarCaracteristicaAPaso(caracteristica);
-
-                        // Validar que llegó
-                        GestorDeTransacciones.validarCaracteristicaEnDestino(caracteristica);
+                // Volvemos a entrar al iframe para hacer clic en "Atrás"
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
                     });
 
-                    cy.log(`✅ Todas las características de ${codigoTRX} arrastradas`);
+                // Espera a que el posible diálogo aparezca
+                cy.wait(2000);
 
-                    // PASO 5: Regresar al listado principal para la siguiente transacción
-                    cy.log(`\n🔙 Regresando al listado principal...`);
+                // Verificar si aparece el diálogo de confirmación DENTRO del iframe
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(($body) => {
+                        // Buscar el diálogo por su TÍTULO "Confirmar"
+                        const $dialog = Cypress.$('mat-dialog-container:contains("Confirmar")', $body);
 
-                    // Primer Atrás
-                    cy.wait(2000);
-                    Generales.BtnIframe("Atrás", { timeout: 10000, force: true, skipContext: true });
-
-                    // Confirmar diálogo si aparece
-                    cy.wait(1000);
-                    cy.get('mat-dialog-container', { timeout: 5000 }).then($dialog => {
                         if ($dialog.length > 0) {
-                            cy.xpath("//mat-dialog-actions//button[.//mat-icon[text()='check']]")
-                                .click({ force: true });
-                            cy.wait(1000);
+                            cy.log('✅ Diálogo Confirmar detectado');
+
+                            // DENTRO del diálogo, buscar el botón que tiene mat-icon con texto "check"
+                            const $btnSi = Cypress.$('button mat-icon:contains("check")', $dialog).parents('button');
+
+                            if ($btnSi.length > 0) {
+                                cy.log('✅ Botón Sí encontrado dentro del diálogo, haciendo clic');
+                                $btnSi.first().click();
+                                cy.wait(1000);
+                                cy.log('✅ Clic en Sí realizado');
+                            } else {
+                                cy.log('⚠️ No se encontró botón con icono check dentro del diálogo');
+                            }
+                        } else {
+                            cy.log('ℹ️ No apareció diálogo de confirmación - continuando flujo normal');
                         }
                     });
+            })
 
-                    // Segundo Atrás
-                    cy.wait(2000);
-                    Generales.BtnIframe("Atrás", { timeout: 10000, force: true, skipContext: true });
-
-                    // Verificar que estamos en listado principal
-                    cy.get('mat-expansion-panel-header').contains('Filtros', { timeout: 15000 })
-                        .should('be.visible');
-
-                    cy.log(`✅ Transacción ${codigoTRX} completada\n`);
-                });
-
-                cy.log('\n🎉 TODAS LAS TRANSACCIONES PROCESADAS EXITOSAMENTE');
-            });
+        });
     });*/
 
-    it("Arrastrar características por transacción", function() {
-        const transacciones = this.dataAsignacionDeCaracteristicas.agregar;
+    it("Agregar múltiples registros dinámicamente", function() {
+        const datos = this.data.agregar;
 
-        cy.log(`📋 Procesando ${transacciones.length} transacciones`);
+        const agrupadas = datos.reduce((acc, item) => {
+            if (!acc[item.codigoTX]) {
+                acc[item.codigoTX] = [];
+            }
+            acc[item.codigoTX].push(item);
+            return acc;
+        }, {});
 
-        cy.get('iframe.frame', { timeout: 10000 })
-            .its('0.contentDocument.body')
-            .should('not.be.empty')
-            .then(cy.wrap)
-            .within(() => {
+        cy.wrap(Object.keys(agrupadas)).each((codigoTX) => {
+            cy.log('Procesando Tx: ' + codigoTX);
 
-                transacciones.forEach((transaccion, indexTransaccion) => {
-                    const codigoTRX = transaccion.codigoTRX;
-                    const caracteristicas = transaccion.caracteristicasTrx;
+            // Opcional: limpiar logs de Cypress
+            cy.then(() => {
+                const doc = window.top.document;
+                const logContainer = doc.querySelector('.reporter .commands') ||
+                    doc.querySelector('.command-list') ||
+                    doc.querySelector('.runnable-commands-region');
+                if (logContainer) {
+                    logContainer.innerHTML = '';
+                }
+            });
 
-                    cy.log(`\n========== TRANSACCIÓN ${indexTransaccion + 1}/${transacciones.length} ==========`);
-                    cy.log(`🔍 Código: ${codigoTRX}`);
-                    cy.log(`📋 Características: ${caracteristicas.length}`);
+            // Entrar al iframe y realizar acciones
+            cy.get('iframe.frame', { timeout: 10000 })
+                .its('0.contentDocument.body')
+                .should('not.be.empty')
+                .then(cy.wrap)
+                .within(() => {
+                    // Dentro del iframe: acciones de edición
+                    Generales.filtrarPorCodigo(codigoTX);
 
-                    // PASO 1: Filtrar por código
-                    Generales.filtrarPorCodigo(codigoTRX);
-                    cy.wait(1000);
+                    // Variable para recordar el paso actualmente seleccionado
+                    let pasoActual = null;
 
-                    // PASO 2: Abrir panel Opciones (SIN XPath)
-                    cy.log('📂 Abriendo Opciones');
-                    cy.contains('mat-expansion-panel-header', 'Opciones', { timeout: 10000 })
-                        .should('be.visible')
-                        .then($header => {
-                            const $panel = $header.closest('mat-expansion-panel');
-                            if (!$panel.hasClass('mat-expanded')) {
-                                cy.wrap($header).click({ force: true });
-                                cy.wait(500);
-                            }
-                        });
-
-                    // PASO 3: Abrir panel Características (USANDO EL NUEVO MÉTODO)
-                    GestorDeTransacciones.abrirPanelCaracteristicas();
-
-                    // PASO 4: Verificar que el área de destino está visible
-                    cy.get('div.cdk-drop-list#characteristics', { timeout: 10000 })
-                        .should('be.visible');
-
-                    // PASO 5: Arrastrar características
-                    caracteristicas.forEach((caracteristica, idx) => {
-                        cy.log(`   [${idx + 1}/${caracteristicas.length}] "${caracteristica}"`);
-                        GestorDeTransacciones.esperarCargaCaracteristicas();
-
-                        GestorDeTransacciones.arrastrarCaracteristicaAPaso(caracteristica);
-                        GestorDeTransacciones.validarCaracteristicaEnDestino(caracteristica);
-
+                    return cy.wrap(agrupadas[codigoTX]).each((item) => {
+                        Generales.abrirPanel("Opciones", { timeout: 20000, force: true });
                         cy.wait(500);
+
+                        // Verificar si necesitamos cambiar de paso
+                        const pasoRequerido = item.paso ? item.paso.toString().trim() : null;
+                        if (pasoRequerido && pasoRequerido !== pasoActual) {
+                            cy.log(`Cambiando de paso "${pasoActual}" a "${pasoRequerido}"`);
+                            Generales.seleccionarPaso(item.paso, { timeout: 10000, skipContext: true, force: true });
+                            pasoActual = pasoRequerido;
+                        } else if (!pasoRequerido) {
+                            // Fallback si no hay paso
+                            Generales.BtnIframe("Cuenta", { timeout: 10000, force: true, skipContext: true });
+                        } else {
+                            cy.log(`Paso "${pasoRequerido}" ya está seleccionado, se omite clic.`);
+                        }
+
+                        GestorDeTransacciones.AsignacionDCaracteristicaAPaso(
+                            item.caracteristica,
+                            item.tamanioLetra,
+                            item.visualizar,
+                            item.proteger,
+                            item.obligatorio,
+                            item.negrita,
+                            item.verFirmas,
+                            item.expresionCalcularCampo,
+                            item.ReglasCondicionarCampo,
+                            item.operacion,
+                            item.expresionParaValidar,
+                            item.mensajeError,
+                            item.correlativo,
+                            item.productos
+                        );
+
+                        // Hacemos clic en Guardar sin interceptar
+                        Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+                    });
+                }).then(() => {
+                // Esperamos un tiempo para que la operación se complete
+                cy.wait(2000);
+
+                // Volvemos a entrar al iframe para hacer clic en "Atrás"
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
                     });
 
-                    cy.log(`✅ Características de ${codigoTRX} arrastradas`);
+                cy.wait(2000);
 
-                    // PASO 6: Regresar al listado
-                    cy.wait(2000);
-                    Generales.BtnIframe("Atrás", { timeout: 10000, force: true, skipContext: true });
-
-                    cy.wait(1000);
-
-                    // Confirmar diálogo si aparece
-                    cy.get('mat-dialog-container', { timeout: 5000 }).then($dialog => {
+                // Verificar si aparece el diálogo de confirmación DENTRO del iframe
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(($body) => {
+                        const $dialog = Cypress.$('mat-dialog-container:contains("Confirmar")', $body);
                         if ($dialog.length > 0) {
-                            cy.contains('mat-dialog-actions button', 'check')
-                                .click({ force: true });
-                            cy.wait(1000);
+                            cy.log('✅ Diálogo Confirmar detectado');
+                            const $btnSi = Cypress.$('button mat-icon:contains("check")', $dialog).parents('button');
+                            if ($btnSi.length > 0) {
+                                cy.log('✅ Botón Sí encontrado dentro del diálogo, haciendo clic');
+                                $btnSi.first().click();
+                                cy.wait(1000);
+                                cy.log('✅ Clic en Sí realizado');
+                            } else {
+                                cy.log('⚠️ No se encontró botón con icono check dentro del diálogo');
+                            }
+                        } else {
+                            cy.log('ℹ️ No apareció diálogo de confirmación - continuando flujo normal');
                         }
                     });
-
-                    // Segundo Atrás
-                    Generales.BtnIframe("Atrás", { timeout: 10000, force: true, skipContext: true });
-
-                    // Verificar listado principal
-                    cy.contains('mat-expansion-panel-header', 'Filtros', { timeout: 15000 })
-                        .should('be.visible');
-
-                    cy.wait(1000);
-                });
             });
+        });
     });
-
-
 });

@@ -126,7 +126,7 @@ class MetodosGeneralesPomCy{
     // BtnAgregarRegistrosIF() {
     //         cy.log('Clic en botón ADD');
     //         this.esperarOcultarSpinner();
-                
+
     //         // Detectar iframe
     //         cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
     //             if ($iframe.length > 0) {
@@ -2256,6 +2256,164 @@ BuscarRegistroEnTabla(criterios) {
         }
     }
 
+
+    /*llenarCampoIframe(valor, labelText, opciones = {}) {
+        const {
+            limpiar = true,
+            delay = 10,
+            timeout = 10000,
+            trim = true,
+            normalizarTildes = true,
+            ignorarTildesEnBusqueda = true,
+            escribirConTildes = true,
+            ignorarMayusculas = true,
+            scrollBehavior = 'center',
+            ensureScrollable = true,
+            force = false,
+            skipContext = false
+        } = opciones;
+
+        const ejecutar = () => {
+            // --- Validación de valor vacío ---
+            if (valor == null || (typeof valor === 'string' && valor.trim() === '')) {
+                const labelParaMostrar = Array.isArray(labelText) ? labelText.join(', ') : labelText;
+                cy.log(`⏭️ Valor vacío o nulo para "${labelParaMostrar}", se omite procesamiento.`);
+                return;
+            }
+
+            // Función para normalizar texto
+            const normalizarTildesFunc = (texto) => {
+                if (!texto) return texto;
+                return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            };
+
+            const normalizarCompleto = (texto) => {
+                if (!texto) return texto;
+                let resultado = String(texto);
+
+                if (normalizarTildes) {
+                    resultado = normalizarTildesFunc(resultado);
+                }
+
+                if (ignorarMayusculas) {
+                    resultado = resultado.toLowerCase();
+                }
+
+                return resultado.trim().replace(/\s+/g, ' ');
+            };
+
+            // Procesar el valor a escribir
+            let valorAEscribir = String(valor);
+            if (trim) valorAEscribir = valorAEscribir.trim();
+
+            const valorOriginal = valorAEscribir;
+
+            if (!escribirConTildes) {
+                valorAEscribir = normalizarTildesFunc(valorAEscribir);
+            }
+
+            cy.log(`🔍 Original: "${valorOriginal}" | Escribirá: "${valorAEscribir}"`);
+
+            const posiblesLabels = Array.isArray(labelText) ? labelText : [labelText];
+            const opcionesNormalizadas = posiblesLabels.map(label => normalizarCompleto(label));
+
+            // Buscar el label
+            cy.get('label, mat-label, span.label', { timeout })
+                .then($labels => {
+                    let $mejorCoincidencia = null;
+                    let mejorPuntaje = -1;
+
+                    $labels.each((index, el) => {
+                        const textEl = Cypress.$(el).text().trim();
+                        const textNormalizado = normalizarCompleto(textEl);
+
+                        opcionesNormalizadas.forEach((opcionNormalizada, idx) => {
+                            const opcionOriginal = posiblesLabels[idx];
+                            let puntaje = 0;
+
+                            if (textNormalizado === opcionNormalizada) {
+                                puntaje = 100;
+                            }
+                            else if (textNormalizado.replace(/\s*\*\s*!/g, '') === opcionNormalizada) {
+                                puntaje = 90;
+                            }
+                            else if (textNormalizado.startsWith(opcionNormalizada + ' ')) {
+                                puntaje = 80;
+                            }
+                            else if (textNormalizado.includes(opcionNormalizada)) {
+                                puntaje = 70;
+                            }
+                            else if (opcionNormalizada.includes(textNormalizado)) {
+                                puntaje = 50;
+                            }
+
+                            if (puntaje > mejorPuntaje) {
+                                mejorPuntaje = puntaje;
+                                $mejorCoincidencia = cy.$$(el);
+                                cy.log(`   Match: "${textEl}" (${puntaje})`);
+                            }
+                        });
+                    });
+
+                    if (!$mejorCoincidencia) {
+                        throw new Error(`No se encontró label: ${posiblesLabels.join(', ')}`);
+                    }
+
+                    const $label = $mejorCoincidencia;
+                    const inputId = $label.attr('for');
+
+                    // Encontrar el input asociado
+                    let $inputPromise;
+                    if (inputId) {
+                        $inputPromise = cy.get(`#${inputId}`, { timeout });
+                    } else {
+                        $inputPromise = cy.wrap($label)
+                            .parents('.mat-form-field, .form-group')
+                            .find('input, textarea, select')
+                            .first();
+                    }
+
+                    $inputPromise
+                        // .should('be.visible')  ← ELIMINADO
+                        .then($input => {
+                            // Intentar scroll pero sin verificar visibilidad
+                            cy.wrap($input).scrollIntoView({
+                                duration: 300,
+                                easing: 'linear',
+                                offset: { top: -100, left: 0 },
+                                ensureScrollable: false
+                            }).then(() => {
+                                // Si falla el scroll, continuamos igual
+                                cy.log('   Scroll realizado (puede que no sea visible)');
+                            });
+
+                            cy.wait(200);
+
+                            // Click directo con force
+                            cy.wrap($input).click({ force: true });
+                            cy.wait(100);
+
+                            if (limpiar) {
+                                cy.wrap($input).clear({ force: true });
+                                cy.wait(100);
+                            }
+
+                            cy.wrap($input).type(valorAEscribir, { delay, force: true });
+
+                            cy.log(`✅ Escrito en campo asociado a "${$label.text().trim()}"`);
+                        });
+                });
+        };
+
+        if (skipContext) {
+            ejecutar();
+        } else if (this._ejecutarEnContexto) {
+            this._ejecutarEnContexto(ejecutar);
+        } else {
+            ejecutar();
+        }
+    }*/
+
     /**
      * Versión de checkbox que maneja iframe automáticamente o no con skipcontext
      */
@@ -3580,34 +3738,117 @@ BuscarRegistroEnTabla(criterios) {
         cy.log('✅ Click en ADD de Características exitoso');
     }
 
-    arrastrarCaracteristica(nombre) {
 
-        return cy.contains("mat-card-title", nombre)
-            .scrollIntoView()
-            .should("be.visible")
-            .parents(".cdk-drag")
-            .find(".cdk-drag-handle")
-            .then(($handle) => {
+    arrastrarCaracteristica(nombre, opciones = {}) {
+        const {
+            destinoSelector = "#characteristicsTCA, #characteristicsRC, #step",
+            timeout = 10000,
+        } = opciones;
 
-                const rect = $handle[0].getBoundingClientRect()
+        // Verificar si la característica ya existe en el destino
+        return cy.get(destinoSelector, { timeout }).then($destino => {
+            const existeEnDestino = $destino.find(`mat-card-title:contains("${nombre}")`).length > 0;
+            if (existeEnDestino) {
+                cy.log(`🟡 La característica "${nombre}" ya existe en el destino, se omite arrastre.`);
+                return; // Salir sin ejecutar el arrastre
+            }
 
-                cy.wrap($handle)
-                    .realMouseDown({ position: "center" })
+            // Buscar la característica en el origen (solo verifica existencia, no visibilidad)
+            cy.contains("mat-card-title", nombre)
+                .scrollIntoView()           // Aún así lo traemos a la vista para que sea interactuable
+                .should("exist")             // <-- Cambiado de "be.visible" a "exist"
+                .parents(".cdk-drag")
+                .find(".cdk-drag-handle")
+                .then(($handle) => {
+                    const rect = $handle[0].getBoundingClientRect();
 
-                // Angular necesita pequeño movimiento inicial
-                cy.root().realMouseMove(rect.x + 5, rect.y + 5)
+                    cy.wrap($handle).realMouseDown({ position: "center" });
+                    cy.root().realMouseMove(rect.x + 5, rect.y + 5);
 
-                // mover al dropzone
-                cy.get("#characteristicsTCA, #characteristicsRC")
-                    .realMouseMove(10, 10, { position: "center" })
+                    // Calcular centro del destino (primer elemento del selector múltiple)
+                    const $destinoElement = $destino.first();
+                    const destRect = $destinoElement[0].getBoundingClientRect();
+                    const centroX = destRect.x + destRect.width / 2;
+                    const centroY = destRect.y + destRect.height / 2;
 
-                // soltar
-                cy.root().realMouseUp()
-    
-                this.esperarQueSpinnerDesaparezca({ timeout: 10000 })
+                    cy.root().realMouseMove(centroX, centroY);
+                    cy.root().realMouseUp();
 
-            })
-   }
+                    // Esperar a que desaparezca el spinner (si es necesario)
+                    this.esperarQueSpinnerDesaparezca({ timeout });
+
+                    // Validar que la característica ahora existe en el destino (no requiere visibilidad)
+                    cy.get(destinoSelector, { timeout })
+                        .contains('mat-card-title', nombre)
+                        .should('exist');     // <-- También usamos "exist" para la validación final
+                });
+        });
+    }
+
+    arrastrarCaracteristicaC(nombre, opciones = {}) {
+        const {
+            // Selector que apunta al contenedor de características del paso activo
+            destinoSelector = "mat-tab-body.mat-mdc-tab-body-active #step",
+            timeout = 10000,
+        } = opciones;
+
+        return cy.get(destinoSelector, { timeout }).then($destinos => {
+            // Verificar si la característica ya existe en el destino (solo en el paso activo)
+            let existeEnDestino = false;
+            $destinos.each((_, contenedor) => {
+                const titulos = contenedor.querySelectorAll('mat-card-title');
+                for (let titulo of titulos) {
+                    if (titulo.textContent.replace(/\s+/g, ' ').trim() === nombre.replace(/\s+/g, ' ').trim()) {
+                        existeEnDestino = true;
+                        return false;
+                    }
+                }
+            });
+
+            if (existeEnDestino) {
+                cy.log(`🟡 La característica "${nombre}" ya existe en el destino, se omite arrastre.`);
+                return;
+            }
+
+            // Buscar el elemento origen
+            cy.contains("mat-card-title", nombre)
+                .scrollIntoView()
+                .should("exist")
+                .parents(".cdk-drag")
+                .find(".cdk-drag-handle")
+                .then(($handle) => {
+                    const rectOrigen = $handle[0].getBoundingClientRect();
+                    cy.wrap($handle).realMouseDown({ position: "center" });
+                    cy.root().realMouseMove(rectOrigen.x + 5, rectOrigen.y + 5);
+
+                    const $primerDestino = $destinos.first();
+                    const rectDestino = $primerDestino[0].getBoundingClientRect();
+                    const centroX = rectDestino.x + rectDestino.width / 2;
+                    const centroY = rectDestino.y + rectDestino.height / 2;
+
+                    cy.root().realMouseMove(centroX, centroY);
+                    cy.root().realMouseUp();
+
+                    cy.wait(2000);
+                    this.esperarQueSpinnerDesaparezca({ timeout });
+
+                    // Validación final: buscar el título en el destino (mismo selector)
+                    cy.get(destinoSelector, { timeout: timeout + 5000 }).should($containers => {
+                        let encontrado = false;
+                        $containers.each((_, contenedor) => {
+                            const titulos = contenedor.querySelectorAll('mat-card-title');
+                            for (let titulo of titulos) {
+                                if (titulo.textContent.replace(/\s+/g, ' ').trim() === nombre.replace(/\s+/g, ' ').trim()) {
+                                    encontrado = true;
+                                    return false;
+                                }
+                            }
+                        });
+                        expect(encontrado, `La característica "${nombre}" debería estar en el destino`).to.be.true;
+                    });
+                });
+        });
+    }
 
     seleccionarRadio(valor, opciones = {}) {
         const {
@@ -3686,6 +3927,54 @@ BuscarRegistroEnTabla(criterios) {
                     cy.log('✅ Formulario de paso abierto correctamente');
                 });
         });
+    }
+
+
+
+
+    llenarCampoIframe2(valor, labelText, opciones = {}) {
+        const {
+            timeout = 10000,
+            skipContext = false,
+            force = true
+        } = opciones;
+
+        if (!valor || valor === "") {
+            cy.log(`⏭️ Campo "${labelText}" omitido (valor vacío)`);
+            return;
+        }
+
+        cy.log(`✏️ Llenando campo "${labelText}" con valor "${valor}"`);
+
+        const escribir = () => {
+            // Buscar el mat-label por su texto (SIN VERIFICAR VISIBILIDAD)
+            cy.contains('mat-label', labelText, { timeout })
+                .should('exist') // 👈 CAMBIO CLAVE: exist en lugar de be.visible
+                .then($label => {
+                    // Encontrar el input/textarea dentro del mat-form-field
+                    const $campo = $label.closest('mat-form-field').find('input, textarea').first();
+
+                    cy.wrap($campo)
+                        .should('exist')
+                        .click({ force: true })
+                        .clear({ force: true })
+                        .type(valor, { force: true, delay: 50 });
+
+                    cy.log(`      ✅ Campo "${labelText}" = "${valor}"`);
+                });
+        };
+
+        if (skipContext) {
+            escribir();
+        } else {
+            cy.get('iframe.frame', { timeout })
+                .its('0.contentDocument.body')
+                .should('not.be.empty')
+                .then(cy.wrap)
+                .within(() => {
+                    escribir();
+                });
+        }
     }
 
     // Espera a que desaparezca el spinner, buscando dentro y fuera del iframe
@@ -3855,101 +4144,208 @@ BuscarRegistroEnTabla(criterios) {
         }
     }
 
-    //metodo utilizado para caracteristicas de resultado en la parte de la tabla 
-seleccionarOperacionPorCaracteristica(caracteristica, operacion, opciones = {}) {
-    const {
-        timeout = 10000,
-        skipContext = false,
-        ignorarTildes = true,
-        ignorarMayusculas = true,
-        ignorarEspacios = true,
-        force = true
-    } = opciones;
+    agregarRutinaTRX(tipo) {
+        cy.log(`🔄 Agregando rutina ${tipo}`);
 
-    const ejecutar = () => {
-        cy.log(`🔍 Buscando fila con característica "${caracteristica}" para seleccionar operación "${operacion}"`);
+        // Validar que el tipo sea válido
+        const tipoValido = tipo.toUpperCase();
+        if (tipoValido !== 'PRE' && tipoValido !== 'POS') {
+            cy.log(`❌ Tipo de rutina no válido: ${tipo}. Debe ser PRE o POS`);
+            return;
+        }
 
+        // XPath dinámico según el tipo
+        cy.xpath(
+            `//mat-panel-title[contains(., 'Rutinas ${tipoValido}')]//button[contains(@class, 'btn-add-mini')]`
+        )
+            .should('be.visible')
+            .click({ force: true });
+
+        cy.wait(500);
+        cy.log(`✅ Clic en botón agregar rutina ${tipoValido} realizado`);
+    }
+
+
+
+    /*llenarTexAreaIframe(valor, opciones = {}) {
+        const { timeout = 10000, force = true, skipContext = true } = opciones;
+
+        cy.log(`🔍 Llenando campo Descripción con: "${valor}"`);
+
+        if (!valor || valor.trim() === '') {
+            cy.log('⏭️ Descripción vacía, se omite');
+            return;
+        }
+
+        // Buscar por el texto del label y luego el textarea asociado
+        cy.xpath("//mat-label[text()='Descripción']/ancestor::mat-form-field//textarea", { timeout })
+            .first()
+            .scrollIntoView({ duration: 300, offset: { top: -50 }, ensureScrollable: false })
+            .click({ force: true })
+            .clear({ force: true })
+            .type(valor, { delay: 10, force: true })
+            .then($textarea => {
+                cy.log(`✅ Descripción escrita: "${$textarea.val()}"`);
+                // Verificar que se escribió correctamente
+                expect($textarea.val()).to.equal(valor);
+            });
+    }*/
+
+
+
+
+    llenarDescripcionIframe(valor, opciones = {}) {
+        const { timeout = 10000, force = true, skipContext = true } = opciones;
+
+        cy.log(`🔍 Llenando descripción con: "${valor}"`);
+
+        if (!valor || valor.trim() === '') {
+            cy.log('⏭️ Descripción vacía, se omite');
+            return;
+        }
+
+        // BUSCAR POR LA ESTRUCTURA COMPLETA Y FILTRAR POR VISIBLE
+        cy.xpath("//mat-label[text()='Descripción']/ancestor::mat-form-field//textarea", { timeout })
+            .filter(':visible')
+            .first()
+            .scrollIntoView({ duration: 300, offset: { top: -50 }, ensureScrollable: false })
+            .click({ force: true })
+            .clear({ force: true })
+            .type(valor, { delay: 10, force: true })
+            .then($textarea => {
+                cy.log(`✅ Descripción escrita en textarea visible: ${$textarea.attr('id')}`);
+                cy.log(`   Valor: "${$textarea.val()}"`);
+            });
+    }
+
+
+    seleccionarPaso(nombrePaso, opciones = {}) {
+        const { timeout = 10000, force = true, skipContext = true } = opciones;
+
+        cy.log(`🔍 Seleccionando paso: "${nombrePaso}"`);
+
+        if (!nombrePaso || nombrePaso.trim() === '') {
+            cy.log('⏭️ Nombre de paso vacío, se omite');
+            return;
+        }
+
+        // Normalizar el texto del paso (quitar tildes, minúsculas)
         const normalizarTexto = (texto) => {
-            if (!texto) return '';
-            let resultado = String(texto);
-            if (ignorarTildes) {
-                resultado = resultado.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            }
-            if (ignorarMayusculas) {
-                resultado = resultado.toLowerCase();
-            }
-            if (ignorarEspacios) {
-                resultado = resultado.trim().replace(/\s+/g, ' ');
-            }
-            return resultado;
+            if (!texto) return texto;
+            return texto.normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .trim();
         };
 
-        const caracteristicaNorm = normalizarTexto(caracteristica);
+        const pasoNormalizado = normalizarTexto(nombrePaso);
 
-        // Usar XPath para obtener todas las filas que tengan la celda de característica
-        cy.xpath('//mat-row[.//mat-cell[contains(@class, "mat-column-charOperated")]]', { timeout }).then($rows => {
-            cy.log(`Filas encontradas: ${$rows.length}`);
+        cy.log(`📋 Paso normalizado: "${pasoNormalizado}"`);
 
-            let $filaEncontrada = null;
-            let textoEncontrado = '';
+        // XPath con normalización para buscar el paso
+        const xpath = `(//span[@class='cursor' and translate(translate(normalize-space(), 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = '${pasoNormalizado}'])[1]`;
 
-            $rows.each((i, fila) => {
-                const $celdaChar = Cypress.$(fila).find('mat-cell.mat-column-charOperated').first();
-                const textoCelda = $celdaChar.text().trim();
-                const textoCeldaNorm = normalizarTexto(textoCelda);
-                cy.log(`Fila ${i+1}: "${textoCelda}" (norm: "${textoCeldaNorm}")`);
-                if (textoCeldaNorm === caracteristicaNorm || textoCeldaNorm.includes(caracteristicaNorm)) {
-                    $filaEncontrada = Cypress.$(fila);
-                    textoEncontrado = textoCelda;
-                    return false;
-                }
+        cy.xpath(xpath, { timeout })
+            .scrollIntoView({ duration: 300, offset: { top: -50 }, ensureScrollable: false })
+            .click({ force: true })
+            .then($element => {
+                cy.log(`✅ Clic realizado en paso: "${$element.text().trim()}"`);
             });
+    }
 
-            if (!$filaEncontrada) {
-                throw new Error(`No se encontró fila con característica "${caracteristica}"`);
-            }
+    seleccionarOperacionPorCaracteristica(caracteristica, operacion, opciones = {}) {
+        const {
+            timeout = 10000,
+            skipContext = false,
+            ignorarTildes = true,
+            ignorarMayusculas = true,
+            ignorarEspacios = true,
+            force = true
+        } = opciones;
 
-            cy.log(`✅ Fila encontrada: "${textoEncontrado}"`);
+        const ejecutar = () => {
+            cy.log(`🔍 Buscando fila con característica "${caracteristica}" para seleccionar operación "${operacion}"`);
 
-            // Dentro de la fila, buscar el select en la celda de operación
-            const $select = $filaEncontrada.find('mat-cell.mat-column-operation mat-select');
-            if ($select.length === 0) {
-                throw new Error('No se encontró mat-select en la celda de operación');
-            }
+            const normalizarTexto = (texto) => {
+                if (!texto) return '';
+                let resultado = String(texto);
+                if (ignorarTildes) {
+                    resultado = resultado.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                }
+                if (ignorarMayusculas) {
+                    resultado = resultado.toLowerCase();
+                }
+                if (ignorarEspacios) {
+                    resultado = resultado.trim().replace(/\s+/g, ' ');
+                }
+                return resultado;
+            };
 
-            cy.wrap($select).click({ force });
-            cy.get('.cdk-overlay-pane', { timeout }).should('be.visible');
-            cy.get('.cdk-overlay-pane mat-option').then($options => {
-                let $opcion = null;
-                $options.each((i, opt) => {
-                    const textoOpcion = Cypress.$(opt).text().trim();
-                    const textoOpcionNorm = normalizarTexto(textoOpcion);
-                    if (textoOpcionNorm === normalizarTexto(operacion) || textoOpcionNorm.includes(normalizarTexto(operacion))) {
-                        $opcion = Cypress.$(opt);
+            const caracteristicaNorm = normalizarTexto(caracteristica);
+
+            // Usar XPath para obtener todas las filas que tengan la celda de característica
+            cy.xpath('//mat-row[.//mat-cell[contains(@class, "mat-column-charOperated")]]', { timeout }).then($rows => {
+                cy.log(`Filas encontradas: ${$rows.length}`);
+
+                let $filaEncontrada = null;
+                let textoEncontrado = '';
+
+                $rows.each((i, fila) => {
+                    const $celdaChar = Cypress.$(fila).find('mat-cell.mat-column-charOperated').first();
+                    const textoCelda = $celdaChar.text().trim();
+                    const textoCeldaNorm = normalizarTexto(textoCelda);
+                    cy.log(`Fila ${i+1}: "${textoCelda}" (norm: "${textoCeldaNorm}")`);
+                    if (textoCeldaNorm === caracteristicaNorm || textoCeldaNorm.includes(caracteristicaNorm)) {
+                        $filaEncontrada = Cypress.$(fila);
+                        textoEncontrado = textoCelda;
                         return false;
                     }
                 });
 
-                if ($opcion) {
-                    cy.wrap($opcion).scrollIntoView().click({ force });
-                    cy.log(`✅ Operación "${operacion}" seleccionada para característica "${caracteristica}"`);
-                } else {
-                    throw new Error(`No se encontró la opción "${operacion}" en el combo`);
+                if (!$filaEncontrada) {
+                    throw new Error(`No se encontró fila con característica "${caracteristica}"`);
                 }
-                cy.get('.cdk-overlay-backdrop', { timeout: 5000 }).should('not.exist');
+
+                cy.log(`✅ Fila encontrada: "${textoEncontrado}"`);
+
+                // Dentro de la fila, buscar el select en la celda de operación
+                const $select = $filaEncontrada.find('mat-cell.mat-column-operation mat-select');
+                if ($select.length === 0) {
+                    throw new Error('No se encontró mat-select en la celda de operación');
+                }
+
+                cy.wrap($select).click({ force });
+                cy.get('.cdk-overlay-pane', { timeout }).should('be.visible');
+                cy.get('.cdk-overlay-pane mat-option').then($options => {
+                    let $opcion = null;
+                    $options.each((i, opt) => {
+                        const textoOpcion = Cypress.$(opt).text().trim();
+                        const textoOpcionNorm = normalizarTexto(textoOpcion);
+                        if (textoOpcionNorm === normalizarTexto(operacion) || textoOpcionNorm.includes(normalizarTexto(operacion))) {
+                            $opcion = Cypress.$(opt);
+                            return false;
+                        }
+                    });
+
+                    if ($opcion) {
+                        cy.wrap($opcion).scrollIntoView().click({ force });
+                        cy.log(`✅ Operación "${operacion}" seleccionada para característica "${caracteristica}"`);
+                    } else {
+                        throw new Error(`No se encontró la opción "${operacion}" en el combo`);
+                    }
+                    cy.get('.cdk-overlay-backdrop', { timeout: 5000 }).should('not.exist');
+                });
             });
-        });
-    };
+        };
 
-    if (skipContext) {
-        ejecutar();
-    } else if (this._ejecutarEnContexto) {
-        this._ejecutarEnContexto(ejecutar);
-    } else {
-        ejecutar();
+        if (skipContext) {
+            ejecutar();
+        } else if (this._ejecutarEnContexto) {
+            this._ejecutarEnContexto(ejecutar);
+        } else {
+            ejecutar();
+        }
     }
-}
-
 }
 
 export default MetodosGeneralesPomCy;

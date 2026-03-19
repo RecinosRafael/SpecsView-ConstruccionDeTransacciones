@@ -487,83 +487,29 @@ class GestorPomCy{
             });
     }
 
-    /**
-     * Arrastra una característica al área de características
-     * @param {string} nombreCaracteristica - Nombre de la característica a arrastrar
-     */
-    arrastrarCaracteristicaAPaso(nombreCaracteristica) {
-        cy.log(`🖱️ Arrastrando característica: "${nombreCaracteristica}"`);
+    AsignacionDCaracteristicaAPaso(caracteristica, tamanioLetra, visualizar, proteger, obligatorio, negrita, verFirmas, expresionCalcularCampo,
+                                       ReglasCondicionarCampo, operacion, expresionParaValidar, mensajeError, correlativo, productos) {
 
-        // PASO 1: Asegurar que el panel de características está abierto
-        this.abrirPanelCaracteristicas();
+        // Asegúrate de que el iframe esté listo antes (opcional)
+        //cy.get('iframe.frame').its('0.contentDocument.body').should('not.be.empty');
 
-        // PASO 2: Normalizar nombre
-        const nombreNormalizado = nombreCaracteristica.toLowerCase().trim();
+        this.Generales.arrastrarCaracteristicaC(caracteristica)
 
-        // PASO 3: Obtener la característica origen
-        cy.get('div.content-characteristics', { timeout: 15000 })
-            .first()
-            .should('be.visible')
-            .within(() => {
-                cy.get('.cdk-drag')
-                    .filter((i, el) => {
-                        const texto = Cypress.$(el).text().trim().toLowerCase();
-                        return texto.includes(nombreNormalizado);
-                    })
-                    .first()
-                    .as('caracteristicaOrigen');
-            });
 
-        // PASO 4: IDENTIFICAR EL ÁREA DE DESTINO CORRECTA
-        // Basado en tu captura, el área tiene el texto "Puedes arrastrar una característica aquí"
-        cy.contains('div', 'Puedes arrastrar una característica aquí', { timeout: 10000 })
-            .should('be.visible')
-            .parents('[class*="drop-list"], [class*="cdk-drop"]')
-            .first()
-            .as('destinoCaracteristicas');
-
-        // PASO 5: Realizar drag & drop con coordenadas reales
-        cy.then(() => {
-            cy.get('@caracteristicaOrigen').then($origen => {
-                cy.get('@destinoCaracteristicas').then($destino => {
-                    // Obtener coordenadas
-                    const origenRect = $origen[0].getBoundingClientRect();
-                    const destinoRect = $destino[0].getBoundingClientRect();
-
-                    // Calcular puntos centrales
-                    const origenX = origenRect.left + origenRect.width / 2;
-                    const origenY = origenRect.top + origenRect.height / 2;
-                    const destinoX = destinoRect.left + destinoRect.width / 2;
-                    const destinoY = destinoRect.top + destinoRect.height / 2;
-
-                    cy.log(`📍 Origen: (${origenX}, ${origenY})`);
-                    cy.log(`📍 Destino: (${destinoX}, ${destinoY})`);
-                    cy.log(`📏 Diferencia: X: ${destinoX - origenX}, Y: ${destinoY - origenY}`);
-
-                    // Realizar drag con eventos nativos
-                    cy.get('@caracteristicaOrigen')
-                        .trigger('mousedown', {
-                            button: 0,
-                            clientX: origenX,
-                            clientY: origenY,
-                            force: true
-                        })
-                        .wait(500)
-                        .trigger('mousemove', {
-                            clientX: destinoX,
-                            clientY: destinoY,
-                            force: true
-                        })
-                        .wait(500)
-                        .trigger('mouseup', {
-                            force: true
-                        });
-                });
-            });
-        });
-
-        cy.wait(2000);
-        cy.log(`✅ Intento de arrastre para "${nombreCaracteristica}" completado`);
+        cy.wait(1500)
+        this.Generales.seleccionarComboIframe(tamanioLetra, "Tamaño de letra", { timeout: 10000, force: true, skipContext: true } )
+        this.Generales.slideToggleIframe(visualizar, "Visualizar", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.slideToggleIframe(proteger, "Proteger", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.slideToggleIframe(obligatorio, "Obligatorio", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.slideToggleIframe(negrita, "Negrita", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.slideToggleIframe(verFirmas, "Ver firmas", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.llenarCampoReadonlySinClick(expresionCalcularCampo, "Expresión para calcular campo", { timeout: 10000, skipContext: true, force: true } );
+        this.Generales.llenarCampoIframe(ReglasCondicionarCampo, "Reglas para condicionar campo", { timeout: 10000, skipContext: true });
+        this.Generales.seleccionarComboIframe(operacion, "Operación", { timeout: 10000, force: true, skipContext: true } )
+        this.Generales.llenarCampoReadonlySinClick(expresionParaValidar, "Expresión para validar", { timeout: 10000, skipContext: true, force: true } );
+        this.Generales.llenarCampoIframe(mensajeError, "Mensaje de error", { timeout: 10000, skipContext: true });
+        this.Generales.llenarCampoIframe(correlativo, "Correlativo", { timeout: 10000, skipContext: true });
+        this.Generales.seleccionarComboIframe(productos, "Productos", { timeout: 10000, force: true, skipContext: true } )
     }
 
     /**
