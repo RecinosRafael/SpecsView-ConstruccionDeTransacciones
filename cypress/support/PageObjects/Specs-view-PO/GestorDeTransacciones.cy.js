@@ -7,6 +7,92 @@ class GestorPomCy{
     }
 
 
+AsignacionDCaracteristicaAPasoB(paso, caracteristica, tamanioLetra, visualizar, proteger, obligatorio, negrita, verFirmas, expresionCalcularCampo, ReglasCondicionarCampo, operacion, expresionParaValidar, mensajeError, correlativo, productos) {
+    
+    // Función interna para configurar los campos (asume que el panel de edición está abierto)
+    const configurar = () => {
+        cy.wait(500);
+        this.Generales.seleccionarComboIframe(tamanioLetra, "Tamaño de letra", { timeout: 10000, force: true, skipContext: true });
+        this.Generales.slideToggleIframe(visualizar, "Visualizar", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.slideToggleIframe(proteger, "Proteger", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.slideToggleIframe(obligatorio, "Obligatorio", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.slideToggleIframe(negrita, "Negrita", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.slideToggleIframe(verFirmas, "Ver firmas", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.llenarCampoReadonlySinClick(expresionCalcularCampo, "Expresión para calcular campo", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.llenarCampoIframe(ReglasCondicionarCampo, "Reglas para condicionar campo", { timeout: 10000, skipContext: true });
+        this.Generales.seleccionarComboIframe(operacion, "Operación", { timeout: 10000, force: true, skipContext: true });
+        this.Generales.llenarCampoReadonlySinClick(expresionParaValidar, "Expresión para validar", { timeout: 10000, skipContext: true, force: true });
+        this.Generales.llenarCampoIframe(mensajeError, "Mensaje de error", { timeout: 10000, skipContext: true });
+        this.Generales.llenarCampoIframe(correlativo, "Correlativo", { timeout: 10000, skipContext: true });
+        this.Generales.seleccionarComboIframe(productos, "Productos", { timeout: 10000, force: true, skipContext: true });
+    };
+
+    // Intentar abrir el panel de edición si la característica ya está en el paso
+    cy.root().then($root => {
+        const contextNode = $root.get ? $root.get(0) : $root[0];
+        const xpath = `//div[contains(@class, 'field-text') and .//mat-card-title[text()='${caracteristica}']]/ancestor::div[contains(@class, 'field-content')]//button[.//mat-icon[text()='more_horiz']]`;
+        const result = document.evaluate(xpath, contextNode, null, 9, null);
+        const node = result.singleNodeValue;
+
+        if (node) {
+            cy.log(`✅ Botón "edit" encontrado para "${caracteristica}", haciendo clic`);
+            cy.wrap(node).click({ force: true });
+            configurar();
+        } else {
+            cy.log(`ℹ️ Botón "edit" no encontrado para "${caracteristica}", se asignará por API`);
+
+            // Obtener el transactionFlowId previamente guardado (debe estar en un alias)
+            cy.get('@transactionFlowId').then(flowId => {
+                // Obtener el ID de la característica desde el panel izquierdo
+                cy.contains('mat-card-title', caracteristica)
+                    .parents('.cdk-drag')
+                    .find('.chip-id')
+                    .invoke('text')
+                    .then(idText => {
+                        const characteristicId = parseInt(idText, 10);
+
+                        // Extraer el correlativo del paso (ej: "Paso 1" → 1)
+                        const correlativeMatch = paso.match(/\d+/);
+                        if (!correlativeMatch) {
+                            throw new Error(`No se pudo extraer número del paso: ${paso}`);
+                        }
+                        const correlative = parseInt(correlativeMatch[0], 10);
+
+                        // Realizar la petición POST para asignar la característica al paso
+                        cy.request({
+                            method: 'POST',
+                            url: '/api/transaction-catalog-service/v1/transactionCharactByStep',
+                            body: {
+                                transactionFlow: { id: flowId },
+                                characteristicSpec: { id: characteristicId },
+                                correlative: correlative
+                            },
+                            timeout: 10000
+                        }).then(response => {
+                            expect(response.status).to.eq(201);
+                            cy.log(`✅ Característica "${caracteristica}" asignada por API, relación ID: ${response.body.id}`);
+
+                            // Esperar a que la UI se actualice (la característica aparece en el paso)
+                            cy.wait(1000); // Ajustable, podría mejorarse con una espera condicional
+
+                            // Ahora buscar el botón "edit" nuevamente (ya debería existir)
+                            cy.root().then($root2 => {
+                                const contextNode2 = $root2.get ? $root2.get(0) : $root2[0];
+                                const result2 = document.evaluate(xpath, contextNode2, null, 9, null);
+                                const node2 = result2.singleNodeValue;
+                                if (node2) {
+                                    cy.wrap(node2).click({ force: true });
+                                    configurar();
+                                } else {
+                                    throw new Error(`No se encontró el botón edit después de asignar por API para "${caracteristica}"`);
+                                }
+                            });
+                        });
+                    });
+            });
+        }
+    });
+}
 
     //Caracteristicas del Resultado gestor de TX`s
     CaracteristicaResultado(caracteristica, caracteristicaOperar, operacioncaracteristicaOperar){

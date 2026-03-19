@@ -3739,51 +3739,109 @@ BuscarRegistroEnTabla(criterios) {
     }
 
 
-    arrastrarCaracteristica(nombre, opciones = {}) {
-        const {
-            destinoSelector = "#characteristicsTCA, #characteristicsRC, #step",
-            timeout = 10000,
-        } = opciones;
+    // arrastrarCaracteristica(nombre, opciones = {}) {
+    //     const {
+    //         destinoSelector = "#characteristicsTCA, #characteristicsRC, #cdk-accordion-child-7",
+    //         timeout = 10000,
+    //     } = opciones;
 
-        // Verificar si la característica ya existe en el destino
-        return cy.get(destinoSelector, { timeout }).then($destino => {
-            const existeEnDestino = $destino.find(`mat-card-title:contains("${nombre}")`).length > 0;
-            if (existeEnDestino) {
-                cy.log(`🟡 La característica "${nombre}" ya existe en el destino, se omite arrastre.`);
-                return; // Salir sin ejecutar el arrastre
-            }
+    //     // Verificar si la característica ya existe en el destino
+    //     return cy.get(destinoSelector, { timeout }).then($destino => {
+    //         const existeEnDestino = $destino.find(`mat-card-title:contains("${nombre}")`).length > 0;
+    //         if (existeEnDestino) {
+    //             cy.log(`🟡 La característica "${nombre}" ya existe en el destino, se omite arrastre.`);
+    //             return; // Salir sin ejecutar el arrastre
+    //         }
 
-            // Buscar la característica en el origen (solo verifica existencia, no visibilidad)
-            cy.contains("mat-card-title", nombre)
-                .scrollIntoView()           // Aún así lo traemos a la vista para que sea interactuable
-                .should("exist")             // <-- Cambiado de "be.visible" a "exist"
-                .parents(".cdk-drag")
-                .find(".cdk-drag-handle")
-                .then(($handle) => {
-                    const rect = $handle[0].getBoundingClientRect();
+    //         // Buscar la característica en el origen (solo verifica existencia, no visibilidad)
+    //         cy.contains("mat-card-title", nombre)
+    //             .scrollIntoView()           // Aún así lo traemos a la vista para que sea interactuable
+    //             .should("exist")             // <-- Cambiado de "be.visible" a "exist"
+    //             .parents(".cdk-drag")
+    //             .find(".cdk-drag-handle")
+    //             .then(($handle) => {
+    //                 const rect = $handle[0].getBoundingClientRect();
 
-                    cy.wrap($handle).realMouseDown({ position: "center" });
-                    cy.root().realMouseMove(rect.x + 5, rect.y + 5);
+    //                 cy.wrap($handle).realMouseDown({ position: "center" });
+    //                 cy.root().realMouseMove(rect.x + 5, rect.y + 5);
 
-                    // Calcular centro del destino (primer elemento del selector múltiple)
-                    const $destinoElement = $destino.first();
-                    const destRect = $destinoElement[0].getBoundingClientRect();
+    //                 // Calcular centro del destino (primer elemento del selector múltiple)
+    //                 const $destinoElement = $destino.first();
+    //                 const destRect = $destinoElement[0].getBoundingClientRect();
+    //                 const centroX = destRect.x + destRect.width / 2;
+    //                 const centroY = destRect.y + destRect.height / 2;
+
+    //                 cy.root().realMouseMove(centroX, centroY);
+    //                 cy.root().realMouseUp();
+
+    //                 // Esperar a que desaparezca el spinner (si es necesario)
+    //                 this.esperarQueSpinnerDesaparezca({ timeout });
+
+    //                 // Validar que la característica ahora existe en el destino (no requiere visibilidad)
+    //                 cy.get(destinoSelector, { timeout })
+    //                     .contains('mat-card-title', nombre)
+    //                     .should('exist');     // <-- También usamos "exist" para la validación final
+    //             });
+    //     });
+    // }
+
+arrastrarCaracteristicaConEsperas(nombre, opciones = {}) {
+    const {
+        destinoSelector = "#step", // Ajusta según tu necesidad
+        timeout = 10000,
+    } = opciones;
+
+    // Verificar si la característica ya existe en el destino
+    return cy.get(destinoSelector, { timeout }).then($destino => {
+        const existeEnDestino = $destino.find(`mat-card-title:contains("${nombre}")`).length > 0;
+        if (existeEnDestino) {
+            cy.log(`🟡 La característica "${nombre}" ya existe en el destino, se omite arrastre.`);
+            return;
+        }
+
+        // Buscar la característica en el origen
+        cy.contains("mat-card-title", nombre)
+            .scrollIntoView()
+            .should("exist")
+            .parents(".cdk-drag")
+            .find(".cdk-drag-handle")
+            .then(($handle) => {
+                const rect = $handle[0].getBoundingClientRect();
+
+                // 1. Hacer clic y mantener
+                cy.wrap($handle).realMouseDown({ position: "center" });
+                cy.wait(5000); // Espera 5s después de presionar
+
+                // 2. Pequeño movimiento para activar el drag
+                cy.root().realMouseMove(rect.x + 5, rect.y + 5);
+                cy.wait(5000); // Espera 5s después del primer movimiento
+
+                // 3. RECALCULAR DESTINO (para evitar referencias obsoletas)
+                cy.get(destinoSelector).first().then(($currentDestino) => {
+                    const destRect = $currentDestino[0].getBoundingClientRect();
                     const centroX = destRect.x + destRect.width / 2;
                     const centroY = destRect.y + destRect.height / 2;
 
+                    // 4. Mover al centro del destino
                     cy.root().realMouseMove(centroX, centroY);
-                    cy.root().realMouseUp();
+                    cy.wait(5000); // Espera 5s sobre el destino antes de soltar
 
-                    // Esperar a que desaparezca el spinner (si es necesario)
+                    // 5. Soltar
+                    cy.root().realMouseUp();
+                    cy.wait(5000); // Espera 5s después de soltar
+
+                    // 6. Esperar a que desaparezca el spinner
                     this.esperarQueSpinnerDesaparezca({ timeout });
 
-                    // Validar que la característica ahora existe en el destino (no requiere visibilidad)
+                    // 7. Validar que la característica ahora existe en el destino
                     cy.get(destinoSelector, { timeout })
                         .contains('mat-card-title', nombre)
-                        .should('exist');     // <-- También usamos "exist" para la validación final
+                        .should('exist');
                 });
-        });
-    }
+            });
+    });
+}
+
 
     arrastrarCaracteristicaC(nombre, opciones = {}) {
         const {
