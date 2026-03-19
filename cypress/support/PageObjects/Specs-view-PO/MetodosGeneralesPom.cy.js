@@ -1,3 +1,4 @@
+import '@4tw/cypress-drag-drop';
 class MetodosGeneralesPomCy{
 
     //Boton para agregar registros
@@ -3824,11 +3825,9 @@ arrastrarCaracteristicaConEsperas(nombre, opciones = {}) {
 
                     // 4. Mover al centro del destino
                     cy.root().realMouseMove(centroX, centroY);
-                    cy.wait(5000); // Espera 5s sobre el destino antes de soltar
-
-                    // 5. Soltar
-                    cy.root().realMouseUp();
-                    cy.wait(5000); // Espera 5s después de soltar
+                    cy.wait(100);
+                    cy.root().realMouseUp({ position: "center" });
+                    cy.root().realClick();
 
                     // 6. Esperar a que desaparezca el spinner
                     this.esperarQueSpinnerDesaparezca({ timeout });
@@ -3836,34 +3835,30 @@ arrastrarCaracteristicaConEsperas(nombre, opciones = {}) {
                     // 7. Validar que la característica ahora existe en el destino
                     cy.get(destinoSelector, { timeout })
                         .contains('mat-card-title', nombre)
-                        .should('exist');
+                        .should('exist');     // <-- También usamos "exist" para la validación final
                 });
-            });
-    });
-}
+        });
+    }
 
-
-    arrastrarCaracteristicaC(nombre, opciones = {}) {
+    /*arrastrarCaracteristicaC(nombre, opciones = {}) {
         const {
-            // Selector que apunta al contenedor de características del paso activo
-            destinoSelector = "mat-tab-body.mat-mdc-tab-body-active #step",
+            destinoSelector = '#step .drop-placeholder',
+            contenedorDestino = '#step',
             timeout = 10000,
         } = opciones;
 
-        return cy.get(destinoSelector, { timeout }).then($destinos => {
-            // Verificar si la característica ya existe en el destino (solo en el paso activo)
-            let existeEnDestino = false;
-            $destinos.each((_, contenedor) => {
-                const titulos = contenedor.querySelectorAll('mat-card-title');
-                for (let titulo of titulos) {
-                    if (titulo.textContent.replace(/\s+/g, ' ').trim() === nombre.replace(/\s+/g, ' ').trim()) {
-                        existeEnDestino = true;
-                        return false;
-                    }
+        // Verificar si la característica ya existe en el contenedor
+        cy.get(contenedorDestino, { timeout }).then($container => {
+            const titulos = $container.find('mat-card-title');
+            let existe = false;
+            titulos.each((_, titulo) => {
+                if (titulo.textContent.replace(/\s+/g, ' ').trim() === nombre.replace(/\s+/g, ' ').trim()) {
+                    existe = true;
+                    return false;
                 }
             });
 
-            if (existeEnDestino) {
+            if (existe) {
                 cy.log(`🟡 La característica "${nombre}" ya existe en el destino, se omite arrastre.`);
                 return;
             }
@@ -3876,37 +3871,546 @@ arrastrarCaracteristicaConEsperas(nombre, opciones = {}) {
                 .find(".cdk-drag-handle")
                 .then(($handle) => {
                     const rectOrigen = $handle[0].getBoundingClientRect();
+
+                    // Iniciar arrastre
                     cy.wrap($handle).realMouseDown({ position: "center" });
-                    cy.root().realMouseMove(rectOrigen.x + 5, rectOrigen.y + 5);
+                    cy.root().realMouseMove(rectOrigen.x + 5, rectOrigen.y + 5).wait(200);
 
-                    const $primerDestino = $destinos.first();
-                    const rectDestino = $primerDestino[0].getBoundingClientRect();
-                    const centroX = rectDestino.x + rectDestino.width / 2;
-                    const centroY = rectDestino.y + rectDestino.height / 2;
+                    // Determinar si el placeholder existe usando el documento del iframe
+                    cy.document().then(doc => {
+                        const tienePlaceholder = doc.querySelector(destinoSelector) !== null;
+                        const selectorDestinoReal = tienePlaceholder ? destinoSelector : contenedorDestino;
 
-                    cy.root().realMouseMove(centroX, centroY);
-                    cy.root().realMouseUp();
+                        cy.get(selectorDestinoReal, { timeout })
+                            .should('be.visible')
+                            .then($destino => {
+                                const rectDestino = $destino[0].getBoundingClientRect();
+                                const centroX = rectDestino.x + rectDestino.width / 2;
+                                const centroY = rectDestino.y + rectDestino.height / 2;
 
-                    cy.wait(2000);
-                    this.esperarQueSpinnerDesaparezca({ timeout });
+                                cy.root().realMouseMove(centroX, centroY).wait(300);
 
-                    // Validación final: buscar el título en el destino (mismo selector)
-                    cy.get(destinoSelector, { timeout: timeout + 5000 }).should($containers => {
-                        let encontrado = false;
-                        $containers.each((_, contenedor) => {
-                            const titulos = contenedor.querySelectorAll('mat-card-title');
-                            for (let titulo of titulos) {
-                                if (titulo.textContent.replace(/\s+/g, ' ').trim() === nombre.replace(/\s+/g, ' ').trim()) {
-                                    encontrado = true;
-                                    return false;
+                                // Verificar que el contenedor detecta el drag (acepta ambas clases)
+                                cy.get(contenedorDestino, { timeout: 5000 }).should($el => {
+                                    const hasDragging = $el.hasClass('cdk-drop-list-dragging');
+                                    const hasReceiving = $el.hasClass('cdk-drop-list-receiving');
+                                    expect(hasDragging || hasReceiving, 'El contenedor destino debe estar en estado de drag (dragging o receiving)').to.be.true;
+                                });
+
+                                // Pequeños movimientos para simular precisión
+                                cy.root().realMouseMove(centroX + 2, centroY + 2).wait(200);
+                                cy.root().realMouseMove(centroX, centroY).wait(200);
+
+                                // Soltar
+                                cy.root().realMouseUp();
+                                cy.root().realClick();
+                                cy.wait(1000);
+
+                                // Validar que el placeholder desapareció (solo si se usó)
+                                if (tienePlaceholder) {
+                                    cy.get(destinoSelector, { timeout: 5000 }).should('not.exist');
                                 }
-                            }
-                        });
-                        expect(encontrado, `La característica "${nombre}" debería estar en el destino`).to.be.true;
+
+                                // Validar que al menos un .cdk-drag apareció en el contenedor
+                                cy.get(contenedorDestino, { timeout }).find('.cdk-drag', { timeout: 5000 }).should('have.length.at.least', 1);
+
+                                // Buscar el título de la característica
+                                cy.get(contenedorDestino, { timeout: timeout + 5000 }).within(() => {
+                                    cy.get('mat-card-title').each($title => {
+                                        const texto = $title.text().replace(/\s+/g, ' ').trim();
+                                        if (texto === nombre.replace(/\s+/g, ' ').trim()) {
+                                            cy.wrap($title).should('be.visible');
+                                            return false;
+                                        }
+                                    }).then($titulos => {
+                                        const encontrado = $titulos.toArray().some(titulo =>
+                                            titulo.textContent.replace(/\s+/g, ' ').trim() === nombre.replace(/\s+/g, ' ').trim()
+                                        );
+                                        expect(encontrado, `La característica "${nombre}" debería estar visible en ${contenedorDestino}`).to.be.true;
+                                    });
+                                });
+
+                                // Esperar a que desaparezca el spinner
+                                this.esperarQueSpinnerDesaparezca({ timeout });
+                            });
                     });
                 });
         });
+    }*/
+
+    /*arrastrarCaracteristicaC(nombre, opciones = {}) {
+        const {
+            destinoSelector = '#step .drop-placeholder',
+            contenedorDestino = '#step',
+            timeout = 10000,
+        } = opciones;
+
+        // Verificar si ya existe (opcional, para evitar duplicados)
+        cy.get(contenedorDestino, { timeout }).then($container => {
+            const titulos = $container.find('mat-card-title');
+            let existe = false;
+            titulos.each((_, titulo) => {
+                if (titulo.textContent.trim() === nombre.trim()) {
+                    existe = true;
+                    return false;
+                }
+            });
+            if (existe) {
+                cy.log(`🟡 La característica "${nombre}" ya existe, se omite arrastre.`);
+                return;
+            }
+
+            // Buscar origen
+            cy.contains("mat-card-title", nombre)
+                .scrollIntoView()
+                .should("exist")
+                .parents(".cdk-drag")
+                .find(".cdk-drag-handle")
+                .then(($handle) => {
+                    const rectOrigen = $handle[0].getBoundingClientRect();
+
+                    cy.wrap($handle).realMouseDown({ position: "center" });
+                    cy.root().realMouseMove(rectOrigen.x + 5, rectOrigen.y + 5).wait(200);
+
+                    cy.document().then(doc => {
+                        const tienePlaceholder = doc.querySelector(destinoSelector) !== null;
+                        const selectorDestinoReal = tienePlaceholder ? destinoSelector : contenedorDestino;
+
+                        cy.get(selectorDestinoReal, { timeout })
+                            .should('be.visible')
+                            .then($destino => {
+                                const rectDestino = $destino[0].getBoundingClientRect();
+                                const centroX = rectDestino.x + rectDestino.width / 2;
+                                const centroY = rectDestino.y + rectDestino.height / 2;
+
+                                cy.root().realMouseMove(centroX, centroY).wait(300);
+
+                                // Verificar estado de drag
+                                cy.get(contenedorDestino, { timeout: 5000 }).then($el => {
+                                    const hasDragging = $el.hasClass('cdk-drop-list-dragging');
+                                    const hasReceiving = $el.hasClass('cdk-drop-list-receiving');
+                                    expect(hasDragging || hasReceiving, 'El contenedor debe estar en estado de drag').to.be.true;
+                                });
+
+                                cy.root().realMouseMove(centroX + 2, centroY + 2).wait(200);
+                                cy.root().realMouseMove(centroX, centroY).wait(200);
+                                cy.root().realMouseUp();
+                                cy.root().realClick();
+                                cy.wait(1500);
+
+                                if (tienePlaceholder) {
+                                    cy.get(destinoSelector, { timeout: 5000 }).should('not.exist');
+                                }
+
+                                // Después de soltar, hacer clic en la característica recién agregada para seleccionarla
+                                cy.get(contenedorDestino).within(() => {
+                                    cy.contains('mat-card-title', nombre).click({ force: true });
+                                });
+                                cy.wait(500); // Esperar a que se muestren las opciones
+
+                                cy.log(`✅ Arrastre completado para "${nombre}"`);
+                                this.esperarQueSpinnerDesaparezca({ timeout });
+                            });
+                    });
+                });
+        });
+    }*/
+
+    //Este casi sirve
+    /*arrastrarCaracteristicaC(nombre, opciones = {}) {
+        const {
+            destinoSelector = '#step .drop-placeholder',
+            contenedorDestino = '#step',
+            timeout = 10000,
+        } = opciones;
+
+        // Buscar el elemento origen
+        cy.contains("mat-card-title", nombre)
+            .scrollIntoView()
+            .should("exist")
+            .parents(".cdk-drag")
+            .then($origen => {
+                const $handle = $origen.find('.cdk-drag-handle').length > 0
+                    ? $origen.find('.cdk-drag-handle')
+                    : $origen;
+                const rectOrigen = $handle[0].getBoundingClientRect();
+
+                // Iniciar arrastre
+                cy.wrap($handle).realMouseDown({ position: "center" });
+                cy.root().realMouseMove(rectOrigen.x + 5, rectOrigen.y + 5).wait(200);
+
+                // Determinar el punto de destino
+                cy.get(contenedorDestino).then($container => {
+                    const elementosExistentes = $container.find('.cdk-drag');
+                    let puntoX, puntoY;
+
+                    if (elementosExistentes.length === 0) {
+                        // Si no hay elementos, usar el placeholder
+                        cy.get(destinoSelector, { timeout })
+                            .should('be.visible')
+                            .then($destino => {
+                                const rectDestino = $destino[0].getBoundingClientRect();
+                                puntoX = rectDestino.x + rectDestino.width / 2;
+                                puntoY = rectDestino.y + rectDestino.height / 2;
+                                return { puntoX, puntoY };
+                            });
+                    } else {
+                        // Si ya hay elementos, apuntar justo debajo del último
+                        const ultimoElemento = elementosExistentes.last();
+                        const rectUltimo = ultimoElemento[0].getBoundingClientRect();
+                        puntoX = rectUltimo.x + rectUltimo.width / 2;
+                        puntoY = rectUltimo.y + rectUltimo.height + 10; // 10px debajo
+                        return { puntoX, puntoY };
+                    }
+                }).then(({ puntoX, puntoY }) => {
+                    cy.root().realMouseMove(puntoX, puntoY).wait(300);
+
+                    // Verificar que el contenedor detecta el drag (opcional)
+                    cy.get(contenedorDestino, { timeout: 5000 }).then($el => {
+                        const hasDragging = $el.hasClass('cdk-drop-list-dragging');
+                        const hasReceiving = $el.hasClass('cdk-drop-list-receiving');
+                        expect(hasDragging || hasReceiving, 'El contenedor debe estar en estado de drag').to.be.true;
+                    });
+
+                    cy.root().realMouseMove(puntoX + 2, puntoY + 2).wait(200);
+                    cy.root().realMouseMove(puntoX, puntoY).wait(200);
+                    cy.root().realMouseUp();
+                    cy.root().realClick();
+                    cy.wait(1500);
+
+                    // Hacer clic en la nueva característica (la última)
+                    cy.get(contenedorDestino).find('.cdk-drag').last().click({ force: true });
+                    cy.wait(500);
+
+                    cy.log(`✅ Arrastre completado para "${nombre}"`);
+                    this.esperarQueSpinnerDesaparezca({ timeout });
+                });
+            });
+    }*/
+
+    //Este si ta mejor
+    /*arrastrarCaracteristicaC(nombre, opciones = {}) {
+        const {
+            destinoSelector = '#step .drop-placeholder',
+            contenedorDestino = '#step',
+            timeout = 10000,
+        } = opciones;
+
+        cy.contains("mat-card-title", nombre)
+            .scrollIntoView()
+            .should("exist")
+            .parents(".cdk-drag")
+            .then($origen => {
+
+                const $handle = $origen.find('.cdk-drag-handle').length > 0
+                    ? $origen.find('.cdk-drag-handle')
+                    : $origen;
+
+                const rectOrigen = $handle[0].getBoundingClientRect();
+
+                // 🔥 INICIAR DRAG
+                cy.wrap($handle).realMouseDown({ position: "center" });
+                cy.root().realMouseMove(rectOrigen.x + 5, rectOrigen.y + 5).wait(200);
+
+                // 🔥 SCROLL GENERAL (evita desbordes)
+                cy.get(contenedorDestino)
+                    //.scrollTo('bottom', { ensureScrollable: false })
+                    .scrollIntoView({ block: 'center' })
+                    .wait(200);
+
+                // 🔥 CALCULAR DESTINO SIN ROMPER ASYNC
+                cy.get(contenedorDestino).then($container => {
+                    const elementosExistentes = $container.find('.cdk-drag');
+
+                    if (elementosExistentes.length === 0) {
+
+                        cy.get(destinoSelector, { timeout })
+                            .should('be.visible')
+                            .then($destino => {
+                                const rectDestino = $destino[0].getBoundingClientRect();
+
+                                const puntoX = rectDestino.x + rectDestino.width / 2;
+                                const puntoY = rectDestino.y + rectDestino.height / 2;
+
+                                cy.wrap({ puntoX, puntoY }).as('coords');
+                            });
+
+                    } else {
+
+                        const ultimoElemento = elementosExistentes.last();
+
+                        // 🔥 SCROLL AL ÚLTIMO ELEMENTO
+                        cy.wrap(ultimoElemento)
+                            .scrollIntoView({ block: 'center' })
+                            .wait(200);
+
+                        const rectUltimo = ultimoElemento[0].getBoundingClientRect();
+
+                        const puntoX = rectUltimo.x + rectUltimo.width / 2;
+                        const puntoY = rectUltimo.y + rectUltimo.height + 30;
+
+                        cy.wrap({ puntoX, puntoY }).as('coords');
+                    }
+                });
+
+                // 🔥 USAR COORDENADAS (100% seguro)
+                cy.get('@coords').then(({ puntoX, puntoY }) => {
+
+                    // 🔥 MOVIMIENTO PROGRESIVO (clave para Angular CDK)
+                    cy.root().realMouseMove(puntoX, puntoY - 80).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY - 40).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY).wait(200);
+
+                    // 🔥 VALIDAR QUE EL CONTENEDOR ESTÁ EN DRAG
+                    cy.get(contenedorDestino, { timeout: 5000 }).then($el => {
+                        const hasDragging = $el.hasClass('cdk-drop-list-dragging');
+                        const hasReceiving = $el.hasClass('cdk-drop-list-receiving');
+                        expect(hasDragging || hasReceiving, 'El contenedor debe estar en estado de drag').to.be.true;
+                    });
+
+                    // 🔥 MICRO AJUSTES (evita fallos intermitentes)
+                    cy.root().realMouseMove(puntoX + 2, puntoY + 2).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY).wait(100);
+
+                    // 🔥 SOLTAR
+                    cy.root().realMouseUp();
+                    cy.root().realClick();
+                    cy.wait(1000);
+
+                    // 🔥 CLICK FINAL EN EL ELEMENTO AGREGADO
+                    cy.get(contenedorDestino)
+                        .find('.cdk-drag')
+                        .last()
+                        .click({ force: true });
+
+                    cy.wait(500);
+
+                    cy.log(`✅ Arrastre completado para "${nombre}"`);
+                    this.esperarQueSpinnerDesaparezca({ timeout });
+                });
+            });
+    }*/
+
+
+    /*arrastrarCaracteristicaC(nombre, opciones = {}) {
+        const {
+            contenedorDestino = '#step',
+            timeout = 10000,
+        } = opciones;
+
+        // 🔥 CONTENEDOR ACTIVO (Paso 1 o Paso 2)
+        const getContenedorActivo = () => {
+            return cy.get('mat-expansion-panel.mat-expanded')
+                .find(contenedorDestino)
+                .should('be.visible');
+        };
+
+        cy.contains("mat-card-title", nombre)
+            .scrollIntoView()
+            .should("exist")
+            .parents(".cdk-drag")
+            .then($origen => {
+
+                const $handle = $origen.find('.cdk-drag-handle').length > 0
+                    ? $origen.find('.cdk-drag-handle')
+                    : $origen;
+
+                const rectOrigen = $handle[0].getBoundingClientRect();
+
+                // 🔥 INICIO DRAG
+                cy.wrap($handle).realMouseDown({ position: "center" });
+                cy.root().realMouseMove(rectOrigen.x + 5, rectOrigen.y + 5).wait(200);
+
+                // 🔥 CONTENEDOR DESTINO REAL (ACTIVO)
+                getContenedorActivo().then($container => {
+
+                    const elementosExistentes = $container.find('.cdk-drag');
+
+                    let puntoX, puntoY;
+
+                    // =========================
+                    // 🔵 CASO: CONTENEDOR VACÍO
+                    // =========================
+                    if (elementosExistentes.length === 0) {
+
+                        const rect = $container[0].getBoundingClientRect();
+
+                        puntoX = rect.x + rect.width / 2;
+                        puntoY = rect.y + 40; // 🔥 ligeramente arriba del centro
+
+                    } else {
+
+                        // =========================
+                        // 🔵 CASO: YA HAY ELEMENTOS
+                        // =========================
+                        const ultimo = elementosExistentes.last();
+
+                        cy.wrap(ultimo)
+                            .scrollIntoView({ block: 'center' })
+                            .wait(150);
+
+                        const rectUltimo = ultimo[0].getBoundingClientRect();
+
+                        puntoX = rectUltimo.x + rectUltimo.width / 2;
+                        puntoY = rectUltimo.y + rectUltimo.height + 30;
+                    }
+
+                    // 🔥 GUARDAR COORDENADAS
+                    cy.wrap({ puntoX, puntoY }).as('coords');
+                });
+
+                // 🔥 EJECUTAR DRAG
+                cy.get('@coords').then(({ puntoX, puntoY }) => {
+
+                    // 🔥 MOVIMIENTO PROGRESIVO (CLAVE ANGULAR CDK)
+                    cy.root().realMouseMove(puntoX, puntoY - 80).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY - 40).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY).wait(200);
+
+                    // 🔥 INTENTO DE ACTIVAR DROP ZONE (NO BLOQUEANTE)
+                    getContenedorActivo().then($el => {
+                        const dragging = $el.hasClass('cdk-drop-list-dragging');
+                        const receiving = $el.hasClass('cdk-drop-list-receiving');
+
+                        if (!(dragging || receiving)) {
+                            cy.log('⚠️ Angular CDK no detectó drag (continuando igual)');
+                        }
+                    });
+
+                    // 🔥 AJUSTES FINOS
+                    cy.root().realMouseMove(puntoX + 2, puntoY + 2).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY).wait(100);
+
+                    // 🔥 DROP
+                    cy.root().realMouseUp();
+                    cy.root().realClick();
+
+                    cy.wait(1200);
+
+                    // 🔥 CLICK EN ELEMENTO NUEVO
+                    getContenedorActivo()
+                        .find('.cdk-drag')
+                        .should('have.length.greaterThan', 0)
+                        .should('be.visible')
+                        .then($list => {
+
+                            // 🔥 esperar que Angular termine de renderizar
+                            cy.wrap($list.last())
+                                .scrollIntoView({ block: 'center' })
+                                .should('exist')
+                                .click({ force: true });
+                        });
+
+                    cy.wait(500);
+
+                    cy.log(`✅ Arrastre completado: "${nombre}"`);
+
+                    this.esperarQueSpinnerDesaparezca({ timeout });
+                });
+            });
+    }*/
+
+    arrastrarCaracteristicaC(nombre, opciones = {}) {
+
+        const {
+            paso = null,
+            timeout = 15000,
+        } = opciones;
+
+        // 🔥 1. Seleccionar paso correcto
+        const seleccionarPaso = () => {
+
+            if (!paso) {
+                return cy.get('mat-expansion-panel.mat-expanded');
+            }
+
+            return cy.contains('span.cursor', paso, { timeout })
+                .scrollIntoView()
+                .click({ force: true })
+                .then(() => {
+                    return cy.get('mat-expansion-panel.mat-expanded');
+                });
+        };
+
+        // 🔥 2. Obtener drop zone REAL del paso activo
+        const obtenerDropZone = ($panel) => {
+
+            return cy.wrap($panel)
+                .find('.cdk-drop-list')   // 🔥 NO #step
+                .should('exist')
+                .and('be.visible');
+        };
+
+        // =========================
+        // 🔥 INICIO DRAG ORIGEN
+        // =========================
+        cy.contains("mat-card-title", nombre, { timeout })
+            .scrollIntoView()
+            .should("exist")
+            .parents(".cdk-drag")
+            .then($origen => {
+
+                const $handle = $origen.find('.cdk-drag-handle').length
+                    ? $origen.find('.cdk-drag-handle')
+                    : $origen;
+
+                const rectOrigen = $handle[0].getBoundingClientRect();
+
+                cy.wrap($handle).realMouseDown({ position: "center" });
+                cy.root().realMouseMove(rectOrigen.x + 5, rectOrigen.y + 5).wait(200);
+
+                // =========================
+                // 🔥 PASO DESTINO REAL
+                // =========================
+                seleccionarPaso().then($panel => {
+
+                    obtenerDropZone($panel).then($drop => {
+
+                        const rect = $drop[0].getBoundingClientRect();
+
+                        const puntoX = rect.left + rect.width / 2;
+                        const puntoY = rect.top + rect.height / 2;
+
+                        cy.wrap({ puntoX, puntoY }).as('coords');
+                    });
+                });
+
+                // =========================
+                // 🔥 DROP SEGURO
+                // =========================
+                cy.get('@coords').then(({ puntoX, puntoY }) => {
+
+                    cy.root().realMouseMove(puntoX, puntoY - 60).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY - 20).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY).wait(150);
+
+                    cy.root().realMouseUp({ force: true });
+                    cy.root().realClick();
+
+                    cy.wait(1200); // 🔥 Angular render real
+
+                });
+
+                // =========================
+                // 🔥 VALIDACIÓN SEGURA
+                // =========================
+                seleccionarPaso().then($panel => {
+
+                    cy.wrap($panel)
+                        .find('.cdk-drag')
+                        .should('exist')
+                        .should('have.length.greaterThan', 0)
+                        .last()
+                        .scrollIntoView()
+                        .should('be.visible')
+                        .click({ force: true });
+
+                });
+
+                cy.log(`✅ Arrastre completado para "${nombre}"`);
+            });
     }
+
 
     seleccionarRadio(valor, opciones = {}) {
         const {

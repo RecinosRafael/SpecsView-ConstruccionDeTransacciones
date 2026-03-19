@@ -1,4 +1,6 @@
 import metodosGeneralesPomCy from "./MetodosGeneralesPom.cy.js";
+import '@4tw/cypress-drag-drop';
+
 
 class GestorPomCy{
 
@@ -575,12 +577,14 @@ AsignacionDCaracteristicaAPasoB(paso, caracteristica, tamanioLetra, visualizar, 
 
     AsignacionDCaracteristicaAPaso(caracteristica, tamanioLetra, visualizar, proteger, obligatorio, negrita, verFirmas, expresionCalcularCampo,
                                        ReglasCondicionarCampo, operacion, expresionParaValidar, mensajeError, correlativo, productos) {
+        this.Generales.arrastrarCaracteristica(caracteristica);
 
-        // Asegúrate de que el iframe esté listo antes (opcional)
-        //cy.get('iframe.frame').its('0.contentDocument.body').should('not.be.empty');
-
-        this.Generales.arrastrarCaracteristicaC(caracteristica)
-
+        // Llamar a arrastrarCaracteristicaC con las opciones de destino
+        /*this.Generales.arrastrarCaracteristicaC(caracteristica, {
+            destinoSelector: '#step .drop-placeholder',
+            contenedorDestino: '#step',
+            timeout: 10000
+        });*/
 
         cy.wait(1500)
         this.Generales.seleccionarComboIframe(tamanioLetra, "Tamaño de letra", { timeout: 10000, force: true, skipContext: true } )
