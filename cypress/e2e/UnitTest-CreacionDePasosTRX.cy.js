@@ -21,6 +21,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
         cy.fixture('creacionDePasosTRX').as('data')
+        //cy.fixture('asignacionDeCaracteristicas').as('dataAsignar');
+
     });
 
 
@@ -75,8 +77,37 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                             paso.descripcionPasoTrx
                         );
 
+                        Generales.BtnIframe("Cuenta", { timeout: 10000, force: true, skipContext: true });
+                        cy.wait(2000)
+
+                    });
+
+                    cy.get('iframe.frame', { timeout: 10000 })
+                        .its('0.contentDocument.body')
+                        .should('not.be.empty')
+                        .then(cy.wrap)
+                        .within(() => {
+
+
+                    GestorDeTransacciones.AsignacionDCaracteristicaAPaso(
+                            paso.caracteristica,
+                            paso.tamanioLetra,
+                            paso.visualizar,
+                            paso.proteger,
+                            paso.negrita,
+                            paso.verFirmas,
+                            paso.expresionCalcularCampo,
+                            paso.ReglasCondicionarCampo,
+                            paso.operacion,
+                            paso.expresionParaValidar,
+                            paso.mensajeError,
+                            paso.correlativo,
+                            paso.productos
+                        );
+
                         // Pequeña pausa entre pasos si es necesario
-                        cy.wait(500);
+                        cy.wait(1500);
+                        cy.wait(1500);
                     });
 
                     cy.log(`✅ Todos los ${pasos.length} pasos de ${codigoTRX} han sido creados`);

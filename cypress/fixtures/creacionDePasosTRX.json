@@ -1,12 +1,6 @@
 {
   "agregar": [
     {
-      "codigoTRX": "600",
-      "nombrePaso": "Paso1",
-      "typeReglaParaCondicionarPaso": "",
-      "descripcionPasoTrx": ""
-    },
-    {
       "codigoTRX": "700",
       "nombrePaso": "Cuenta",
       "typeReglaParaCondicionarPaso": "",

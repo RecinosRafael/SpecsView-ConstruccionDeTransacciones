@@ -2,7 +2,7 @@ import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosG
 import GestorPomCy from "../support/PageObjects/Specs-view-PO/GestorDeTransacciones.cy";
 import 'cypress-xpath';
 import "cypress-real-events/support";
-import '@4tw/cypress-drag-drop'
+import '@4tw/cypress-drag-drop';
 
 
 const Generales = new metodosGeneralesPomCy();
@@ -189,6 +189,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                         } else if (!pasoRequerido) {
                             // Fallback si no hay paso
                             Generales.BtnIframe("Cuenta", { timeout: 10000, force: true, skipContext: true });
+                            Cy.wait(1500)
                         } else {
                             cy.log(`Paso "${pasoRequerido}" ya está seleccionado, se omite clic.`);
                         }
@@ -252,4 +253,6 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
             });
         });
     });
+
+
 });
