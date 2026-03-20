@@ -4,21 +4,6 @@
       "llave": "post.rfwide",
       "datosEquivalentes": "0",
       "descripcion": "No de líneas a dejar en blanco o salto a media pagina; estas líneas deben saltarse si aplica y no son parte del conteo de líneas a imprimir por pagina, o sea son líneas no usadas en el conteo de líneas a imprimir por pagina."
-    },
-    {	
-      "llave": "post.rftall",
-      "datosEquivalentes": "-1",
-      "descripcion": "No de línea donde inicia el salto a media pagina, si fuera que no se requiere salto se define en -1; este numero de línea incluye las líneas de margen superior + las líneas que se imprimen en la primera parte de la pagina de la libreta."
-    },
-    {	
-      "llave": "post.rffosi",
-      "datosEquivalentes": "20",
-      "descripcion": "longitud de líneas a imprimir de posteos en una pagina; son las líneas a imprimir de posteos por pagina, sin contar el margen superior y/o el salto de líneas en blanco en medio de la pagina."
-    },
-    {	
-      "llave": "post.rfrima",
-      "datosEquivalentes": "0",
-      "descripcion": "Margen superior (n líneas), este espacio es usado para regular los datos generales de la cuenta, no se imprime por la impresión de posteos."
     }
   ]
 }

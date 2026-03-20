@@ -7,14 +7,6 @@
       "codigoNumerico": "340",
       "decimales": "2",
       "puntoFlotante": ""
-    },
-    {
-      "codigo": "US$",
-      "codigoIso": "US$",
-      "nombre": "Dólares",
-      "codigoNumerico": "840",
-      "decimales": "2",
-      "puntoFlotante": ""
     }
   ]
 }

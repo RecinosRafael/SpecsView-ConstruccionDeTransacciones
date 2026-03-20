@@ -5,18 +5,6 @@
       "nombre": "comprobante-trx-depositos",
       "descripcion": "comprobante-trx-depositos",
       "archivo": "comprobante-trx-depositos.docx"
-    },
-    {
-      "key": "comprobante-trx-retiros",
-      "nombre": "comprobante-trx-retiros",
-      "descripcion": "comprobante-trx-retiros",
-      "archivo": "comprobante-trx-retiros.docx"
-    },
-    {
-      "key": "comprobante-posteos",
-      "nombre": "comprobante-posteos",
-      "descripcion": "comprobante-posteos",
-      "archivo": "comprobante-posteos.docx"
     }
   ]
 }

@@ -7,30 +7,6 @@
       "accion": "Afectar Totales",
       "ejecutar": "Después de enviar al host",
       "descripcion": "Afectación efectivo trx Pagadas"
-    },
-    {
-      "transaccion": "",
-      "correlativo": "2",
-      "regla": "Afectación efectivo trx recibidas",
-      "accion": "Afectar Totales",
-      "ejecutar": "Después de enviar al host",
-      "descripcion": "Afectación efectivo trx recibidas"
-    },
-    {	
-      "transaccion": "Solicitud de efectivo a bóveda",
-      "correlativo": "1",
-      "regla": "siempre se cumple",
-      "accion": "Asociar Transacciones",
-      "ejecutar": "Después del resumen",
-      "descripcion": "cajero solicita efectivo a Bóveda, debemos generar 2da transacción automática para el encargado de Bóveda."
-    },
-    {	
-      "transaccion": "Entrega de efectivo a bóveda",
-      "correlativo": "1",
-      "regla": "siempre se cumple",
-      "accion": "Afectar Totales",
-      "ejecutar": "Después del resumen",
-      "descripcion": "generar transacción automática a encargado de bóveda"
     }
   ]
 }		
