@@ -76,7 +76,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         )
     })
 
-    describe.skip('001 - Ejecutar script Datos Iniciales', () => {
+    describe('001 - Ejecutar script Datos Iniciales', () => {
 
         beforeEach(() => {
             Cypress.config('defaultCommandTimeout', 120000);
@@ -322,7 +322,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         });
 
         // ------------------------------------------------------------
-        // FUNCIÓN PARA GUARDAR REPORTES (AHORA DENTRO DEL describe.skip.skip)
+        // FUNCIÓN PARA GUARDAR REPORTES (AHORA DENTRO DEL describe.skip)
         // ------------------------------------------------------------
         function guardarReportes() {
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -591,7 +591,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("004 -  Monedas...", () =>{
+    describe("004 -  Monedas...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('money')
@@ -651,7 +651,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("004.1 - Monedas > Crud Denominaciones...", () =>{
+    describe("004.1 - Monedas > Crud Denominaciones...", () =>{
 
         before(() => {
             cy.fixture('denominaciones').as('dataDenominaciones')
@@ -807,7 +807,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("005 -  Productos...", () =>{
+    describe("005 -  Productos...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('products')
@@ -1189,7 +1189,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("010 -  Niveles de Cajero...", () =>{
+    describe("010 -  Niveles de Cajero...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('cashierLevel')
@@ -1250,7 +1250,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("011 -  Tipo de Cajero...", () =>{
+    describe("011 -  Tipo de Cajero...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('typeCashier')
@@ -1310,7 +1310,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("012 - Usuario", () => {
+    describe("012 - Usuario", () => {
 
         beforeEach(() => {
             Generales.IrAPantalla('user');
@@ -1544,7 +1544,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("014 -  Campos de la transacción ...", () =>{
+    describe("014 -  Campos de la transacción ...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('characteristicSpec')
@@ -2072,7 +2072,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("017 -  Totales de Cajero...", () =>{
+    describe("017 -  Totales de Cajero...", () =>{
 
 
         beforeEach(() => {
@@ -2410,7 +2410,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("019 -  Gestor de Transacciones ...", () =>{
+    describe("019 -  Gestor de Transacciones ...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('transactionManager')
@@ -2495,7 +2495,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("019.1 -  Gestor de Transacciones > Caracteristicas de la transaccione ...", () =>{
+    describe("019.1 -  Gestor de Transacciones > Caracteristicas de la transaccione ...", () =>{
 
         before(() => {
             cy.fixture('caracteristicasTrx').as('dataCaracteristicasTrx')
@@ -2686,7 +2686,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("019.2 -  Gestor de Transacciones > Pasos de la transaccion ...", function() {
+    describe("019.2 -  Gestor de Transacciones > Pasos de la transaccion ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -3113,7 +3113,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     });
 
-    describe.skip("019.3 -  Gestor de Transacciones > Asignar Caracteristicas de la transaccione a pasos ...", function() {
+    describe("019.3 -  Gestor de Transacciones > Asignar Caracteristicas de la transaccione a pasos ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -3491,7 +3491,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     });
 
-    describe.skip("019.6 -  Gestor de Transacciones > Asignacion de Mooneda ...", function() {
+    describe("019.6 -  Gestor de Transacciones > Asignacion de Mooneda ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -3579,7 +3579,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     });
 
-    describe.skip("019.7 -  Gestor de Transacciones > Totales a Afectar ..." , function() {
+    describe("019.7 -  Gestor de Transacciones > Totales a Afectar ..." , function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -3683,7 +3683,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         });
     });
 
-    describe.skip("019.8 -  Gestor de Transacciones > Características del resultado ...", function() {
+    describe("019.8 -  Gestor de Transacciones > Características del resultado ...", function() {
 
 
         beforeEach(function() {
@@ -3866,7 +3866,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         });
     });
 
-    describe("019.10 -  Gestor de Transacciones > Comprobantes de Impresión ...", function() {
+    describe.skip("019.10 -  Gestor de Transacciones > Comprobantes de Impresión ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -3991,7 +3991,6 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         Generales.BtnIframe("Notificaciones electrónicas", { timeout: 10000, skipContext: true }, 'div[role="tab"]', true);
                         cy.wait(1500)
                         Generales.BtnIframe("Agregar", { timeout: 10000, force: true, skipContext: true }, 'add-button');
-                        GestorDeTransaccion.ComprobantesImpresion(item);
                         GestorDeTransaccion.ComprobantesNotElectronica(
                             //tipoFormato, comprobante, verComprobante, seNotificaMedio, esMandatorio, notificaComprobante
                             item.tipoFormato, item.comprobante, item.verComprobante, item.seNotificaMedio,
