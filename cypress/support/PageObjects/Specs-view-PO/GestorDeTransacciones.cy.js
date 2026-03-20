@@ -539,7 +539,7 @@ AsignacionDCaracteristicaAPasoB(paso, caracteristica, tamanioLetra, visualizar, 
 
 
 // ===========================
-// MÉTODOS PARA ARRASTRAR CARACTERÍSTICAS (SIN IFRAME)
+// MÉTODOS PA RA ARRASTRAR CARACTERÍSTICAS (SIN IFRAME)
 // ===========================
 
     /**
