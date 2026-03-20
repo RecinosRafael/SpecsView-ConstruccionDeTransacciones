@@ -4,7 +4,7 @@
     {
       "codigoTX": "700",
       "tipoFormato": "Online",
-      "comprobante": "Consultar Cuenta core-Byte",
+      "comprobante": "Comprobante trx de depósitos",
       "esMandatorio": true,
       "verComprobante": true,
       "notificaComprobante": true,
