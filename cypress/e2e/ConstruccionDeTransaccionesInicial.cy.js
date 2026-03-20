@@ -76,7 +76,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         )
     })
 
-    describe.skip('001 - Flujo MySQL: Ejecutar script ParametrosIniciales.sql', () => {
+    describe.skip('001 - Ejecutar script Datos Iniciales', () => {
 
         beforeEach(() => {
             Cypress.config('defaultCommandTimeout', 120000);
@@ -322,7 +322,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         });
 
         // ------------------------------------------------------------
-        // FUNCIÓN PARA GUARDAR REPORTES (AHORA DENTRO DEL describe.skip)
+        // FUNCIÓN PARA GUARDAR REPORTES (AHORA DENTRO DEL describe.skip.skip)
         // ------------------------------------------------------------
         function guardarReportes() {
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -475,7 +475,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         }
     });
 
-    describe.skip("002 - Creacion de datos en Tipo de Dato...", () =>{
+    describe.skip("002 -  Tipo de Dato...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('dataType')
@@ -532,7 +532,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("003 - Creacion de datos en Paises...", () =>{
+    describe.skip("003 -  Paises...", () =>{
 
 
         beforeEach(() => {
@@ -591,7 +591,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("004 - Creacion de datos en Monedas...", () =>{
+    describe.skip("004 -  Monedas...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('money')
@@ -651,7 +651,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("004.1  Creacion de datos submenu Monedas > Crud Denominaciones...", () =>{
+    describe.skip("004.1 - Monedas > Crud Denominaciones...", () =>{
 
         before(() => {
             cy.fixture('denominaciones').as('dataDenominaciones')
@@ -741,7 +741,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip('004.2  Creacion de datos submenu Monedas > Países que usan moneda', () => {
+    describe.skip('004.2 -  Monedas > Países que usan moneda', () => {
 
         before(() => {
             cy.fixture('paisesQueLoUsan').as('dataPaises')
@@ -807,7 +807,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("005 - Creacion de datos en Productos...", () =>{
+    describe.skip("005 -  Productos...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('products')
@@ -869,7 +869,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("006 - Creacion de datos en Razones de reversion ...", () =>{
+    describe.skip("006 -  Razones de reversion ...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('reasonsReverse')
@@ -927,7 +927,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("007 - Creacion de datos en Mensajes de Error", () => {
+    describe.skip("007 -  Mensajes de Error", () => {
 
         beforeEach(() => {
             Generales.IrAPantalla('errorMessage');
@@ -1048,18 +1048,16 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
 
-    });
+    })
 
-    describe.skip("008 - Creacion de datos en Equivalencias ...", () =>{
+    describe.skip("008 -  Equivalencias ...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('equivalencies')
-            cy.wait(4000)
         })
 
-        it("Agregar múltiples registros en crud Equivalencias...", () => {
+        it("Agregar múltiples registros dinámicamente", () => {
             cy.fixture('equivalencias').then((data) => {
-
                 cy.wrap(data.agregar).each((item) => {
                     cy.log(`Insertando código: ${item.codigo}`)
 
@@ -1073,7 +1071,6 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
                     //Abrir formulario
                     Generales.BtnAgregarRegistros()
-
 
                     //Validar que el modal realmente abrió
                     cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
@@ -1134,7 +1131,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("009 - Creacion de datos en Regiones ...", () =>{
+    describe.skip("009 -  Regiones ...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('region')
@@ -1192,7 +1189,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("010 - Creacion de datos en Niveles de Cajero...", () =>{
+    describe.skip("010 -  Niveles de Cajero...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('cashierLevel')
@@ -1253,7 +1250,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("011 - Creacion de datos en Tipo de Cajero...", () =>{
+    describe.skip("011 -  Tipo de Cajero...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('typeCashier')
@@ -1313,7 +1310,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("012 - Creacion de datos en Usuario", () => {
+    describe.skip("012 - Usuario", () => {
 
         beforeEach(() => {
             Generales.IrAPantalla('user');
@@ -1488,7 +1485,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         });
     });
 
-    describe.skip("013 - Creacion de datos en Razones de Bloqueo de Usuario...", () =>{
+    describe.skip("013 -  Razones de Bloqueo de Usuario...", () =>{
 
 
         beforeEach(() => {
@@ -1547,7 +1544,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("014 - Creacion de datos en Campos de la transacción ...", () =>{
+    describe.skip("014 -  Campos de la transacción ...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('characteristicSpec')
@@ -1606,7 +1603,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("014.1 - Creacion de datos en submenu Campos de la transacció > Valores de Caracteristicas...", () =>{
+    describe.skip("014.1 -  transacció > Valores de Caracteristicas...", () =>{
 
         before(() => {
             cy.fixture('valoresCaracteristicas').as('valoresCaracteristicas')
@@ -1696,7 +1693,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("014.2 - Creacion de datos en submenu Campos de la transacció > Sub Características...", () =>{
+    describe.skip("014.2 -  transacción > Sub Características...", () =>{
 
         before(() => {
             cy.fixture('subCaracteristicas').as('subCaracteristicas')
@@ -1786,7 +1783,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("015 - Creacion de datos en Formatos...", () =>{
+    describe.skip("015 -  Formatos...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('format')
@@ -1854,7 +1851,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("015.1 - Creacion de datos en submenu Formato > Detalle de Formato...", () =>{
+    describe.skip("015.1 - Formato > Detalle de Formato...", () =>{
 
         before(() => {
             cy.fixture('detalleDeFormato').as('dataDetalleFromato')
@@ -1961,78 +1958,11 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("016 - Creacion de datos en Rutinas...", () =>{
+    describe.skip("016 -  Rutinas...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('routine')
         })
-
-        /*it("Agregar múltiples registros en Crud de Rutinas", () => {
-            cy.fixture('rutinas').then((dataRutinas) => {
-                cy.wrap(dataRutinas.agregar).each((item) => {
-                    cy.log(`Insertando código: ${item.codigo}`)
-
-                    //Asegurar estado limpio antes de comenzar
-                    cy.get('body').then(($body) => {
-                        if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
-                            cy.log('Formulario abierto detectado, cerrando...')
-                            Generales.BtnCancelarRegistro()
-                        }
-                    })
-
-                    //Abrir formulario
-                    Generales.BtnAgregarRegistro()
-
-                    //Validar que el modal realmente abrió
-                    cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
-                        .should('be.visible')
-
-                    // Llenar datos
-                    Rutinas.Rutinas(
-                        item.codigo,
-                        item.nombre,
-                        item.nombreRecurso,
-                        item.endpointRutinaRutaComponenteAngular,
-                        item.tipoRutina,
-                        item.capaEjecucion,
-                        item.descripcion,
-                        item.parametros,
-                        item.tipoOperacion,
-                        item.esLogin,
-                        item.formatoEnvio,
-                        item.formatoRecibido,
-                        item.expresion1,
-                        item.operacion,
-                        item.expresion2,
-                        item.tipoExpresion,
-                        item.endpointRutinaSecundario,
-                        item.enviarListaRecursos,
-                        item.ofline,
-                        item.online,
-                        item.noGuardarLOG
-                    )
-
-                    //Intercept backend
-                    cy.intercept('POST', '**!/routine').as('guardar')
-
-                    Generales.BtnAceptarRegistro()
-
-
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
-                })
-            })
-        })*/
 
         it("Agregar múltiples registros en Crud de Rutinas", () => {
             cy.fixture('rutinas').then((dataRutinas) => {
@@ -2142,7 +2072,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("017 - Creacion de datos en Totales de Cajero...", () =>{
+    describe.skip("017 -  Totales de Cajero...", () =>{
 
 
         beforeEach(() => {
@@ -2213,7 +2143,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("017.1 - Creacion de datos en submenu Totales de Cajero > Totales a cuadrar...", () =>{
+    describe.skip("017.1 -  Totales de Cajero > Totales a cuadrar...", () =>{
 
         before(() => {
 
@@ -2303,7 +2233,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("017.2 - Creacion de datos en submenu Totales de Cajero > Minimos y Maximos...", () =>{
+    describe.skip("017.2 -   Totales de Cajero > Minimos y Maximos...", () =>{
 
         before(() => {
             cy.fixture('minimosYmaximos').as('dataDinimosYmaximos')
@@ -2397,63 +2327,11 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("018 - Creacion de datos en Plantilla de comprobantes...", () =>{
+    describe.skip("018 -  Plantilla de comprobantes...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('voucherTemplate')
         })
-
-        /*it("Agregar múltiples registros en crud plantilla de comprobante", () => {
-            cy.fixture('plantillasDeComprobante').then((dataPlantillasDeComprobante) => {
-                cy.wrap(dataPlantillasDeComprobante.agregar).each((item) => {
-                    cy.log(`Insertando código: ${item.key}`)
-
-                    //Asegurar estado limpio antes de comenzar
-                    cy.get('body').then(($body) => {
-                        if ($body.find('h2:contains("Nuevo registro")').length > 0) {
-                            cy.log('Formulario abierto detectado, cerrando...')
-                            Generales.BtnCancelarRegistro()
-                        }
-                    })
-
-                    //Abrir formulario
-                    Generales.BtnAgregarRegistro()
-
-                    //Validar que el modal realmente abrió
-                    cy.contains('h2', 'Nuevo registro', { timeout: 10000 })
-                        .should('be.visible')
-
-                    // Llenar datos
-                    PlantillaComprobante.PlantillasComprobantes(
-                        item.key,
-                        item.nombre,
-                        item.descripcion,
-                        item.archivo
-                    )
-
-                    //Intercept backend
-                    cy.intercept('POST', '**!/voucherTemplate').as('guardar')
-
-                    Generales.BtnAceptarRegistro()
-
-
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
-                })
-            })
-        })*/
-
-
 
         it("Agregar múltiples registros en crud plantilla de comprobante", () => {
             cy.fixture('plantillasDeComprobante').then((dataPlantillasDeComprobante) => {
@@ -2532,7 +2410,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("019 - Creacion de datos en Gestor de Transacciones ...", () =>{
+    describe.skip("019 -  Gestor de Transacciones ...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('transactionManager')
@@ -2617,7 +2495,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("019.1 - Creacion de datos en Gestor de Transacciones > Caracteristicas de la transaccione ...", () =>{
+    describe.skip("019.1 -  Gestor de Transacciones > Caracteristicas de la transaccione ...", () =>{
 
         before(() => {
             cy.fixture('caracteristicasTrx').as('dataCaracteristicasTrx')
@@ -2808,7 +2686,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("019.2 - Creacion de datos en Gestor de Transacciones > Pasos de la transaccion ...", function() {
+    describe.skip("019.2 -  Gestor de Transacciones > Pasos de la transaccion ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -3235,7 +3113,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     });
 
-    describe("019.3 - Creacion de datos en Gestor de Transacciones > Asignar Caracteristicas de la transaccione a pasos ...", function() {
+    describe.skip("019.3 -  Gestor de Transacciones > Asignar Caracteristicas de la transaccione a pasos ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -3244,23 +3122,21 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         });
 
         it("Agregar múltiples registros dinámicamente", function() {
-
-            const datos = this.data.agregar
+            const datos = this.data.agregar;
 
             const agrupadas = datos.reduce((acc, item) => {
                 if (!acc[item.codigoTX]) {
-                    acc[item.codigoTX] = []
+                    acc[item.codigoTX] = [];
                 }
-                acc[item.codigoTX].push(item)
-                return acc
-            }, {})
-
+                acc[item.codigoTX].push(item);
+                return acc;
+            }, {});
 
             cy.wrap(Object.keys(agrupadas)).each((codigoTX) => {
-                cy.log('Procesando Tx: ' + codigoTX)
+                cy.log('Procesando Tx: ' + codigoTX);
 
+                // Opcional: limpiar logs de Cypress
                 cy.then(() => {
-                    // Limpiar logs de Cypress (opcional)
                     const doc = window.top.document;
                     const logContainer = doc.querySelector('.reporter .commands') ||
                         doc.querySelector('.command-list') ||
@@ -3277,18 +3153,31 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     .then(cy.wrap)
                     .within(() => {
                         // Dentro del iframe: acciones de edición
-                        Generales.filtrarPorCodigo(codigoTX); // o item.codigoTX - 777 para pruebas
+                        Generales.filtrarPorCodigo(codigoTX);
+
+                        // Variable para recordar el paso actualmente seleccionado
+                        let pasoActual = null;
 
                         return cy.wrap(agrupadas[codigoTX]).each((item) => {
-                            Generales.abrirPanel("Opciones", {timeout: 20000, force: true});
-                            cy.wait(500)
-                            if (item.paso) {
+                            Generales.abrirPanel("Opciones", { timeout: 20000, force: true });
+                            cy.wait(500);
+
+                            // Verificar si necesitamos cambiar de paso
+                            const pasoRequerido = item.paso ? item.paso.toString().trim() : null;
+                            if (pasoRequerido && pasoRequerido !== pasoActual) {
+                                cy.log(`Cambiando de paso "${pasoActual}" a "${pasoRequerido}"`);
                                 Generales.seleccionarPaso(item.paso, { timeout: 10000, skipContext: true, force: true });
-                            } else {
-                                // Fallback al método anterior si no hay paso en el JSON
+                                pasoActual = pasoRequerido;
+                            } else if (!pasoRequerido) {
+                                // Fallback si no hay paso
                                 Generales.BtnIframe("Cuenta", { timeout: 10000, force: true, skipContext: true });
+                                cy.wait(1500)
+                            } else {
+                                cy.log(`Paso "${pasoRequerido}" ya está seleccionado, se omite clic.`);
                             }
 
+
+                            cy.wait(2500)
                             GestorDeTransaccion.AsignacionDCaracteristicaAPaso(
                                 item.caracteristica,
                                 item.tamanioLetra,
@@ -3305,12 +3194,12 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                                 item.correlativo,
                                 item.productos
                             );
+
                             // Hacemos clic en Guardar sin interceptar
                             Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
-                        }); // Salimos del iframe
+                        });
                     }).then(() => {
-
-                    // Esperamos un tiempo para que la operación se complete (ajusta según sea necesario)
+                    // Esperamos un tiempo para que la operación se complete
                     cy.wait(2000);
 
                     // Volvemos a entrar al iframe para hacer clic en "Atrás"
@@ -3322,7 +3211,6 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                             Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
                         });
 
-                    // Espera a que el posible diálogo aparezca
                     cy.wait(2000);
 
                     // Verificar si aparece el diálogo de confirmación DENTRO del iframe
@@ -3330,15 +3218,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         .its('0.contentDocument.body')
                         .should('not.be.empty')
                         .then(($body) => {
-                            // Buscar el diálogo por su TÍTULO "Confirmar"
                             const $dialog = Cypress.$('mat-dialog-container:contains("Confirmar")', $body);
-
                             if ($dialog.length > 0) {
                                 cy.log('✅ Diálogo Confirmar detectado');
-
-                                // DENTRO del diálogo, buscar el botón que tiene mat-icon con texto "check"
                                 const $btnSi = Cypress.$('button mat-icon:contains("check")', $dialog).parents('button');
-
                                 if ($btnSi.length > 0) {
                                     cy.log('✅ Botón Sí encontrado dentro del diálogo, haciendo clic');
                                     $btnSi.first().click();
@@ -3351,13 +3234,12 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                                 cy.log('ℹ️ No apareció diálogo de confirmación - continuando flujo normal');
                             }
                         });
-                })
-
+                });
             });
         });
     });
 
-    describe("019.4 - Creacion de datos en Gestor de Transacciones > Creacion de rutinas PRE...", function() {
+    describe.skip("019.4 -  Gestor de Transacciones > Creacion de rutinas PRE...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -3483,7 +3365,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     });
 
-    describe("019.5 - Creacion de datos en Gestor de Transacciones > Creacion de rutinas POS...", function() {
+    describe.skip("019.5 -  Gestor de Transacciones > Creacion de rutinas POS...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -3609,7 +3491,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     });
 
-    describe("019.6 - Creacion de datos en Gestor de Transacciones > Asignacion de Mooneda ...", function() {
+    describe.skip("019.6 -  Gestor de Transacciones > Asignacion de Mooneda ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -3697,7 +3579,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     });
 
-    describe("019.7 - Creacion de datos en Gestor de Transacciones > Totales a Afectar ..." , function() {
+    describe.skip("019.7 -  Gestor de Transacciones > Totales a Afectar ..." , function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -3801,7 +3683,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         });
     });
 
-    describe("019.8 - Creacion de datos en Gestor de Transacciones > Características del resultado ...", function() {
+    describe.skip("019.8 -  Gestor de Transacciones > Características del resultado ...", function() {
 
 
         beforeEach(function() {
@@ -3906,7 +3788,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         });
     });
 
-    describe("019.9 - Creacion de datos en Gestor de Transacciones > Tipos de cajero ...", function() {
+    describe.skip("019.9 -  Gestor de Transacciones > Tipos de cajero ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -3990,7 +3872,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         });
     });
 
-    describe("019.10 - Creacion de datos en Gestor de Transacciones > Comprobantes de Impresión ...", function() {
+    describe.skip("019.10 -  Gestor de Transacciones > Comprobantes de Impresión ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -4076,7 +3958,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         });
     });
 
-    describe("019.11 - Creacion de datos en Gestor de Transacciones > Comprobantes de Notificaciones electrónicas ...", function() {
+    describe.skip("019.11 -  Gestor de Transacciones > Comprobantes de Notificaciones electrónicas ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -4162,7 +4044,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         });
     });
 
-    describe.skip("020 - Update de datos en Envio de la transaccion ...", () =>{
+    describe.skip("020 - Datos en Envio de la transaccion ...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('transactionSendSpec')
@@ -4227,7 +4109,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("021 - Creacion de datos en Reglas...", () =>{
+    describe.skip("021 -  Reglas...", () =>{
 
 
         beforeEach(() => {
@@ -4290,7 +4172,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("021.1 - Creacion de datos en submenu de Reglas > Detalle de Reglas...", () =>{
+    describe.skip("021.1 - Reglas > Detalle de Reglas...", () =>{
 
         before(() => {
 
@@ -4383,7 +4265,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("022 - Creacion de datos en Acciones Condicionadas ...", () =>{
+    describe("022 -  Acciones Condicionadas ...", () =>{
 
         beforeEach(() => {
             cy.wait(5000)
@@ -4468,7 +4350,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("022.1 - Creacion de datos en submenu AccionesCondicionadas > Afecta totales condicionados...", () =>{
+    describe.skip("022.1 - AccionesCondicionadas > Afecta totales condicionados...", () =>{
 
         before(() => {
             cy.fixture('afectaTotalesCondicionados').as('afectarTotalesCondicionados')
@@ -4590,7 +4472,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-    describe.skip("022.2 - Creacion de datos en submenu AccionesCondicionadas > Transacciones asociadas condicionadas ...", () =>{
+    describe.skip("022.2 - AccionesCondicionadas > Transacciones asociadas condicionadas ...", () =>{
 
         before(() => {
             cy.fixture('transaccionesAsociadasCondicionadas').as('transaccionesAsociadasCondicionadas')

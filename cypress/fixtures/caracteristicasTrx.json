@@ -1,154 +1,15 @@
 {
   "agregar": [
     {
-      "codigoTRX": "600",
-      "caracteristicasTrx": [
-        "Efectivo electrónico",
-        "Efectivo físico",
-        "Moneda",
-        "Número de cuenta",
-        "Número de cheque",
-        "Número de documento",
-        "Número de identificación",
-        "Número de seguridad",
-        "Tipo de identificación",
-        "Total",
-        "Total moneda internacional",
-        "Total moneda local",
-        "VALOR"
-      ]
-    },
-    {
       "codigoTRX": "700",
       "caracteristicasTrx": [
-        "Cheques del exterior",
+        "Efectivo físico",
+        "Moneda",
+        "Nombre de cliente",
+        "Número de cuenta",
         "Cheques otros bancos",
-        "Efectivo electrónico",
-        "Efectivo físico",
-        "Moneda",
-        "Nombre de cliente",
-        "Número de cuenta",
-        "Número de documento",
         "Producto",
         "Total"
-      ]
-    },
-    {
-      "codigoTRX": "1600",
-      "caracteristicasTrx": [
-        "Efectivo electrónico",
-        "Efectivo físico",
-        "Moneda",
-        "Nombre de cliente",
-        "Número de cuenta",
-        "Número de documento",
-        "Número de libreta",
-        "Número de línea",
-        "Producto",
-        "Saldo en libreta",
-        "Total"
-      ]
-    },
-    {
-      "codigoTRX": "1610",
-      "caracteristicasTrx": [
-        "Efectivo electrónico",
-        "Efectivo físico",
-        "Moneda",
-        "Nombre de cliente",
-        "Número de cuenta",
-        "Número de documento",
-        "Producto",
-        "Total"
-      ]
-    },
-    {
-      "codigoTRX": "1700",
-      "caracteristicasTrx": [
-        "Cheques del exterior",
-        "Cheques otros bancos",
-        "Efectivo electrónico",
-        "Efectivo físico",
-        "Moneda",
-        "Nombre de cliente",
-        "Número de cuenta",
-        "Número de documento",
-        "Número de libreta",
-        "Número de línea",
-        "Producto",
-        "Saldo en libreta",
-        "Total"
-      ]
-    },
-    {
-      "codigoTRX": "1710",
-      "caracteristicasTrx": [
-        "Cheques del exterior",
-        "Cheques otros bancos",
-        "Efectivo electrónico",
-        "Efectivo físico",
-        "Moneda",
-        "Nombre de cliente",
-        "Número de cuenta",
-        "Número de documento",
-        "Producto",
-        "Total"
-      ]
-    },
-    {
-      "codigoTRX": "7660",
-      "caracteristicasTrx": [
-        "Número de documento",
-        "Total de"
-      ]
-    },
-    {
-      "codigoTRX": "7665",
-      "caracteristicasTrx": [
-        "Número de documento",
-        "Total de"
-      ]
-    },
-    {
-      "codigoTRX": "7680",
-      "caracteristicasTrx": [
-        "Número de documento",
-        "Total de"
-      ]
-    },
-    {
-      "codigoTRX": "7760",
-      "caracteristicasTrx": [
-        "Número de documento",
-        "Total de"
-      ]
-    },
-    {
-      "codigoTRX": "7765",
-      "caracteristicasTrx": [
-        "Número de documento",
-        "Total de"
-      ]
-    },
-    {
-      "codigoTRX": "7780",
-      "caracteristicasTrx": [
-        "Número de documento",
-        "Total de"
-      ]
-    },
-    {
-      "codigoTRX": "9671",
-      "caracteristicasTrx": [
-        "Número de documento",
-        "Total de"
-      ]
-    },
-    {
-      "codigoTRX": "9692",
-      "caracteristicasTrx": [
-        "Número de documento",
-        "Total de"
       ]
     }
   ]

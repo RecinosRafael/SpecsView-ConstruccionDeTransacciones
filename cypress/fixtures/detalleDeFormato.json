@@ -21,53 +21,6 @@
       "valorOperacion": "",
       "expresion2": "",
       "valorTipoExpresion": ""
-
-    },
-    {
-      "codigoFormato": "7",
-      "correlativo": "30",
-      "descripcion": "end",
-      "valorTipoDatos": "CONSTANTE",
-      "constante": "\"}",
-      "removerCeros": false,
-      "mascaraImpresion": "",
-      "valorEspecificacionCaracteristica1": "",
-      "valorOperador": "",
-      "valorEspecificaciOnCaracteristica2": "",
-      "leerPosInicial": "1",
-      "leerTamDatos": "1",
-      "imprimirFila": "1",
-      "imprimirTamDatos": "2",
-      "imprimirPosicionColumna": "",
-      "expresionDatosRecurso": "",
-      "expresion1": "",
-      "valorOperacion": "",
-      "expresion2": "",
-      "valorTipoExpresion": ""
-
-    },
-    {
-      "codigoFormato": "7",
-      "correlativo": "30",
-      "descripcion": "end",
-      "valorTipoDatos": "CONSTANTE",
-      "constante": "\"}",
-      "removerCeros": false,
-      "mascaraImpresion": "",
-      "valorEspecificacionCaracteristica1": "",
-      "valorOperador": "",
-      "valorEspecificaciOnCaracteristica2": "",
-      "leerPosInicial": "1",
-      "leerTamDatos": "1",
-      "imprimirFila": "1",
-      "imprimirTamDatos": "2",
-      "imprimirPosicionColumna": "",
-      "expresionDatosRecurso": "",
-      "expresion1": "",
-      "valorOperacion": "",
-      "expresion2": "",
-      "valorTipoExpresion": ""
-
     }
 
     ]

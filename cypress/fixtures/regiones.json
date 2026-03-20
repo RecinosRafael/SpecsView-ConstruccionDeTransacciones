@@ -4,16 +4,6 @@
       "codigo": "2",
       "nombre": "Centro",
       "descripcion": "Centro"
-    },
-    {	
-      "codigo": "3",
-      "nombre": "Sur",
-      "descripcion": "Sur"
-    },
-    {	
-      "codigo": "4",
-      "nombre": "Norte",
-      "descripcion": "Norte"
     }
   ]
 }

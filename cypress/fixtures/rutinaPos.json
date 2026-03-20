@@ -1,138 +1,16 @@
 {
   "agregar": [
     {
-      "codigoTRX": "600",
-      "paso": "Paso 1",
-      "rutina": "Consultar cuenta core Byte",
-      "estado": "Activo",
-      "correlativo": "1",
-      "requiereLogin": false,
-      "descripcion": "",
-      "fechaInicio": "01/01/2026",
-      "fechaFin": "",
-      "paremetros": ""
-    },
-    {
       "codigoTRX": "700",
       "paso": "Paso 1",
       "rutina": "Consultar cuenta core Byte",
       "estado": "Lanzado",
       "correlativo": "1",
-      "requiereLogin": false,
-      "descripcion": "",
-      "fechaInicio": "01/01/2026",
-      "fechaFin": "",
-      "paremetros": ""
-    },
-    {
-      "codigoTRX": "700",
-      "paso": "Paso 1",
-      "rutina": "Secuencia No documento",
-      "estado": "En prueba",
-      "correlativo": "2",
-      "requiereLogin": false,
-      "descripcion": "",
-      "fechaInicio": "01/01/2026",
-      "fechaFin": "",
-      "paremetros": ""
-    },
-    {
-      "codigoTRX": "1600",
-      "paso": "Paso 1",
-      "rutina": "Consultar cuenta core Byte",
-      "estado": "Activo",
-      "correlativo": "1",
-      "requiereLogin": false,
-      "descripcion": "Recupera datos de cuenta de core bancario",
-      "fechaInicio": "01/01/2026",
-      "fechaFin": "",
-      "paremetros": ""
-    },
-    {
-      "codigoTRX": "1600",
-      "paso": "Paso 1",
-      "rutina": "Secuencia No documento",
-      "estado": "En prueba",
-      "correlativo": "5",
-      "requiereLogin": false,
-      "descripcion": "Generación automática de documento para comprobante",
-      "fechaInicio": "01/01/2026",
-      "fechaFin": "",
-      "paremetros": ""
-    },
-    {
-      "codigoTRX": "1610",
-      "paso": "Paso 1",
-      "rutina": "Consultar cuenta core Byte",
-      "estado": "Activo",
-      "correlativo": "1",
-      "requiereLogin": false,
-      "descripcion": "consulta de cuenta en el core",
-      "fechaInicio": "01/01/2026",
-      "fechaFin": "",
-      "paremetros": ""
-    },
-    {
-      "codigoTRX": "1610",
-      "paso": "Paso 1",
-      "rutina": "Secuencia No documento",
-      "estado": "En prueba",
-      "correlativo": "5",
-      "requiereLogin": false,
-      "descripcion": "Secuencia de numero de documento",
-      "fechaInicio": "01/01/2026",
-      "fechaFin": "",
-      "paremetros": ""
-    },
-    {
-      "codigoTRX": "1700",
-      "paso": "Paso 1",
-      "rutina": "Consultar cuenta core Byte",
-      "estado": "Lanzado",
-      "correlativo": "1",
-      "requiereLogin": false,
-      "descripcion": "",
-      "fechaInicio": "01/01/2026",
-      "fechaFin": "",
-      "paremetros": ""
-    },
-    {
-      "codigoTRX": "1700",
-      "paso": "Paso 1",
-      "rutina": "Secuencia No documento",
-      "estado": "En prueba",
-      "correlativo": "6",
-      "requiereLogin": false,
-      "descripcion": "",
-      "fechaInicio": "01/01/2026",
-      "fechaFin": "",
-      "paremetros": ""
-    },
-    {
-      "codigoTRX": "1710",
-      "paso": "Paso 1",
-      "rutina": "Consultar cuenta core Byte",
-      "estado": "Lanzado",
-      "correlativo": "1",
-      "requiereLogin": false,
-      "descripcion": "",
-      "fechaInicio": "01/01/2026",
-      "fechaFin": "",
-      "paremetros": ""
-    },
-    {
-      "codigoTRX": "1710",
-      "paso": "Paso 1",
-      "rutina": "Secuencia No documento",
-      "estado": "En prueba",
-      "correlativo": "6",
       "requiereLogin": false,
       "descripcion": "",
       "fechaInicio": "01/01/2026",
       "fechaFin": "",
       "paremetros": ""
     }
-
-
   ]
 }
