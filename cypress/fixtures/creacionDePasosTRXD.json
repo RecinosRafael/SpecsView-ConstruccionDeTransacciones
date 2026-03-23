@@ -1,0 +1,52 @@
+{
+  "agregar": [
+    {
+      "codigoTRX": "1700",
+      "nombrePaso": "Paso 1",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso 1: Campos"
+    },
+    {
+      "codigoTRX": "1700",
+      "nombrePaso": "Paso 2",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso 2: Campos"
+    },
+    {
+      "codigoTRX": "1700",
+      "nombrePaso": "Paso 3",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso 3: Campos"
+    },
+    {
+      "codigoTRX": "1700",
+      "nombrePaso": "Paso 4",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso No. 4: Campos (Confirmación de la transacción)"
+    },
+    {
+      "codigoTRX": "1600",
+      "nombrePaso": "Paso 1",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso 1: Campos"
+    },
+    {
+      "codigoTRX": "1600",
+      "nombrePaso": "Paso 2",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso 2: Campos"
+    },
+    {
+      "codigoTRX": "1600",
+      "nombrePaso": "Paso 3",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso No. 3: Campos"
+    },
+    {
+      "codigoTRX": "1600",
+      "nombrePaso": "Paso 4",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso No. 4: Campos (Confirmación de la transacción)"
+    }
+  ]
+}

@@ -5,7 +5,7 @@
       "descripcion": "Cajero",
       "verTotales": false,
       "permiteTotalizar": true,
-      "permiteRepetirLlave": false    
+      "permiteRepetirLlave": false
     }
   ]
 }

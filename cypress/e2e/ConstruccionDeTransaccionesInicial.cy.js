@@ -111,7 +111,6 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
         // Método para ejecutar queries en MySQL
         const metodoQuery = ({ sql, user }) => {
-            cy.log(`🔧 Ejecutando query MySQL con usuario ${user}`);
             return cy.task('mysqlQuery', { sql, user });
         };
 
@@ -119,18 +118,12 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         // PASO 1: Leer y procesar el archivo SQL
         // ------------------------------------------------------------
         it('Paso 1: Leer y procesar archivo ParametrosIniciales.sql', () => {
-            cy.log('📂 INICIANDO LECTURA DE ARCHIVO SQL');
-
             todasLasSentencias = [];
-
             return cy.readFile('cypress/fixtures/ParametrosIniciales.sql', 'utf8').then((sqlContent) => {
-
                 const queries = sqlContent
                     .split(';')
                     .map(q => q.trim())
                     .filter(q => q.length > 0 && !q.startsWith('/*') && !q.startsWith('--'));
-
-                cy.log(`📊 Total queries en script: ${queries.length}`);
 
                 queries.forEach((query, idx) => {
                     // Determinar usuario según el contenido
@@ -188,10 +181,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     });
                 });
 
-                cy.log('\n📋 ===== RESUMEN =====');
+                cy.log('\===== RESUMEN =====');
                 cy.log(`TOTAL SENTENCIAS A EJECUTAR: ${todasLasSentencias.length}`);
 
-                cy.log('\n📝 Primeras 5 sentencias:');
+                cy.log('\nPrimeras 5 sentencias:');
                 todasLasSentencias.slice(0, 5).forEach((s, i) => {
                     cy.log(`   ${i+1}. [${s.user}] ${s.tipo}: ${s.sql.substring(0, 100)}...`);
                 });
@@ -202,13 +195,13 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         // PASO 2: Ejecutar todas las sentencias
         // ------------------------------------------------------------
         it('Paso 2: Ejecutar todas las sentencias del script', () => {
-            cy.log('\n🚀 EJECUTANDO SCRIPT EN MYSQL');
+            cy.log('\ EJECUTANDO SCRIPT EN MYSQL');
             cy.log('==================================');
 
-            cy.log(`📊 Total a ejecutar: ${todasLasSentencias.length}`);
+            cy.log(`Total a ejecutar: ${todasLasSentencias.length}`);
 
             if (todasLasSentencias.length === 0) {
-                cy.log('⚠️ No hay sentencias para ejecutar');
+                cy.log(' No hay sentencias para ejecutar');
                 return;
             }
 
@@ -216,7 +209,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
             const ejecutarSecuencial = (index) => {
                 if (index >= todasLasSentencias.length) {
-                    cy.log('\n✅ EJECUCIÓN COMPLETADA');
+                    cy.log('\n EJECUCIÓN COMPLETADA');
 
                     // Al terminar, guardar todos los reportes
                     guardarReportes();
@@ -225,8 +218,8 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
                 const sentencia = todasLasSentencias[index];
 
-                cy.log(`\n🔍 [${index + 1}/${todasLasSentencias.length}] Usuario: ${sentencia.user} | DB: ${sentencia.database} | Tipo: ${sentencia.tipo}`);
-                cy.log(`📝 ${sentencia.sql.substring(0, 150)}...`);
+                cy.log(`\n [${index + 1}/${todasLasSentencias.length}] Usuario: ${sentencia.user} | DB: ${sentencia.database} | Tipo: ${sentencia.tipo}`);
+                cy.log(` ${sentencia.sql.substring(0, 150)}...`);
 
                 cy.task('mysqlQuery', {
                     sql: sentencia.sql,
@@ -244,7 +237,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     };
 
                     if (resultado?.success) {
-                        cy.log(`✅ Ejecutada correctamente`);
+                        cy.log(`Ejecutada correctamente`);
                         resultadosUnificados.exitosos++;
                         resultadosUnificados.detalles.exitosos.push({
                             ...detalle,
@@ -258,21 +251,20 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         detalle.errorCode = resultado?.errorCode;
 
                         if (errorMsg.includes('1062') || errorMsg.includes('Duplicate entry')) {
-                            cy.log(`⚠️ Registro duplicado (ignorado)`);
+                            cy.log(` Registro duplicado (ignorado)`);
                             resultadosUnificados.duplicados++;
                             resultadosUnificados.detalles.duplicados.push({
                                 ...detalle,
                                 estado: 'DUPLICADO'
                             });
                         } else if (errorMsg.includes('1050') || errorMsg.includes('already exists')) {
-                            cy.log(`⚠️ Tabla ya existe (ignorado)`);
+                            cy.log(` Tabla ya existe (ignorado)`);
                             resultadosUnificados.duplicados++;
                             resultadosUnificados.detalles.duplicados.push({
                                 ...detalle,
                                 estado: 'DUPLICADO'
                             });
                         } else {
-                            cy.log(`❌ Falló: ${errorMsg}`);
                             resultadosUnificados.fallos++;
                             resultadosUnificados.detalles.fallos.push({
                                 ...detalle,
@@ -301,20 +293,15 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
             cy.log('\n📋 ==================================');
             cy.log('📋 RESUMEN FINAL - MYSQL');
             cy.log('==================================');
-            cy.log(`📊 TOTAL: ${resultadosUnificados.total} sentencias`);
-            cy.log(`   ✅ Exitosos: ${resultadosUnificados.exitosos}`);
-            cy.log(`   ⚠️ Duplicados: ${resultadosUnificados.duplicados}`);
-            cy.log(`   ❌ Fallos: ${resultadosUnificados.fallos}`);
+            cy.log(`TOTAL: ${resultadosUnificados.total} sentencias`);
+            cy.log(`Exitosos: ${resultadosUnificados.exitosos}`);
+            cy.log(`️Duplicados: ${resultadosUnificados.duplicados}`);
+            cy.log(`Fallos: ${resultadosUnificados.fallos}`);
 
             if (resultadosUnificados.errores.length > 0) {
-                cy.log('\n⚠️ ERRORES:');
                 resultadosUnificados.errores.slice(0, 10).forEach((err, i) => {
-                    cy.log(`   ${i+1}. #${err.index} [${err.database}]: ${err.error.substring(0, 150)}`);
                 });
             }
-
-            cy.log('\n📁 Generando reportes detallados...');
-
             // Guardar todos los reportes
             guardarReportes();
 
@@ -422,11 +409,11 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
             reporteTXT += '========================================\n\n';
             reporteTXT += `Fecha: ${fecha}\n`;
             reporteTXT += `Total Sentencias: ${reporteJSON.resumen.total}\n`;
-            reporteTXT += `✅ Exitosas: ${reporteJSON.resumen.exitosos}\n`;
-            reporteTXT += `⚠️ Duplicadas: ${reporteJSON.resumen.duplicados}\n`;
-            reporteTXT += `❌ Fallidas: ${reporteJSON.resumen.fallos}\n\n`;
+            reporteTXT += `Exitosas: ${reporteJSON.resumen.exitosos}\n`;
+            reporteTXT += `Duplicadas: ${reporteJSON.resumen.duplicados}\n`;
+            reporteTXT += `Fallidas: ${reporteJSON.resumen.fallos}\n\n`;
 
-            reporteTXT += '📊 ESTADÍSTICAS\n';
+            reporteTXT += 'ESTADÍSTICAS\n';
             reporteTXT += '----------------------------------------\n';
             reporteTXT += `Éxito: ${reporteJSON.estadisticas.porcentajeExito}\n`;
             reporteTXT += `Duplicados: ${reporteJSON.estadisticas.porcentajeDuplicados}\n`;
@@ -434,7 +421,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
             // Detalle de fallos
             if (resultadosUnificados.detalles.fallos.length > 0) {
-                reporteTXT += '❌ DETALLE DE FALLOS\n';
+                reporteTXT += 'DETALLE DE FALLOS\n';
                 reporteTXT += '----------------------------------------\n';
                 resultadosUnificados.detalles.fallos.forEach((fallo, i) => {
                     reporteTXT += `\n${i+1}. [#${fallo.indice}] Usuario: ${fallo.usuario} | DB: ${fallo.database} | Tipo: ${fallo.tipo}\n`;
@@ -446,7 +433,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
             // Detalle de duplicados
             if (resultadosUnificados.detalles.duplicados.length > 0) {
-                reporteTXT += '\n⚠️ DETALLE DE DUPLICADOS\n';
+                reporteTXT += '\n️ DETALLE DE DUPLICADOS\n';
                 reporteTXT += '----------------------------------------\n';
                 resultadosUnificados.detalles.duplicados.forEach((dup, i) => {
                     reporteTXT += `\n${i+1}. [#${dup.indice}] Usuario: ${dup.usuario} | DB: ${dup.database} | Tipo: ${dup.tipo}\n`;
@@ -457,7 +444,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
             // Detalle de exitosos (primeros 10)
             if (resultadosUnificados.detalles.exitosos.length > 0) {
-                reporteTXT += '\n✅ DETALLE DE EXITOSAS (primeras 10)\n';
+                reporteTXT += '\n DETALLE DE EXITOSAS (primeras 10)\n';
                 reporteTXT += '----------------------------------------\n';
                 resultadosUnificados.detalles.exitosos.slice(0, 10).forEach((exito, i) => {
                     reporteTXT += `\n${i+1}. [#${exito.indice}] Usuario: ${exito.usuario} | DB: ${exito.database} | Tipo: ${exito.tipo}\n`;
@@ -468,7 +455,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
             cy.writeFile(`cypress/reports/mysql-report-${timestamp}.txt`, reporteTXT, { log: true });
 
-            cy.log(`📁 Reportes guardados en cypress/reports/`);
+            cy.log(` Reportes guardados en cypress/reports/`);
             cy.log(`   - JSON: mysql-report-${timestamp}.json`);
             cy.log(`   - CSV: mysql-report-${timestamp}.csv`);
             cy.log(`   - TXT: mysql-report-${timestamp}.txt`);
@@ -1323,8 +1310,8 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 let registrosFallidos = 0;
 
                 cy.wrap(dataUsuarios.agregar).each((item, index) => {
-                    cy.log(`\n🔄 Procesando registro ${index + 1}/${dataUsuarios.agregar.length}`);
-                    cy.log(`📝 Usuario: ${item.codigo} - ${item.usuario}`);
+                    cy.log(`\n Procesando registro ${index + 1}/${dataUsuarios.agregar.length}`);
+                    cy.log(` Usuario: ${item.codigo} - ${item.usuario}`);
 
                     // =============================================
                     // PASO 1: Buscar Persona
@@ -1357,7 +1344,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                             $body.find('.error-message, .alert-danger, .toast-error, .mat-error').length > 0;
 
                         if (hayErrorBusqueda) {
-                            cy.log('⚠️ Error en búsqueda de persona - Cancelando este registro');
+                            cy.log('Error en búsqueda de persona - Cancelando este registro');
 
                             // SOLO cerramos si hay error
                             if ($body.find('h2:contains("Buscar persona")').length > 0) {
@@ -1366,7 +1353,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                             }
 
                             registrosFallidos++;
-                            cy.log(`❌ Registro ${index + 1} fallido - Continuando con el siguiente`);
+                            cy.log(`Registro ${index + 1} fallido - Continuando con el siguiente`);
                             return; // Salir de este registro
                         } else {
                             cy.log('✅ Búsqueda exitosa - Continuamos con el modal abierto');
@@ -1376,10 +1363,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     // =============================================
                     // PASO 2: Agregar Usuario (con el modal de búsqueda aún abierto)
                     // =============================================
-                    cy.log('👤 PASO 2: Agregando usuario');
-
-                    // Aquí NO cerramos el modal de búsqueda, continuamos con el flujo normal
-                    // El modal de búsqueda probablemente se reutiliza o se cierra automáticamente
+                    cy.log(' PASO 2: Agregando usuario');
 
                     // Llenar datos de usuario
                     Usuarios.Usuario(
@@ -1411,7 +1395,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                             $body.text().includes('obligatorio');
 
                         if (hayErrorCombos) {
-                            cy.log('⚠️ Error en combos detectado - Cancelando este registro');
+                            cy.log('Error en combos detectado - Cancelando este registro');
 
                             // SOLO cerramos si hay error
                             if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
@@ -1420,7 +1404,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                             }
 
                             registrosFallidos++;
-                            cy.log(`❌ Registro ${index + 1} fallido - Continuando con el siguiente`);
+                            cy.log(` Registro ${index + 1} fallido - Continuando con el siguiente`);
                             return; // Salir de este registro
                         }
                     });
@@ -1434,15 +1418,15 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     // Esperar respuesta del backend
                     cy.wait('@guardar', { timeout: 15000 }).then((interception) => {
                         const status = interception.response.statusCode;
-                        cy.log(`📊 Status: ${status}`);
+                        cy.log(`Status: ${status}`);
 
                         if (status === 200 || status === 201) {
-                            cy.log('✅ Registro insertado correctamente');
+                            cy.log('Registro insertado correctamente');
                             registrosExitosos++;
                             // El modal se cierra automáticamente con éxito
                             cy.contains('h2', 'Nuevo Registro', { timeout: 10000 }).should('not.exist');
                         } else {
-                            cy.log(`❌ Error detectado. Status: ${status}`);
+                            cy.log(` Error detectado. Status: ${status}`);
                             registrosFallidos++;
 
                             // SOLO cerramos si hay error
@@ -1459,7 +1443,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     cy.wait(16000).then(() => {
                         cy.get('body').then(($body) => {
                             if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
-                                cy.log('⚠️ Timeout detectado - Cancelando por error');
+                                cy.log('Timeout detectado - Cancelando por error');
                                 Generales.BtnCancelarRegistro();
                                 cy.contains('h2', 'Nuevo Registro', { timeout: 5000 }).should('not.exist');
                                 registrosFallidos++;
@@ -1475,11 +1459,11 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 // RESUMEN FINAL
                 // =============================================
                 cy.then(() => {
-                    cy.log('\n📊 ====== RESUMEN FINAL ======');
-                    cy.log(`📋 Total procesados: ${dataUsuarios.agregar.length}`);
-                    cy.log(`✅ Exitosos: ${registrosExitosos}`);
-                    cy.log(`❌ Fallidos: ${registrosFallidos}`);
-                    cy.log(`📊 ===========================`);
+                    cy.log('\n ====== RESUMEN FINAL ======');
+                    cy.log(` Total procesados: ${dataUsuarios.agregar.length}`);
+                    cy.log(` Exitosos: ${registrosExitosos}`);
+                    cy.log(` Fallidos: ${registrosFallidos}`);
+                    cy.log(` ===========================`);
                 });
             });
         });
@@ -1653,15 +1637,15 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         if (snackBarError.length > 0) {
                             // Obtener el mensaje específico
                             const mensajeError = snackBarError.find('.message-snack').text();
-                            cy.log(`⚠️ Error detectado: ${mensajeError}`);
+                            cy.log(`Error detectado: ${mensajeError}`);
 
                             // Cerrar el snackbar si tiene botón de cerrar
                             cy.get('.snack--btn-close').click();
 
                             Generales.BtnCancelarRegistro();
-                            cy.log('❌ Registro duplicado - cancelando');
+                            cy.log('Registro duplicado - cancelando');
                         } else {
-                            cy.log('✅ No hay errores - aceptando');
+                            cy.log('No hay errores - aceptando');
                         }
 
                         return cy.get('mat-dialog-container', { timeout: 10000 })
@@ -1670,7 +1654,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
 
                 }).then(() => {
-                    cy.log('🔙 Regresando al nivel principal')
+                    cy.log('Regresando al nivel principal')
 
                     // Primer regreso - SALIR DEL SUBNIVEL
                     return cy.then(() => {
@@ -1743,15 +1727,15 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         if (snackBarError.length > 0) {
                             // Obtener el mensaje específico
                             const mensajeError = snackBarError.find('.message-snack').text();
-                            cy.log(`⚠️ Error detectado: ${mensajeError}`);
+                            cy.log(` Error detectado: ${mensajeError}`);
 
                             // Cerrar el snackbar si tiene botón de cerrar
                             cy.get('.snack--btn-close').click();
 
                             Generales.BtnCancelarRegistro();
-                            cy.log('❌ Registro duplicado - cancelando');
+                            cy.log(' Registro duplicado - cancelando');
                         } else {
-                            cy.log('✅ No hay errores - aceptando');
+                            cy.log(' No hay errores - aceptando');
                         }
 
                         return cy.get('mat-dialog-container', { timeout: 10000 })
@@ -1760,7 +1744,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
 
                 }).then(() => {
-                    cy.log('🔙 Regresando al nivel principal')
+                    cy.log(' Regresando al nivel principal')
 
                     // Primer regreso - SALIR DEL SUBNIVEL
                     return cy.then(() => {
@@ -1916,15 +1900,15 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         if (snackBarError.length > 0) {
                             // Obtener el mensaje específico
                             const mensajeError = snackBarError.find('.message-snack').text();
-                            cy.log(`⚠️ Error detectado: ${mensajeError}`);
+                            cy.log(`Error detectado: ${mensajeError}`);
 
                             // Cerrar el snackbar si tiene botón de cerrar
                             cy.get('.snack--btn-close').click();
 
                             Generales.BtnCancelarRegistro();
-                            cy.log('❌ Registro duplicado - cancelando');
+                            cy.log('Registro duplicado - cancelando');
                         } else {
-                            cy.log('✅ No hay errores - aceptando');
+                            cy.log('No hay errores - aceptando');
                         }
 
                         return cy.get('mat-dialog-container', { timeout: 10000 })
@@ -1971,7 +1955,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 let otrosErrores = 0;
 
                 cy.wrap(dataRutinas.agregar).each((item) => {
-                    cy.log(`\n🔵 ===== Insertando código: ${item.codigo} =====`);
+                    cy.log(`\n ===== Insertando código: ${item.codigo} =====`);
 
                     // Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
@@ -2170,7 +2154,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
             cy.wrap(Object.keys(agrupadas)).each((codigoTotCaj) => {
                 cy.log('Procesando Regla con nombre: ' + codigoTotCaj)
 
-                // 🔎 Buscar Formato
+                // Buscar Formato
                 Generales.BuscarRegistroCodigo(codigoTotCaj)
                 Generales.NavegacionSubMenu('Totales a Cuadrar')
 
@@ -2550,34 +2534,26 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
                         // PASO 4: Procesar características
                         return cy.wrap(agrupadas[codigoTRX]).each((registro, index) => {
-                            cy.log(`\n📌 Procesando lote de características ${index + 1}/${agrupadas[codigoTRX].length}`);
                             GestorDeTransaccion.CaracteristicasTrx(registro.caracteristicasTrx);
-                            cy.log(`✅ Lote ${index + 1} completado`);
                         }).then(() => {
-                            cy.log(`\n🔙 Regresando al nivel principal para código ${codigoTRX}`);
 
-                            // ✅ PRIMER ATRÁS - Salir del detalle de características
+                            //PRIMER ATRÁS - Salir del detalle de características
                             cy.wait(2000);
                             Generales.BtnIframe("Atrás", { timeout: 10000, force: true, skipContext: true });
 
-                            // ✅ VERIFICAR DIÁLOGO DE CONFIRMACIÓN
+                            // VERIFICAR DIÁLOGO DE CONFIRMACIÓN
                             cy.wait(1000);
                             cy.get('mat-dialog-container', { timeout: 5000 }).then($dialog => {
                                 if ($dialog.length > 0) {
-                                    cy.log('⚠️ Diálogo de confirmación detectado');
                                     cy.xpath("//mat-dialog-actions//button[.//mat-icon[text()='check']]")
                                         .click({ force: true });
                                     cy.wait(1000);
                                 }
                             });
 
-                            // 🔹 VERIFICACIÓN MEJORADA - SIN ERRORES
-                            cy.log('🔍 Verificando que estamos en el listado principal...');
-
                             // Verificación 1: Panel Filtros (siempre visible en listado principal)
                             cy.get('mat-expansion-panel-header').contains('Filtros', { timeout: 15000 })
                                 .should('be.visible');
-
                             // Verificación 2: Tabla (siempre visible en listado principal)
                             cy.get('table', { timeout: 10000 }).should('be.visible');
 
@@ -2587,13 +2563,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                                 const $span = $body.find('span.mat-button-wrapper:contains("Buscar por")');
 
                                 if ($span.length > 0) {
-                                    cy.log('✅ Elemento "Buscar por" encontrado');
                                 } else {
-                                    cy.log('⚠️ Elemento "Buscar por" no encontrado (no es obligatorio)');
+                                    cy.log('Elemento "Buscar por" no encontrado (no es obligatorio)');
                                 }
                             });
-
-                            cy.log(`✅ Transacción ${codigoTRX} completada - listo para siguiente código`);
                         });
                     });
                 });
