@@ -15,6 +15,22 @@
       "codigoPlantillaAlternativa": "",
       "poscEtiquetaComprobante": "",
       "poscEtiquetaReimprimir": ""
+    },
+    {
+      "codigo": 5,
+      "nombre": "Comprobante trx de depósitos",
+      "nombreAbreviado": "CompTrxDeposito",
+      "descripcion": "Comprobante transacciones de tipo depósito (de ahorros, monetarios)",
+      "plantilla": "comprobante-trx-depositos",
+      "extencion": "docx",
+      "valorDatosTachados": "Tachados",
+      "valorIncluirImagen": "No aplica",
+      "posicion": "",
+      "tamanioImagen": "",
+      "valorParaCatalogos": "No aplica",
+      "codigoPlantillaAlternativa": "",
+      "poscEtiquetaComprobante": "565,765",
+      "poscEtiquetaReimprimir": ""
     }
   ]
 }
