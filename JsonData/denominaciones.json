@@ -1,0 +1,18 @@
+{
+  "agregar": [
+    {
+      "codigoMoneda": "L",
+      "nombre": "1 Lempira",
+      "etiqueta": "1 Lempira",
+      "valorTipo": "Billete",
+      "monto": 1.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "2 Lempiras",
+      "etiqueta": "2 Lempiras",
+      "valorTipo": "Billete",
+      "monto": 2.00
+    }
+  ]
+}
