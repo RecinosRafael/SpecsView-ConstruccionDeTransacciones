@@ -12,7 +12,6 @@ class TipoDeDatoPomCy {
         this.Generales.llenarCampo(nombre, "nombre")
         this.Generales.llenarCampo(descripcion, "descripcion")
 
-
     }
 
 }
