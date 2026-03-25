@@ -3958,6 +3958,53 @@ seleccionarCombo(valor, labelText, opciones = {}) {
             ejecutar();
         }
     }
+
+    seleccionarComboDependiente(valor, labelText, opciones = {}) {
+        const {
+            timeout = 10000,
+            dependiente = false
+        } = opciones;
+
+        if (!valor || valor === "") {
+            cy.log(`⏭️ Valor vacío para combo "${labelText}" - se omite la selección`);
+            return;
+        }
+
+        cy.log(`🔍 Seleccionando "${valor}" en combo "${labelText}"`);
+
+        // Localizar el mat-select
+        cy.contains('mat-label', labelText, { timeout })
+            .parents('mat-form-field')
+            .find('mat-select')
+            .should('be.visible')
+            .should('not.be.disabled')
+            .then($select => {
+                cy.log(`✅ Mat-select encontrado. ID: ${$select.attr('id')}`);
+                // Usar click normal (no force) si es posible
+                cy.wrap($select).click();
+            });
+
+        // Esperar a que aparezca el overlay panel
+        cy.get('.cdk-overlay-pane', { timeout })
+            .should('exist')
+            .should('be.visible')
+            .then($panel => {
+                cy.log('✅ Overlay panel visible');
+                // Dentro del overlay, buscar opciones
+                cy.get('.cdk-overlay-pane mat-option', { timeout: dependiente ? timeout + 5000 : timeout })
+                    .should('have.length.at.least', 1)
+                    .then($opciones => {
+                        cy.log(`Opciones encontradas: ${$opciones.length}`);
+                    });
+                // Seleccionar la opción
+                cy.contains('.cdk-overlay-pane mat-option', valor, { timeout })
+                    .should('be.visible')
+                    .click({ force: true });
+            });
+
+        cy.log(`Seleccionado "${valor}" en combo "${labelText}"`);
+    }
+
 }
 
 export default MetodosGeneralesPomCy;

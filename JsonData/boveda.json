@@ -1,0 +1,12 @@
+{
+  "agregar": [
+    {
+      "nombre": "QAR - Boveda",
+      "descripcion": "QAR - Boveda descrip",
+      "valorArbolRaiz": "Byte S.A.",
+      "valorRamaArbol": "Oficina Administrativa",
+      "valorJornada": "Jornada Unica",
+      "valorUsuario": "rrecinos"
+    }
+  ]
+}
