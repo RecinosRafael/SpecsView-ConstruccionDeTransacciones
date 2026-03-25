@@ -50,7 +50,7 @@ describe("Prueba unitaria del submenu del Crud DivGeografica...", () =>{
                 Generales.BtnAgregarRegistroSubnivel()
                 cy.log("y el agregar que pedo")
               //  const pais = registro.valorPais || registro.nombre
-                DivGeo.DivicionGeografica2(
+                DivGeo.DivisionGeografica2(
                     //codigo, nombre
                     item.codigo,
                     item.nombre

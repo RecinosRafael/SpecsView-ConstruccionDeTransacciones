@@ -150,6 +150,28 @@ module.exports = defineConfig({
         console.log(`📁 Carpeta de reportes creada: ${reportesPath}`);
       });
 
+      // TAREA PARA ELIMINAR LO QUE HAY EN UNA RUTA
+      on('task', {
+        deleteAllFiles(folderPath) {
+          if (!fs.existsSync(folderPath)) return null;
+          const files = fs.readdirSync(folderPath);
+          files.forEach(file => {
+            const filePath = path.join(folderPath, file);
+            try {
+              if (fs.statSync(filePath).isFile()) {
+                fs.unlinkSync(filePath);
+              }
+            } catch (err) {
+              // Ignorar archivos que no se pueden eliminar (en uso, permisos, etc.)
+              console.warn(`No se pudo eliminar ${filePath}: ${err.message}`);
+            }
+          });
+          return null;
+        }
+      });
+
+
+
       // ===== TAREAS (TODO EN UN SOLO OBJETO) =====
       on('task', {
         // --- TAREAS DE BD ---

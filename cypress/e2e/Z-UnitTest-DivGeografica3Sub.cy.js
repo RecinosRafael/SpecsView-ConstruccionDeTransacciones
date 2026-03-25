@@ -71,7 +71,7 @@ cy.wrap(Object.keys(agrupadas)).each((codigoDiv) => {
         cy.wrap(subgrupos[codigoDiv2]).each((item) => {
             cy.log('    Agregando item: ' + item.nombre);
             Generales.BtnAgregarRegistroSubnivel();
-            DivGeo.DivicionGeografica3(
+            DivGeo.DivisionGeografica3(
                 item.codigo,
                 item.nombre
             );

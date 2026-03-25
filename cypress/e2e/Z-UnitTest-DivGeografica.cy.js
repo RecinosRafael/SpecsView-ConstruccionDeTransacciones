@@ -46,7 +46,7 @@ describe("Prueba unitaria del Crud Division Geografica...", () =>{
                     .should('be.visible')
 
                 // Llenar datos
-                DivGeo.DivicionGeografica(
+                DivGeo.DivisionGeografica(
                     //codigo, nombre
                     item.codigo,
                     item.nombre

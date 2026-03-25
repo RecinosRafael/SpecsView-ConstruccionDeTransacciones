@@ -6,19 +6,19 @@ class DivGeografica{
         this.Generales = new metodosGeneralesPomCy();
     }
 
-    DivicionGeografica(codigo, nombre){
+    DivisionGeografica(codigo, nombre){
         
         this.Generales.llenarCampo(codigo, "Codigo")
         this.Generales.llenarCampo(nombre, "Nombre")
     }
 
-    DivicionGeografica2(codigo, nombre){
+    DivisionGeografica2(codigo, nombre){
         
         this.Generales.llenarCampo(codigo, "Codigo")
         this.Generales.llenarCampo(nombre, "Nombre")
     }
 
-    DivicionGeografica3(codigo, nombre){
+    DivisionGeografica3(codigo, nombre){
         
         this.Generales.llenarCampo(codigo, "Codigo")
         this.Generales.llenarCampo(nombre, "Nombre")

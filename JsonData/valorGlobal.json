@@ -1,0 +1,18 @@
+{
+  "agregar": [
+    {
+      "codigo": "3312",
+      "tipo": "Numérico",
+      "longitud": "128",
+      "decimales": "2",
+      "descripcion": "test Numérico"
+    },
+    {
+      "codigo": "3321",
+      "tipo": "Alfanumérico",
+      "longitud": "128",
+      "decimales": "",
+      "descripcion": "test Alfanumérico"
+    }
+  ]
+}
