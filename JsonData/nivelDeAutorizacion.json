@@ -1,0 +1,22 @@
+{
+  "agregar": [
+    {
+      "arbolRaiz": "Byte S.A.",
+      "nivel": "0",
+      "nombre": "nombre QA-Auto 1",
+      "descripcion": "Descripcion QA-Auto 1"
+    },
+    {
+      "arbolRaiz": "Byte S.A.",
+      "nivel": "1",
+      "nombre": "nombre QA-Auto 2",
+      "descripcion": "Descripcion QA-Auto 2"
+    },
+    {
+      "arbolRaiz": "Byte S.A.",
+      "nivel": "2",
+      "nombre": "nombre QA-Auto 3",
+      "descripcion": "Descripcion QA-Auto 3"
+    }
+  ]
+}

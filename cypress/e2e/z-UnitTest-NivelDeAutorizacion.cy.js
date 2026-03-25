@@ -1,10 +1,10 @@
 import metodosGeneralesPomCy from "../support/PageObjects/Specs-view-PO/MetodosGeneralesPom.cy";
-import ValoresGlobalesPomCy from "../support/PageObjects/Specs-view-PO/ValorGlobalesPom.cy";
+import NivelesDeAutorizacionPomCy from "../support/PageObjects/Specs-view-PO/NivelesDeAutorizacionPom.cy";
 
 const Generales = new metodosGeneralesPomCy()
-const ValorGlobal = new ValoresGlobalesPomCy()
+const nivelDeAutorizacion = new NivelesDeAutorizacionPomCy()
 
-describe("Prueba unitaria del Crud Valores Globales...", () =>{
+describe("Prueba unitaria del Crud Nivel De Autorizacion...", () =>{
     
     let contador = 0;
 
@@ -19,20 +19,27 @@ describe("Prueba unitaria del Crud Valores Globales...", () =>{
             Cypress.env('USER'),
             Cypress.env('PASS')
         )
+      
+        const folderPath = 'capturas';
+        cy.task('deleteAllFiles', folderPath);
+
+    
     })
+    
 
     beforeEach(() => {
-        Generales.IrAPantalla('globalValues')
+        Generales.IrAPantalla('authLevel')
+        
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.readFile('./JsonData/valorGlobal.json').then((data) => {
-            cy.wrap(data.agregar).each((item) => {
-                cy.log(`Insertando registro con codigo: ${item.codigo}`)
+        cy.readFile('./JsonData/nivelDeAutorizacion.json').then((data) => {
+            cy.wrap(data.agregar).each((item, index) => {
+                cy.log(`Insertando registro con nombre: ${item.nombre}`)
 
 
                     const numero = index + 1;
-                    cy.log(`Insertando registro #${numero}: ${item.codigo}`);
+                    cy.log(`Insertando registro #${numero}: ${item.nombre}`);
 
 
                 //Asegurar estado limpio antes de comenzar
@@ -44,17 +51,17 @@ describe("Prueba unitaria del Crud Valores Globales...", () =>{
                 })
 
                 //Abrir formulario
-                Generales.BtnAgregarRegistro()
+                Generales.clickTooltipButton('Crear', { force: true, timeout: 10000 });
 
                 //Validar que el modal realmente abrió
                 cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
                     .should('be.visible')
 
                 // Llenar datos
-                ValorGlobal.ValoresGlobales(item)
+                nivelDeAutorizacion.NivelesDeAutorizacion(item)
 
                 const alias = `guardar-${numero}`;
-                cy.intercept('POST', '**//*globalValues').as(alias);
+                cy.intercept('POST', '**/authLevel').as(alias);
 
                 Generales.BtnAceptarRegistro()
 
@@ -78,12 +85,12 @@ describe("Prueba unitaria del Crud Valores Globales...", () =>{
                                 cy.log(`Error detectado. Status: ${status}`);
                             }
                         }).then(() => {
-                            const nombreCaptura = `Captura-${numero}-Valores Globales-${estado}`;
+                            const nombreCaptura = `Captura-${numero}-Nivel De Autorizacion-${estado}`;
                             cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
                                 cy.task('guardarResultado', {
-                                    describe: '00x - Valores Globales',
-                                    crud: "Valores Globales",
-                                    descripcion: `Código: ${item.codigo} - Tipo: ${item.tipo}`,
+                                    describe: '00x - Nivel De Autorizacion',
+                                    crud: "Nivel De Autorizacion",
+                                    descripcion: `Arbol: ${item.arbolRaiz} - Nivel: ${item.nivel} - Nombre: ${item.nombre}`,
                                     estado: estado,
                                     numero: numero,
                                     mensaje: mensaje,
@@ -111,83 +118,8 @@ describe("Prueba unitaria del Crud Valores Globales...", () =>{
                         });
                     });
 
-
-
                 })
             })
         })
 
     })
-
-
-    /**
-     * 
-     * 
-     *     describe.skip('004.2 -  Monedas > Países que usan moneda', () => {
-
-        before(() => {
-            cy.fixture('paisesQueLoUsan').as('dataPaises')
-        })
-
-        beforeEach(() => {
-            Generales.IrAPantalla('money')
-        })
-
-        it('Agregar multiples registros en Subnivel Monedas > Paises que lo usan', function () {
-            const datos = this.dataPaises.agregar
-            const agrupadas = datos.reduce((acc, item) => {
-                if (!acc[item.codigoMoneda]) {
-                    acc[item.codigoMoneda] = []
-                }
-                acc[item.codigoMoneda].push(item)
-                return acc
-            }, {})
-
-            cy.wrap(Object.keys(agrupadas)).each((codigoMoneda) => {
-                cy.log('💰 Procesando moneda: ' + codigoMoneda)
-
-                Generales.BuscarRegistroCodigo(codigoMoneda)
-                Generales.NavegacionSubMenu('Paises que la usan')
-
-                return cy.wrap(agrupadas[codigoMoneda]).each((registro) => {
-                    Generales.BtnAgregarRegistroSubnivel()
-                    const pais = registro.valorPais || registro.nombre
-                    PaisesQueLoUsan.PaisesQueUsan(pais)
-
-                    return cy.get('@paisExiste').then((existe) => {
-                        if (existe) {
-                            Generales.BtnAceptarRegistro()
-                        } else {
-                            Generales.BtnCancelarRegistro()
-                        }
-                        // SIEMPRE esperar que el modal desaparezca
-                        return cy.get('mat-dialog-container', { timeout: 10000 })
-                            .should('not.exist')
-
-                    })
-                }).then(() => {
-                    cy.log('🔙 Regresando al nivel principal')
-
-                    // Primer regreso - SALIR DEL SUBNIVEL
-                    return cy.then(() => {
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que salimos del subnivel (modal cerrado)
-                        return cy.get('mat-dialog-container', { timeout: 5000 })
-                            .should('not.exist')
-                    }).then(() => {
-                        // Segundo regreso - SALIR DEL DETALLE DE MONEDA
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que estamos en el listado principal
-                        return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
-                            .should('be.visible')
-                    })
-                })
-            })
-        })
-
-    })
-     * 
-     * 
-     */

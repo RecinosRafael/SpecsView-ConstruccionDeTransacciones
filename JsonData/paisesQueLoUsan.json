@@ -1,0 +1,13 @@
+{
+  "agregar": [
+
+    {
+      "codigoMoneda": "GTQ",
+      "valorPais": "Guatemala"
+    },
+    {
+      "codigoMoneda": "L",
+      "valorPais": "Honduras TR"
+    }
+  ]
+}

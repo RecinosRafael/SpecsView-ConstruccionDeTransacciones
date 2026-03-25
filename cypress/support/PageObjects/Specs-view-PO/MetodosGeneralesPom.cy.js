@@ -124,6 +124,73 @@ class MetodosGeneralesPomCy{
     }
 }
 
+clickTooltipButton(textoBoton, opciones = {}) {
+    const {
+        timeout = 10000,
+        force = false,
+        scrollBehavior = 'center',
+        ensureScrollable = true,
+        offsetTop = -100,
+        skipContext = false,
+        spinnerTimeout = 30000,
+        esperarAparicionSpinner = false
+    } = opciones;
+
+    if (!textoBoton || textoBoton.trim() === '') {
+        cy.log(`⏭️ Texto de tooltip vacío, se omite clic.`);
+        return;
+    }
+
+    const normalizar = (texto) => {
+        return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    };
+    const textoNormalizado = normalizar(textoBoton);
+
+    cy.log(`🔍 Buscando tooltip con texto: "${textoBoton}"`);
+
+    // 1. Buscar el div del tooltip dentro del contenedor oculto, por su texto
+    cy.get('#cdk-describedby-message-container', { timeout })
+        .should('exist')
+        .then($container => {
+            // Buscar el div cuyo texto coincide (normalizado)
+            let tooltipId = null;
+            const $divs = $container.find('div');
+            for (let i = 0; i < $divs.length; i++) {
+                const $div = Cypress.$(($divs[i]));
+                const tooltipText = $div.text().trim();
+                if (normalizar(tooltipText) === textoNormalizado) {
+                    tooltipId = $div.attr('id');
+                    cy.log(`✅ Tooltip encontrado con ID: ${tooltipId} (texto: "${tooltipText}")`);
+                    break;
+                }
+            }
+
+            if (!tooltipId) {
+                // Listar tooltips disponibles para depuración
+                const textos = $divs.map((i, el) => Cypress.$(el).text().trim()).get();
+                cy.log(`❌ No se encontró tooltip con texto "${textoBoton}". Disponibles: ${JSON.stringify(textos)}`);
+                throw new Error(`Tooltip no encontrado: "${textoBoton}"`);
+            }
+
+            // 2. Buscar el botón que tenga aria-describedby = tooltipId
+            cy.get(`[aria-describedby="${tooltipId}"]`, { timeout })
+                .should('be.visible')
+                .scrollIntoView({ duration: 300, offset: { top: offsetTop, left: 0 }, ensureScrollable })
+                .click({ force })
+                .then(() => {
+                    cy.log(`✅ Clic en botón con tooltip "${textoBoton}"`);
+                    if (this.esperarOcultarSpinner) {
+                        this.esperarOcultarSpinner({
+                            timeout: spinnerTimeout,
+                            esperarAparicion: esperarAparicionSpinner,
+                            skipContext: skipContext
+                        });
+                    }
+                });
+        });
+}
+
+
     // BtnAgregarRegistrosIF() {
     //         cy.log('Clic en botón ADD');
     //         this.esperarOcultarSpinner();
@@ -2495,165 +2562,6 @@ BuscarRegistroEnTabla(criterios) {
         this._ejecutarEnContexto(ejecutar, skipContext);
     }
 
-
-    // seleccionarCombo(valor, labelText, opciones = {}) {
-    //     const {
-    //         ignorarTildes = true,
-    //         ignorarMayusculas = true,
-    //         ignorarEspacios = true,
-    //         timeout = 10000
-    //     } = opciones;
-
-    //     if (!valor || valor === "") {
-    //         cy.log(`⏭️ Valor vacío para combo "${labelText}" - se omite la selección`);
-    //         return;
-    //     }
-
-    //     cy.log(`🔍 Seleccionando "${valor}" en combo "${labelText}"`);
-
-    //     const normalizarTexto = (texto) => {
-    //         if (!texto) return texto;
-    //         let resultado = String(texto);
-
-    //         if (ignorarTildes) {
-    //             resultado = resultado.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    //         }
-
-    //         if (ignorarMayusculas) {
-    //             resultado = resultado.toLowerCase();
-    //         }
-
-    //         if (ignorarEspacios) {
-    //             resultado = resultado.trim().replace(/\s+/g, ' ');
-    //         }
-
-    //         return resultado;
-    //     };
-
-    //     const labelNormalizado = normalizarTexto(labelText);
-    //     cy.log(`📋 Buscando label normalizado: "${labelNormalizado}"`);
-
-    //     // Buscar todos los form-field con mat-select
-    //     cy.get('mat-form-field:has(mat-select)', { timeout }).then($formFields => {
-    //         let $mejorCampo = null;
-    //         let mejorPuntaje = -1;
-    //         let mejorCoincidencia = null;
-
-    //         // Evaluar cada form-field
-    //         $formFields.each((index, field) => {
-    //             const $field = Cypress.$(field);
-    //             const $label = $field.find('mat-label, label, .mat-label, .mat-form-field-label');
-
-    //             if ($label.length) {
-    //                 const textoLabel = $label.first().text().trim();
-    //                 const textoLabelNormalizado = normalizarTexto(textoLabel);
-
-    //                 // Calcular puntaje de coincidencia
-    //                 let puntaje = 0;
-
-    //                 // Coincidencia exacta (mejor)
-    //                 if (textoLabelNormalizado === labelNormalizado) {
-    //                     puntaje = 100;
-    //                 }
-    //                 // Coincidencia exacta ignorando el asterisco
-    //                 else if (textoLabelNormalizado.replace(/\s*\*\s*/g, '') === labelNormalizado) {
-    //                     puntaje = 90;
-    //                 }
-    //                 // Label comienza con el texto buscado
-    //                 else if (textoLabelNormalizado.startsWith(labelNormalizado + ' ')) {
-    //                     puntaje = 80;
-    //                 }
-    //                 // Label contiene el texto buscado como palabra completa
-    //                 else if (textoLabelNormalizado.match(new RegExp(`\\b${labelNormalizado}\\b`))) {
-    //                     puntaje = 70;
-    //                 }
-    //                 // Label contiene el texto buscado
-    //                 else if (textoLabelNormalizado.includes(labelNormalizado)) {
-    //                     puntaje = 50;
-    //                 }
-    //                 // Texto buscado contiene el label (coincidencia parcial baja)
-    //                 else if (labelNormalizado.includes(textoLabelNormalizado)) {
-    //                     puntaje = 30;
-    //                 }
-
-    //                 cy.log(`📝 "${textoLabel}" → puntaje: ${puntaje}`);
-
-    //                 // Si este campo tiene mejor puntaje, es el nuevo candidato
-    //                 if (puntaje > mejorPuntaje) {
-    //                     mejorPuntaje = puntaje;
-    //                     $mejorCampo = $field;
-    //                     mejorCoincidencia = textoLabel;
-    //                 }
-    //             }
-    //         });
-
-    //         // Verificar que encontramos un campo con puntaje mínimo
-    //         expect($mejorCampo, `No se encontró campo para label "${labelText}"`).to.not.be.null;
-    //         cy.log(`✅ Mejor coincidencia: "${mejorCoincidencia}" (puntaje: ${mejorPuntaje})`);
-
-    //         // Guardar referencia al select antes de cualquier interacción
-    //         cy.wrap($mejorCampo)
-    //             .find('mat-select')
-    //             .should('be.visible')
-    //             .as('targetSelect');
-
-    //         // Obtener valor actual usando la referencia guardada
-    //         cy.get('@targetSelect').then($select => {
-    //             const valorActual = $select
-    //                 .find('.mat-select-value-text, .mat-select-min-line, .mat-select-placeholder')
-    //                 .first()
-    //                 .text()
-    //                 .trim();
-
-    //             const valorActualNormalizado = normalizarTexto(valorActual);
-    //             const valorNormalizado = normalizarTexto(valor);
-
-    //             cy.log(`📌 Valor actual: "${valorActual}" | Normalizado: "${valorActualNormalizado}"`);
-    //             cy.log(`🎯 Valor deseado: "${valor}" | Normalizado: "${valorNormalizado}"`);
-
-    //             if (valorActualNormalizado !== valorNormalizado &&
-    //                 !valorActualNormalizado.includes(valorNormalizado)) {
-
-    //                 // Click en el select guardado
-    //                 cy.get('@targetSelect')
-    //                     .should('not.be.disabled')
-    //                     .click({ force: true });
-    //                     cy.wait(500)
-    //                 // Buscar opción en el panel desplegado
-    //                 cy.get('.cdk-overlay-pane', { timeout })
-    //                     .should('be.visible')
-    //                     .find('mat-option')
-    //                     .filter((i, opt) => {
-    //                         const textoOpcion = Cypress.$(opt).text().trim();
-    //                         const textoOpcionNormalizado = normalizarTexto(textoOpcion);
-
-    //                         return textoOpcionNormalizado === valorNormalizado ||
-    //                             textoOpcionNormalizado.includes(valorNormalizado) ||
-    //                             valorNormalizado.includes(textoOpcionNormalizado);
-    //                     })
-    //                     .first()
-    //                     .then($option => {
-    //                         // Hacer scroll para que la opción sea visible
-    //                         cy.wrap($option).scrollIntoView({
-    //                             duration: 200,
-    //                             easing: 'linear',
-    //                             ensureScrollable: true
-    //                         });
-
-    //                         // Ahora hacer click en la opción
-    //                         cy.wrap($option)
-    //                             .should('be.visible')
-    //                             .click({ force: true });
-    //                     });
-
-    //                 cy.log(`✅ Seleccionado "${valor}" en combo "${labelText}"`);
-    //             } else {
-    //                 cy.log(`⏭️ Ya tiene el valor "${valor}", no se requiere cambio`);
-    //             }
-    //         });
-    //     });
-    // }
-
 seleccionarCombo(valor, labelText, opciones = {}) {
     const {
         ignorarTildes = true,
@@ -2687,9 +2595,23 @@ seleccionarCombo(valor, labelText, opciones = {}) {
     const valorNormalizado = normalizarTexto(valor);
     const labelNormalizado = normalizarTexto(labelText);
 
-    // 1. Encontrar el form-field correcto (evitando :has() en el selector)
+    // Cerrar overlays previos
+    cy.get('body').then($body => {
+        if ($body.find('.cdk-overlay-pane').length) {
+            cy.log('⚠️ Cerrando overlay existente antes de abrir nuevo combo');
+            const $backdrop = $body.find('.cdk-overlay-backdrop');
+            if ($backdrop.length) {
+                cy.wrap($backdrop).click({ force: true });
+            } else {
+                cy.get('body').type('{esc}', { force: true });
+            }
+            cy.wait(300);
+        }
+    });
+
+    // Localizar el mat-form-field por su label
     cy.get('mat-form-field', { timeout })
-        .filter(':has(mat-select)')   // <-- filtro jQuery válido
+        .filter(':has(mat-select)')
         .then($campos => {
             let $mejorCampo = null;
             let mejorPuntaje = -1;
@@ -2722,10 +2644,10 @@ seleccionarCombo(valor, labelText, opciones = {}) {
             expect($mejorCampo, `No se encontró campo para label "${labelText}"`).to.not.be.null;
             cy.log(`✅ Mejor coincidencia: "${textoMejorCoincidencia}" (puntaje: ${mejorPuntaje})`);
 
-            // 2. Obtener el mat-select dentro del campo y verificar si ya tiene el valor deseado
             const $select = $mejorCampo.find('mat-select');
             cy.wrap($select).as('targetSelect');
 
+            // Verificar valor actual
             cy.get('@targetSelect').then($el => {
                 const valorActual = $el.find('.mat-select-value-text, .mat-select-min-line')
                     .first()
@@ -2740,31 +2662,66 @@ seleccionarCombo(valor, labelText, opciones = {}) {
                     return;
                 }
 
-                // 3. Abrir el combo y seleccionar la opción exacta
+                // Abrir el combo
                 cy.get('@targetSelect')
                     .should('not.be.disabled')
                     .click();
 
-                // 4. Esperar a que el panel aparezca y seleccionar la opción por texto exacto
+                // Esperar y filtrar el panel correcto
                 cy.get('.cdk-overlay-pane', { timeout })
-                    .should('be.visible')
-                    .within(() => {
-                        // Buscar la opción que coincida exactamente después de normalizar
-                        cy.get('mat-option')
-                            .filter((i, opt) => {
-                                const textoOpt = Cypress.$(opt).text().trim();
-                                const textoOptNorm = normalizarTexto(textoOpt);
-                                return textoOptNorm === valorNormalizado;
-                            })
-                            .first()
-                            .should('be.visible')
-                            .click();
+                    .should('have.length.at.least', 1)
+                    .then($paneles => {
+                        // Filtrar paneles que tengan al menos un mat-option
+                        const $panelesConOpciones = $paneles.filter((idx, pane) => {
+                            return Cypress.$(pane).find('mat-option').length > 0;
+                        });
+
+                        let $panelCorrecto;
+                        if ($panelesConOpciones.length > 0) {
+                            $panelCorrecto = $panelesConOpciones.first();
+                            cy.log(`✅ Usando panel que contiene opciones (${$panelesConOpciones.length} paneles con opciones)`);
+                        } else {
+                            $panelCorrecto = $paneles.first();
+                            cy.log(`⚠️ Ningún panel tiene mat-option, usando el primero`);
+                        }
+
+                        cy.wrap($panelCorrecto).within(() => {
+                            // Listar todas las opciones para depurar
+                            cy.get('mat-option').then($opciones => {
+                                const textos = $opciones.map((i, opt) => Cypress.$(opt).text().trim()).get();
+                                cy.log(`📋 Opciones disponibles: ${JSON.stringify(textos)}`);
+                            });
+
+                            // Buscar la opción exacta
+                            cy.get('mat-option')
+                                .filter((i, opt) => {
+                                    const textoOpt = Cypress.$(opt).text().trim();
+                                    const textoOptNorm = normalizarTexto(textoOpt);
+                                    return textoOptNorm === valorNormalizado;
+                                })
+                                .first()
+                                .should('be.visible')
+                                .scrollIntoView()
+                                .click({ force: true });
+                        });
                     });
+
+                // Verificar que el valor se actualizó - USANDO .then() en lugar de .should()
+                cy.get('@targetSelect').then($el => {
+                    const nuevoValor = $el.find('.mat-select-value-text, .mat-select-min-line')
+                        .first()
+                        .text()
+                        .trim();
+                    const nuevoValorNorm = normalizarTexto(nuevoValor);
+                    cy.log(`🔍 Después de seleccionar: "${nuevoValor}" | Normalizado: "${nuevoValorNorm}"`);
+                    expect(nuevoValorNorm).to.equal(valorNormalizado);
+                });
 
                 cy.log(`✅ Seleccionado "${valor}" en combo "${labelText}"`);
             });
         });
 }
+
 
     seleccionarComboEspecial(valor, labelText, opciones = {}) {
         const {

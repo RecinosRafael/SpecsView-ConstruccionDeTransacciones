@@ -1,0 +1,12 @@
+{
+  "agregar": [
+    {
+    "codigo":"2",
+    "nombre":"Jornada vespertina",
+    "transfiereSaldos":"Ella misma",
+    "_comment_transfiereSaldos":"Valores posibles para transfiereSaldos: No Aplica, Ella misma, Otra jornada",
+    "idJornadaTransferir":"",
+    "_comment_idJornadaTransferir":"Se enviara dato solo si transfiereSaldos = Otra jornada"
+    }
+  ]
+}

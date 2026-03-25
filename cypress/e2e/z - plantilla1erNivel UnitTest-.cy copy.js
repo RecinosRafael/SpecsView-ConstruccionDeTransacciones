@@ -19,15 +19,22 @@ describe("Prueba unitaria del Crud Valores Globales...", () =>{
             Cypress.env('USER'),
             Cypress.env('PASS')
         )
+      
+        const folderPath = 'capturas';
+        cy.task('deleteAllFiles', folderPath);
+
+    
     })
+    
 
     beforeEach(() => {
         Generales.IrAPantalla('globalValues')
+        
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
         cy.readFile('./JsonData/valorGlobal.json').then((data) => {
-            cy.wrap(data.agregar).each((item) => {
+            cy.wrap(data.agregar).each((item, index) => {
                 cy.log(`Insertando registro con codigo: ${item.codigo}`)
 
 
@@ -54,7 +61,7 @@ describe("Prueba unitaria del Crud Valores Globales...", () =>{
                 ValorGlobal.ValoresGlobales(item)
 
                 const alias = `guardar-${numero}`;
-                cy.intercept('POST', '**//*globalValues').as(alias);
+                cy.intercept('POST', '**/globalValues').as(alias);
 
                 Generales.BtnAceptarRegistro()
 
@@ -110,8 +117,6 @@ describe("Prueba unitaria del Crud Valores Globales...", () =>{
                             });
                         });
                     });
-
-
 
                 })
             })

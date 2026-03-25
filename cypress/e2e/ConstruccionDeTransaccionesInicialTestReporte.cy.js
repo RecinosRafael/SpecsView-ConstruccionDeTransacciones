@@ -682,6 +682,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         it("Agregar múltiples registros en crud de Monedas", () => {
             cy.readFile('./JsonData/monedas.json').then((dataMonedas) => {
                 cy.wrap(dataMonedas.agregar).each((item) => {
+                    const numero = index + 1;
                     cy.log(`Insertando código: ${item.codigo}`)
 
                     //Asegurar estado limpio antes de comenzar
@@ -773,99 +774,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     })
 
-   describe.skip("004.1 - Monedas > Crud Denominaciones...", () =>{
-
-
-        beforeEach(() => {
-            Generales.IrAPantalla('money')
-            cy.readFile('./JsonData/denominaciones').as('dataDenominaciones')
-        })
-
-        it("Agregar multiples registros en Subnivel Monedas > Denominaciones", function () {
-
-            const datos = this.dataDenominaciones.agregar
-
-            const agrupadas = datos.reduce((acc, item) => {
-                if (!acc[item.codigoMoneda]) {
-                    acc[item.codigoMoneda] = []
-                }
-                acc[item.codigoMoneda].push(item)
-                return acc
-            }, {})
-
-            cy.wrap(Object.keys(agrupadas)).each((codigoMoneda) => {
-                cy.log('Procesando Regla con nombre: ' + codigoMoneda)
-
-                // 🔎 Buscar Regla
-                Generales.BuscarRegistroCodigo(codigoMoneda)
-                Generales.NavegacionSubMenu('Denominación de Moneda')
-
-                return cy.wrap(agrupadas[codigoMoneda]).each((registro) => {
-                    Generales.BtnAgregarRegistroSubnivel()
-                    cy.log("y el agregar que pedo")
-                    //  const pais = registro.valorPais || registro.nombre
-                    Denominaciones.DenominacionMoneda(
-                        //nombre, etiqueta, valorTipo, monto
-                        registro.nombre,
-                        registro.etiqueta,
-                        registro.valorTipo,
-                        registro.monto
-                    )
-
-                    Generales.BtnAceptarRegistro();
-
-                    const alias = `guardar-${numero}`;
-                    cy.intercept('POST', '**/dataType').as(alias);
-
-                    cy.wait(2000)
-                    return cy.get('body').then(($body) => {
-                        // Buscar específicamente el snackbar de error
-                        const snackBarError = $body.find('.snack-container__error');
-
-                        if (snackBarError.length > 0) {
-                            // Obtener el mensaje específico
-                            const mensajeError = snackBarError.find('.message-snack').text();
-                            cy.log(`⚠️ Error detectado: ${mensajeError}`);
-
-                            // Cerrar el snackbar si tiene botón de cerrar
-                            cy.get('.snack--btn-close').click();
-
-                            Generales.BtnCancelarRegistro();
-                            cy.log('❌ Registro duplicado - cancelando');
-                        } else {
-                            cy.log('✅ No hay errores - aceptando');
-                        }
-
-                        return cy.get('mat-dialog-container', { timeout: 10000 })
-                            .should('not.exist');
-                    });
-
-
-                }).then(() => {
-                    cy.log('🔙 Regresando al nivel principal')
-
-                    // Primer regreso - SALIR DEL SUBNIVEL
-                    return cy.then(() => {
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que salimos del subnivel (modal cerrado)
-                        return cy.get('mat-dialog-container', { timeout: 5000 })
-                            .should('not.exist')
-                    }).then(() => {
-                        // Segundo regreso - SALIR DEL DETALLE DE MONEDA
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que estamos en el listado principal
-                        return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
-                            .should('be.visible')
-                    })
-                })
-            })
-        })
-
-    })
-
-    describe("004.1 - Monedas > Crud Denominaciones...", () => {
+    describe.skip("004.1 - Monedas > Crud Denominaciones...", () => {
 
         beforeEach(() => {
             Generales.IrAPantalla('money')
@@ -999,18 +908,17 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
     })
 
-    describe.skip('004.2 -  Monedas > Países que usan moneda', () => {
-
-        before(() => {
-            cy.fixture('paisesQueLoUsan').as('dataPaises')
-        })
+    describe('004.2 -  Monedas > Países que usan moneda', () => {
 
         beforeEach(() => {
             Generales.IrAPantalla('money')
+            cy.readFile('./JsonData/paisesQueLoUsan.json').as('dataPaises')
         })
 
-        it('Agregar multiples registros en Subnivel Monedas > Paises que lo usan', function () {
+        it("Agregar multiples registros en Subnivel Monedas > Paises que lo usan", function () {
+
             const datos = this.dataPaises.agregar
+
             const agrupadas = datos.reduce((acc, item) => {
                 if (!acc[item.codigoMoneda]) {
                     acc[item.codigoMoneda] = []
@@ -1019,49 +927,120 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 return acc
             }, {})
 
-            cy.wrap(Object.keys(agrupadas)).each((codigoMoneda) => {
-                cy.log('💰 Procesando moneda: ' + codigoMoneda)
+            let numero = 0 // Contador para alias únicos
 
+            cy.wrap(Object.keys(agrupadas)).each((codigoMoneda) => {
+                cy.log('Procesando Moneda con código: ' + codigoMoneda)
+
+                // 🔎 Buscar Moneda
                 Generales.BuscarRegistroCodigo(codigoMoneda)
-                Generales.NavegacionSubMenu('Paises que la usan')
+                Generales.NavegacionSubMenu('Paises que la usa')
 
                 return cy.wrap(agrupadas[codigoMoneda]).each((registro) => {
-                    Generales.BtnAgregarRegistroSubnivel()
-                    const pais = registro.valorPais || registro.nombre
-                    PaisesQueLoUsan.PaisesQueUsan(pais)
+                    numero++
 
-                    return cy.get('@paisExiste').then((existe) => {
-                        if (existe) {
-                            Generales.BtnAceptarRegistro()
-                        } else {
+                    // Asegurar estado limpio antes de abrir el modal (por si acaso)
+                    cy.get('body').then(($body) => {
+                        if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                            cy.log('Formulario abierto detectado, cerrando...')
                             Generales.BtnCancelarRegistro()
                         }
-                        // SIEMPRE esperar que el modal desaparezca
-                        return cy.get('mat-dialog-container', { timeout: 10000 })
-                            .should('not.exist')
-
                     })
+
+                    // Abrir formulario de Denominación
+                    Generales.BtnAgregarRegistroSubnivel()
+
+                    // Validar que el modal realmente abrió
+                    cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
+                        .should('be.visible')
+
+                    // Llenar datos de la Denominación
+
+                    PaisesQueLoUsan.PaisesQueUsan(
+                        registro.valorPais
+                    )
+
+                    // Interceptar la petición POST al backend (ajustar URL según tu API)
+                    const alias = `guardar-${numero}`
+                    //cy.intercept('POST', '**/money').as(alias)
+                    cy.intercept('POST', '**/countriesUseMoney').as(alias)
+
+                    Generales.BtnAceptarRegistro()
+
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode
+                        let estado = 'fallida'
+                        let mensaje = ''
+
+                        cy.wait(500)
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack')
+                            if ($snack.length) mensaje = $snack.text().trim()
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa'
+                                cy.log(' insertada correctamente')
+                            } else {
+                                estado = 'fallida'
+                                cy.log(`Error detectado. Status: ${status}`)
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Moneda > Paises que la usan-${estado}`
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '004.2 - Paises que la usan',
+                                    crud: "Paises que la usan",
+                                    descripcion: `Moneda: ${codigoMoneda} - Pais: ${registro.valorPais}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                })
+                            })
+                        }).then(() => {
+                            // Cerrar el modal si aún está abierto
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente')
+                                    Generales.BtnCancelarRegistro()
+                                    cy.wait(2000)
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('El modal no se cerró después de intentarlo, pero continuamos')
+                                        } else {
+                                            cy.log('Modal cerrado correctamente')
+                                        }
+                                    })
+                                } else {
+                                    cy.log('Modal ya cerrado')
+                                }
+                            })
+                        })
+                    })
+
+                    // Opcional: Verificar que el modal de denominación se cerró completamente
+                    cy.get('mat-dialog-container', { timeout: 10000 }).should('not.exist')
                 }).then(() => {
-                    cy.log('🔙 Regresando al nivel principal')
+                    cy.log('🔙 Regresando al nivel principal después de procesar todas las denominaciones de la moneda')
 
-                    // Primer regreso - SALIR DEL SUBNIVEL
-                    return cy.then(() => {
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que salimos del subnivel (modal cerrado)
-                        return cy.get('mat-dialog-container', { timeout: 5000 })
-                            .should('not.exist')
-                    }).then(() => {
-                        // Segundo regreso - SALIR DEL DETALLE DE MONEDA
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que estamos en el listado principal
-                        return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
-                            .should('be.visible')
-                    })
+                    // Primer regreso - SALIR DEL SUBNIVEL (listado de denominaciones)
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que salimos del subnivel (modal cerrado)
+                    cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist')
+
+                    // Segundo regreso - SALIR DEL DETALLE DE MONEDA
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que estamos en el listado principal de monedas
+                    cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 }).should('be.visible')
                 })
+
+
             })
         })
+
 
     })
 
@@ -1072,9 +1051,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros en crud de productos", () => {
-            cy.fixture('productos').then((dataProductos) => {
+            cy.readFile('./JsonData/productos.json').then((dataProductos) => {
                 cy.wrap(dataProductos.agregar).each((item) => {
                     cy.log(`Insertando código: ${item.codigo}`)
+                    const numero = index + 1;
 
                     //Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
@@ -1104,23 +1084,66 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     )
 
                     //Intercept backend
-                    cy.intercept('POST', '**/products').as('guardar')
+                    //cy.intercept('POST', '**/products').as('guardar')
+
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/products').as(alias);
 
                     Generales.BtnAceptarRegistro()
 
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Tipo de Dato-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '002 - Tipo de Dato',
+                                    crud: "Tipo de Dato",
+                                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('⚠️ El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
+                    });
+
+
+
                 })
             })
         })

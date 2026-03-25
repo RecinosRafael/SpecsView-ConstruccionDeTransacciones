@@ -20,8 +20,8 @@ class ValoresGlobalesPomCy{
 
 
     SubValoresGlobales(data){
-
-        this.Generales.seleccionarCombo(data.arbolRaiz, "Árbol Raíz")
+        this.Generales.esperarQueSpinnerDesaparezca()
+        this.Generales.seleccionarCombo(data.arbolRaiz, "Árbol Raíz", {Timeout: 10000})
         this.Generales.llenarCampo(data.valor, "Valor")
 
     }
