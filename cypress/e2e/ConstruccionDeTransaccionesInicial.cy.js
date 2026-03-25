@@ -3903,7 +3903,6 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         Generales.abrirPanel("Opciones");
                         Generales.BtnIframe("Comprobantes", { timeout: 10000, force: true, skipContext: true });
                         Generales.BtnIframe("Agregar", { timeout: 10000, force: true, skipContext: true }, 'add-button');
-//                        GestorDeTransaccion.ComprobantesImpresion(item);
                         GestorDeTransaccion.ComprobantesImpresion(
                             //item.tipoFormato, item.comprobante, item.esMandatorio, item.verComprobante, item.notificaComprobante,
                             // item.impAntesConsultarFirmas, item.copiasImprimir, item.etiqueta, item.etiqueta2
@@ -3991,7 +3990,6 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         Generales.BtnIframe("Notificaciones electrónicas", { timeout: 10000, skipContext: true }, 'div[role="tab"]', true);
                         cy.wait(1500)
                         Generales.BtnIframe("Agregar", { timeout: 10000, force: true, skipContext: true }, 'add-button');
-                        GestorDeTransaccion.ComprobantesImpresion(item);
                         GestorDeTransaccion.ComprobantesNotElectronica(
                             //tipoFormato, comprobante, verComprobante, seNotificaMedio, esMandatorio, notificaComprobante
                             item.tipoFormato, item.comprobante, item.verComprobante, item.seNotificaMedio,

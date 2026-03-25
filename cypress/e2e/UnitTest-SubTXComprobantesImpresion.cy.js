@@ -51,7 +51,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     Generales.filtrarPorCodigo(item.codigoTX); // o item.codigoTX - 777 para pruebas 
                     Generales.abrirPanel("Opciones");
                     Generales.BtnIframe("Comprobantes", { timeout: 10000, force: true, skipContext: true });
-                    Generales.BtnIframe("Agregar", { timeout: 10000, force: true, skipContext: true }, 'add-button');                    GestorDeTransacciones.ComprobantesImpresion(item);
+                    Generales.BtnIframe("Agregar", { timeout: 10000, force: true, skipContext: true }, 'add-button');                    
                     GestorDeTransacciones.ComprobantesImpresion(
                     //item.tipoFormato, item.comprobante, item.esMandatorio, item.verComprobante, item.notificaComprobante, 
                     // item.impAntesConsultarFirmas, item.copiasImprimir, item.etiqueta, item.etiqueta2
