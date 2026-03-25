@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const oracledb = require("oracledb");
 const mysql = require('mysql2/promise');
+const ExcelJS = require('exceljs');
 
 // ============================================
 // CARGA DE CONFIGURACIÓN DE BASE DE DATOS
@@ -10,72 +11,82 @@ const mysql = require('mysql2/promise');
 function loadDatabaseConfig() {
   try {
     const configPath = path.resolve(__dirname, 'cypress/fixtures/database-config.json');
-    console.log('📖 Leyendo configuración de BD desde:', configPath);
-
     if (!fs.existsSync(configPath)) {
       throw new Error(`Archivo no encontrado: ${configPath}`);
     }
-
     const configFile = fs.readFileSync(configPath, 'utf8');
-    const config = JSON.parse(configFile);
-
-    console.log('✅ Configuración de BD cargada exitosamente');
-    
-    if (config.oracle) {
-      console.log('📊 ORACLE - Usuarios disponibles:');
-      Object.keys(config.oracle).forEach(key => {
-        console.log(`   - ${key}: ${config.oracle[key].connectString} (user: ${config.oracle[key].user})`);
-      });
-    }
-    
-    if (config.mysql) {
-      console.log('📊 MYSQL - Usuarios disponibles:');
-      Object.keys(config.mysql).forEach(key => {
-        console.log(`   - ${key}: ${config.mysql[key].host}:${config.mysql[key].port}/${config.mysql[key].database} (user: ${config.mysql[key].user})`);
-      });
-    }
-
-    return config;
-
+    return JSON.parse(configFile);
   } catch (error) {
-    console.error('❌ Error CRÍTICO en BD:', error.message);
+    console.error(' Error CRÍTICO en BD:', error.message);
     throw new Error('No se puede continuar sin configuración de BD');
   }
 }
 
-// ============================================
-// CARGA DE VARIABLES DE ENTORNO (cypress.env.json)
-// ============================================
 function loadEnvConfig() {
   try {
     const envPath = path.resolve(__dirname, 'cypress.env.json');
-    console.log('📖 Leyendo configuración de entorno desde:', envPath);
-
     if (fs.existsSync(envPath)) {
-      const envFile = fs.readFileSync(envPath, 'utf8');
-      const envConfig = JSON.parse(envFile);
-      console.log('✅ Configuración de entorno cargada exitosamente');
-      console.log(`   - BASE_URL: ${envConfig.BASE_URL}`);
-      console.log(`   - USER: ${envConfig.USER}`);
-      return envConfig;
-    } else {
-      console.log('⚠️ No se encontró cypress.env.json, usando variables de entorno del sistema');
-      return {};
+      return JSON.parse(fs.readFileSync(envPath, 'utf8'));
     }
+    return {};
   } catch (error) {
-    console.error('❌ Error cargando cypress.env.json:', error.message);
+    console.error('Error cargando cypress.env.json:', error.message);
     return {};
   }
 }
 
-// Cargar configuraciones
 const dbConfigs = loadDatabaseConfig();
 const envConfig = loadEnvConfig();
 
 // ============================================
-// CONFIGURACIÓN PRINCIPAL DE CYPRESS
+// FUNCIONES DE APOYO
 // ============================================
+const normalizeString = (str) => str?.toString().trim().toLowerCase() || '';
+
+const getConnectionConfig = (user, type = process.env.DB_TYPE || 'oracle') => {
+  const userNormalized = normalizeString(user);
+  const userMap = {
+    'jtellerv7': 'jteller',
+    'jteller': 'jteller',
+    'jsigcommon': 'jsigcommon',
+    'jsigperson_data': 'jsigperson_data',
+    'logdat': 'logdat',
+    'security': 'security',
+    'distributor': 'distributor',
+    'jsignature': 'jsignature',
+    'jsigperson_conf': 'jsigperson_conf',
+    'root': 'root'
+  };
+  let configKey = userMap[userNormalized] || userNormalized;
+
+  if (type === 'oracle') {
+    let oracleConfig = dbConfigs.oracle?.[configKey];
+    if (!oracleConfig) throw new Error(`Configuración Oracle no encontrada para clave: ${configKey}`);
+    return {
+      user: oracleConfig.user,
+      password: oracleConfig.password,
+      connectString: oracleConfig.connectString,
+      schema: configKey.toUpperCase(),
+      originalUser: user
+    };
+  } else if (type === 'mysql') {
+    let mysqlConfig = dbConfigs.mysql?.[configKey];
+    if (!mysqlConfig) throw new Error(`Configuración MySQL no encontrada para clave: ${configKey}`);
+    return {
+      host: mysqlConfig.host,
+      port: mysqlConfig.port,
+      user: mysqlConfig.user,
+      password: mysqlConfig.password,
+      database: mysqlConfig.database,
+      originalUser: user
+    };
+  } else {
+    throw new Error(`Tipo de BD no soportado: ${type}`);
+  }
+};
+
 module.exports = defineConfig({
+  screenshotsFolder: './capturas',   // carpeta fija para capturas
   viewportWidth: 1500,
   viewportHeight: 900,
   chromeWebSecurity: false,
@@ -96,153 +107,64 @@ module.exports = defineConfig({
 
   e2e: {
     setupNodeEvents(on, config) {
-      numTestsKeptInMemory: 0,
+      // Plugin del reporter
       require('cypress-mochawesome-reporter/plugin')(on);
-      
 
-      // ============================================
-      // COMBINAR VARIABLES DE ENTORNO
-      // ============================================
+      // ===== VARIABLE GLOBAL PARA RESULTADOS =====
+      let resultados = [];
+
+      // ===== COMBINAR VARIABLES DE ENTORNO =====
       const dbType = process.env.DB_TYPE || config.env.DB_TYPE || 'oracle';
-      
-      // Fusionar config.env con envConfig
       config.env = {
-        ...config.env,      // Variables existentes
-        ...envConfig,       // Variables de cypress.env.json
-        DB_TYPE: dbType,    // Tipo de base de datos
-        database: {          // Configuración de BD
+        ...config.env,
+        ...envConfig,
+        DB_TYPE: dbType,
+        database: {
           type: dbType,
           oracle: dbConfigs.oracle || {},
           mysql: dbConfigs.mysql || {}
         }
       };
 
-      console.log(`\n🔧 Usando base de datos: ${dbType.toUpperCase()}`);
-      console.log(`🔧 Usando URL: ${config.env.BASE_URL || 'No definida'}`);
-      console.log(`🔧 Usando usuario: ${config.env.USER || 'No definido'}\n`);
+      console.log(`\n Usando base de datos: ${dbType.toUpperCase()}`);
+      console.log(` Usando URL: ${config.env.BASE_URL || 'No definida'}\n`);
 
-      // ============================================
-      // FUNCIÓN PARA NORMALIZAR STRINGS
-      // ============================================
-      const normalizeString = (str) => {
-        return str?.toString().trim().toLowerCase() || '';
-      };
-
-      // ============================================
-      // FUNCIÓN PARA OBTENER CONFIGURACIÓN DE CONEXIÓN
-      // ============================================
-      const getConnectionConfig = (user, type = dbType) => {
-        console.log(`🔍 Buscando configuración para ${type}:${user}`);
-        const userNormalized = normalizeString(user);
-
-        const userMap = {
-          'jtellerv7': 'jteller',
-          'jteller': 'jteller',
-          'jsigcommon': 'jsigcommon',
-          'jsigperson_data': 'jsigperson_data',
-          'logdat': 'logdat',
-          'security': 'security',
-          'distributor': 'distributor',
-          'jsignature': 'jsignature',
-          'jsigperson_conf': 'jsigperson_conf',
-          'root': 'root'
-        };
-
-        let configKey = userMap[userNormalized];
-        
-        if (!configKey) {
-          const foundKey = Object.keys(userMap).find(key => 
-            normalizeString(key) === userNormalized
-          );
-          configKey = foundKey ? userMap[foundKey] : null;
+      // ===== HOOK: limpiar/crear carpetas antes de ejecutar las pruebas =====
+      on('before:run', () => {
+        // Carpeta de capturas (fija)
+        const capturasPath = config.screenshotsFolder; // './capturas'
+        if (fs.existsSync(capturasPath)) {
+          fs.rmSync(capturasPath, { recursive: true, force: true });
+          console.log(`🗑️ Carpeta de capturas eliminada: ${capturasPath}`);
         }
+        fs.mkdirSync(capturasPath, { recursive: true });
+        console.log(`📁 Carpeta de capturas creada: ${capturasPath}`);
 
-        if (!configKey) {
-          throw new Error(`Usuario no reconocido: ${user}. Válidos: ${Object.keys(userMap).join(', ')}`);
+        // Carpeta de reportes Excel (fija)
+        const reportesPath = path.resolve('ReporteXlsx');
+        if (fs.existsSync(reportesPath)) {
+          fs.rmSync(reportesPath, { recursive: true, force: true });
+          console.log(`🗑️ Carpeta de reportes eliminada: ${reportesPath}`);
         }
+        fs.mkdirSync(reportesPath, { recursive: true });
+        console.log(`📁 Carpeta de reportes creada: ${reportesPath}`);
+      });
 
-        if (type === 'oracle') {
-          let oracleConfig = dbConfigs.oracle?.[configKey];
-          
-          if (!oracleConfig && dbConfigs.oracle) {
-            const oracleKey = Object.keys(dbConfigs.oracle).find(key => 
-              normalizeString(key) === normalizeString(configKey)
-            );
-            oracleConfig = oracleKey ? dbConfigs.oracle[oracleKey] : null;
-          }
-          
-          if (!oracleConfig) {
-            throw new Error(`Configuración Oracle no encontrada para clave: ${configKey}`);
-          }
-          
-          console.log(`✅ Usando ORACLE: ${oracleConfig.user}@${oracleConfig.connectString}`);
-          
-          return {
-            user: oracleConfig.user,
-            password: oracleConfig.password,
-            connectString: oracleConfig.connectString,
-            schema: configKey.toUpperCase(),
-            originalUser: user
-          };
-        } 
-        else if (type === 'mysql') {
-          let mysqlConfig = dbConfigs.mysql?.[configKey];
-          
-          if (!mysqlConfig && dbConfigs.mysql) {
-            const mysqlKey = Object.keys(dbConfigs.mysql).find(key => 
-              normalizeString(key) === normalizeString(configKey)
-            );
-            mysqlConfig = mysqlKey ? dbConfigs.mysql[mysqlKey] : null;
-          }
-          
-          if (!mysqlConfig) {
-            throw new Error(`Configuración MySQL no encontrada para clave: ${configKey}`);
-          }
-          
-          console.log(`✅ Usando MYSQL: ${mysqlConfig.user}@${mysqlConfig.host}:${mysqlConfig.port}/${mysqlConfig.database}`);
-          
-          return {
-            host: mysqlConfig.host,
-            port: mysqlConfig.port,
-            user: mysqlConfig.user,
-            password: mysqlConfig.password,
-            database: mysqlConfig.database,
-            originalUser: user
-          };
-        }
-        else {
-          throw new Error(`Tipo de BD no soportado: ${type}`);
-        }
-      };
-
-      // ============================================
-      // TAREAS DE CYPRESS
-      // ============================================
-      on("task", {
+      // ===== TAREAS (TODO EN UN SOLO OBJETO) =====
+      on('task', {
+        // --- TAREAS DE BD ---
         oracleQuery: async ({ sql, binds = [], options = {}, user = 'jteller' }) => {
-          console.log(`\n[ORACLE] ===== INICIANDO TAREA =====`);
-          console.log(`[ORACLE] Usuario solicitado: ${user}`);
-          
           let connection = null;
-
           try {
-            const connectionConfig = getConnectionConfig(user, 'oracle');
-            
+            const connConfig = getConnectionConfig(user, 'oracle');
             connection = await oracledb.getConnection({
-              user: connectionConfig.user,
-              password: connectionConfig.password,
-              connectString: connectionConfig.connectString
+              user: connConfig.user,
+              password: connConfig.password,
+              connectString: connConfig.connectString
             });
-            
-            if (connectionConfig.schema) {
-              try {
-                await connection.execute(`ALTER SESSION SET CURRENT_SCHEMA = ${connectionConfig.schema}`);
-                console.log(`[ORACLE] Esquema cambiado a: ${connectionConfig.schema}`);
-              } catch (schemaError) {
-                console.log(`[ORACLE] ⚠️ No se pudo cambiar esquema: ${schemaError.message}`);
-              }
+            if (connConfig.schema) {
+              await connection.execute(`ALTER SESSION SET CURRENT_SCHEMA = ${connConfig.schema}`);
             }
-
             const result = await connection.execute(sql, binds, {
               outFormat: oracledb.OUT_FORMAT_OBJECT,
               autoCommit: true,
@@ -251,7 +173,6 @@ module.exports = defineConfig({
               prefetchRows: 1000,
               ...options
             });
-
             return {
               success: true,
               rows: result.rows || [],
@@ -261,52 +182,28 @@ module.exports = defineConfig({
               user,
               sql
             };
-
           } catch (error) {
-            console.error(`[ORACLE] ❌ ERROR:`, error.message);
-            return {
-              success: false,
-              error: error.message,
-              errorCode: error.errorNum,
-              dbType: 'oracle',
-              user,
-              sql
-            };
+            console.error(`[ORACLE] ERROR:`, error.message);
+            return { success: false, error: error.message, errorCode: error.errorNum, dbType: 'oracle', user, sql };
           } finally {
-            if (connection) {
-              try {
-                await connection.close();
-              } catch (closeError) {
-                console.error(`[ORACLE] Error cerrando conexión:`, closeError);
-              }
-            }
+            if (connection) try { await connection.close(); } catch(e) {}
           }
         },
 
         mysqlQuery: async ({ sql, user = 'jteller' }) => {
-          console.log(`\n[MYSQL] ===== INICIANDO TAREA =====`);
-          console.log(`[MYSQL] Usuario solicitado: ${user}`);
-          
           let connection = null;
-
           try {
-            const connectionConfig = getConnectionConfig(user, 'mysql');
-            
-            const mysqlConfig = {
-              host: connectionConfig.host,
-              port: connectionConfig.port,
-              user: connectionConfig.user,
-              password: connectionConfig.password,
-              database: connectionConfig.database,
+            const connConfig = getConnectionConfig(user, 'mysql');
+            connection = await mysql.createConnection({
+              host: connConfig.host,
+              port: connConfig.port,
+              user: connConfig.user,
+              password: connConfig.password,
+              database: connConfig.database,
               connectTimeout: 60000,
               multipleStatements: true
-            };
-
-            connection = await mysql.createConnection(mysqlConfig);
-            console.log(`[MYSQL] ✅ Conectado a ${connectionConfig.database}`);
-
+            });
             const [rows] = await connection.execute(sql);
-            
             return {
               success: true,
               rows: rows || [],
@@ -314,29 +211,15 @@ module.exports = defineConfig({
               fields: rows.fields || [],
               insertId: rows.insertId || null,
               dbType: 'mysql',
-              user: connectionConfig.originalUser,
-              database: connectionConfig.database,
+              user: connConfig.originalUser,
+              database: connConfig.database,
               sql
             };
-
           } catch (error) {
-            console.error(`[MYSQL] ❌ ERROR:`, error.message);
-            return {
-              success: false,
-              error: error.message,
-              errorCode: error.code,
-              dbType: 'mysql',
-              user,
-              sql
-            };
+            console.error(`[MYSQL] ERROR:`, error.message);
+            return { success: false, error: error.message, errorCode: error.code, dbType: 'mysql', user, sql };
           } finally {
-            if (connection) {
-              try {
-                await connection.end();
-              } catch (closeError) {
-                console.error(`[MYSQL] Error cerrando conexión:`, closeError);
-              }
-            }
+            if (connection) try { await connection.end(); } catch(e) {}
           }
         },
 
@@ -346,7 +229,222 @@ module.exports = defineConfig({
           } else {
             return await this.oracleQuery({ sql, user });
           }
+        },
+
+        // --- TAREAS PARA EL REPORTE EXCEL ---
+        guardarResultado({ describe, crud, descripcion, estado, numero, mensaje, evidencia }) {
+          resultados.push({ describe, crud, descripcion, estado, numero, mensaje, evidencia });
+          return null;
+        },
+
+        /*generarExcel(ruta = 'reporte.xlsx') {
+          const fs = require('fs');
+          const path = require('path');
+
+          // Convertir a ruta absoluta para saber exactamente dónde se guarda
+          const rutaAbsoluta = path.resolve(ruta);
+          console.log(`📂 Ruta absoluta de destino: ${rutaAbsoluta}`);
+
+          // Crear directorio si no existe (aunque ya lo hayas creado manualmente, no duele)
+          const dir = path.dirname(rutaAbsoluta);
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+            console.log(`📁 Directorio creado: ${dir}`);
+          }
+
+          // Agrupar resultados (tu lógica actual)
+          const agrupado = {};
+          resultados.forEach(r => {
+            if (!agrupado[r.describe]) agrupado[r.describe] = [];
+            agrupado[r.describe].push(r);
+          });
+
+          for (const key in agrupado) {
+            agrupado[key].sort((a, b) => a.numero - b.numero);
+          }
+
+          const workbook = new ExcelJS.Workbook();
+          const worksheet = workbook.addWorksheet('Reporte');
+
+          worksheet.columns = [
+            { header: 'No de prueba', key: 'noPrueba', width: 15 },
+            { header: 'CRUD', key: 'crud', width: 25 },
+            { header: 'Descripción', key: 'descripcion', width: 50 },
+            { header: 'Estado', key: 'estado', width: 15 },
+            { header: 'Mensaje', key: 'mensaje', width: 40 },
+            { header: 'Evidencia', key: 'evidencia', width: 50 }
+          ];
+
+          let primera = true;
+          for (const suite in agrupado) {
+            if (!primera) worksheet.addRow({});
+            primera = false;
+            agrupado[suite].forEach(r => {
+              worksheet.addRow({
+                noPrueba: r.numero,
+                crud: r.crud,
+                descripcion: r.descripcion,
+                estado: r.estado,
+                mensaje: r.mensaje || '',
+                evidencia: r.evidencia || ''
+              });
+            });
+          }
+
+          return workbook.xlsx.writeFile(rutaAbsoluta)
+              .then(() => {
+                if (fs.existsSync(rutaAbsoluta)) {
+                  console.log(`✅ Excel generado exitosamente en: ${rutaAbsoluta}`);
+                } else {
+                  console.error(`❌ Se ejecutó writeFile pero el archivo NO existe en: ${rutaAbsoluta}`);
+                }
+                resultados = [];
+                return null;
+              })
+              .catch(err => {
+                console.error(`❌ Error al generar Excel:`, err);
+                return null;
+              });
+        }*/
+
+        generarExcel(ruta = 'reporte.xlsx') {
+          const fs = require('fs');
+          const path = require('path');
+
+          const rutaAbsoluta = path.resolve(ruta);
+          console.log(`📂 Ruta absoluta de destino: ${rutaAbsoluta}`);
+
+          const dir = path.dirname(rutaAbsoluta);
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+            console.log(`📁 Directorio creado: ${dir}`);
+          }
+
+          // Mantener el orden de inserción (tal como se guardaron en resultados)
+          const datos = resultados; // ya está en orden de ejecución
+
+          const workbook = new ExcelJS.Workbook();
+          const worksheet = workbook.addWorksheet('Reporte de Pruebas');
+
+          // ========== LOGO (ahora en fixtures) ==========
+          const logoPath = path.resolve(__dirname, 'cypress/fixtures/logo.png');
+          if (fs.existsSync(logoPath)) {
+            const logoId = workbook.addImage({
+              filename: logoPath,
+              extension: 'png',
+            });
+            worksheet.addImage(logoId, {
+              tl: { col: 0, row: 0 },
+              ext: { width: 100, height: 100 },
+            });
+            console.log(`🖼️ Logo agregado desde: ${logoPath}`);
+          } else {
+            console.log(`ℹ️ Logo no encontrado en: ${logoPath}`);
+          }
+
+          // ========== TÍTULO Y FECHA ==========
+          worksheet.mergeCells('B2:F2');
+          const titleCell = worksheet.getCell('B2');
+          titleCell.value = 'Reporte de Resultados de Pruebas Automatizadas';
+          titleCell.font = {
+            name: 'Arial',
+            size: 18,
+            bold: true,
+            color: { argb: 'FF0000FF' },
+          };
+          titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+          const fechaCelda = worksheet.getCell('B3');
+          const fechaActual = new Date();
+          fechaCelda.value = `Generado: ${fechaActual.toLocaleString('es-ES')}`;
+          fechaCelda.font = { italic: true, size: 10 };
+          fechaCelda.alignment = { horizontal: 'left' };
+
+          // ========== ENCABEZADOS DE DATOS (fila 5) ==========
+          const headerRow = worksheet.getRow(5);
+          headerRow.values = [
+            'No de prueba',
+            'CRUD',
+            'Descripción',
+            'Estado',
+            'Mensaje',
+            'Evidencia',
+          ];
+          headerRow.font = { bold: true, size: 12, color: { argb: 'FFFFFFFF' } };
+          headerRow.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF0070C0' },
+          };
+          headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+          headerRow.commit();
+
+          // ========== DATOS (desde fila 6) ==========
+          datos.forEach((r, idx) => {
+            const row = worksheet.getRow(6 + idx);
+            row.values = [
+              r.numero,
+              r.crud,
+              r.descripcion,
+              r.estado,
+              r.mensaje || '',
+              r.evidencia || '',
+            ];
+            if (idx % 2 === 0) {
+              row.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFF2F2F2' },
+              };
+            }
+            row.commit();
+          });
+
+          // ========== AJUSTE AUTOMÁTICO DE ANCHO DE COLUMNAS ==========
+          const columnas = [
+            { key: 'noPrueba', width: 15 },
+            { key: 'crud', width: 25 },
+            { key: 'descripcion', width: 50 },
+            { key: 'estado', width: 15 },
+            { key: 'mensaje', width: 40 },
+            { key: 'evidencia', width: 50 },
+          ];
+          columnas.forEach((col, colIdx) => {
+            let maxLen = col.width;
+            datos.forEach(r => {
+              let value = '';
+              if (col.key === 'noPrueba') value = r.numero?.toString() || '';
+              else if (col.key === 'crud') value = r.crud || '';
+              else if (col.key === 'descripcion') value = r.descripcion || '';
+              else if (col.key === 'estado') value = r.estado || '';
+              else if (col.key === 'mensaje') value = r.mensaje || '';
+              else if (col.key === 'evidencia') value = r.evidencia || '';
+              const len = value.length;
+              if (len > maxLen) maxLen = len;
+            });
+            const headerLen = columnas[colIdx].key.length;
+            if (headerLen > maxLen) maxLen = headerLen;
+            worksheet.getColumn(colIdx + 1).width = Math.min(maxLen + 2, 80);
+          });
+
+          // ========== GUARDAR ARCHIVO ==========
+          return workbook.xlsx.writeFile(rutaAbsoluta)
+              .then(() => {
+                if (fs.existsSync(rutaAbsoluta)) {
+                  console.log(`✅ Excel generado exitosamente en: ${rutaAbsoluta}`);
+                } else {
+                  console.error(`❌ Se ejecutó writeFile pero el archivo NO existe en: ${rutaAbsoluta}`);
+                }
+                resultados = [];
+                return null;
+              })
+              .catch(err => {
+                console.error(`❌ Error al generar Excel:`, err);
+                return null;
+              });
         }
+
+
       });
 
       return config;

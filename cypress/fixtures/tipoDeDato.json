@@ -1,9 +1,34 @@
 {
   "agregar": [
       {
-        "codigo": "DI",
-        "nombre": "Dirección de la agencia",
-        "descripcion": "Genera dirección de la agencia - complemento de dirección"
-      }
+        "codigo": "PR1",
+        "nombre": "Prueba de reporte 1 ",
+        "descripcion": "Preuba uno de reporte desde cypress."
+      },
+    {
+      "codigo": "PR2",
+      "nombre": "Prueba de reporte 2 ",
+      "descripcion": "Preuba dos de reporte desde cypress."
+    },
+    {
+      "codigo": "PR3",
+      "nombre": "Prueba de reporte 3 ",
+      "descripcion": "Preuba tres de reporte desde cypress."
+    },
+    {
+      "codigo": "PR4",
+      "nombre": "Prueba de reporte 4 ",
+      "descripcion": "Preuba cuatro de reporte desde cypress."
+    },
+    {
+      "codigo": "PR4",
+      "nombre": "Prueba de reporte 4 ",
+      "descripcion": "Preuba cuatro de reporte desde cypress."
+    },
+    {
+      "codigo": "PR5",
+      "nombre": "Prueba de reporte 5 ",
+      "descripcion": "Preuba cinco de reporte desde cypress."
+    }
   ]
 }

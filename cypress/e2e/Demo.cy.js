@@ -76,6 +76,84 @@ describe("Demo de Construccion de transacciones iniciales...", () => {
         )
     })
 
+    describe("002 - Tipo de Dato...", () => {
+        beforeEach(() => {
+            Generales.IrAPantalla('dataType');
+        });
+
+        it("Agregar múltiples registros en crud Tipo de Dato", () => {
+            cy.fixture('tipoDeDato').then((dataTipoDato) => {
+                cy.wrap(dataTipoDato.agregar).each((item, index) => {
+                    const numero = index + 1;
+                    cy.log(`Insertando registro #${numero}: ${item.codigo}`);
+
+                    // Asegurar estado limpio antes de comenzar
+                    cy.get('body').then(($body) => {
+                        if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                            cy.log('Formulario abierto detectado, cerrando...');
+                            Generales.BtnCancelarRegistro();
+                        }
+                    });
+
+                    // Abrir formulario
+                    Generales.BtnAgregarRegistro();
+
+                    // Validar que el modal abrió
+                    cy.contains('h2', 'Nuevo Registro', { timeout: 10000 }).should('be.visible');
+
+                    // Llenar datos
+                    TipoDato.TipoDato(item.codigo, item.nombre, item.descripcion);
+
+                    // Interceptar backend
+                    cy.intercept('POST', '**/dataType').as('guardar');
+
+                    // Hacer clic en Aceptar
+                    Generales.BtnAceptarRegistro();
+
+                    // Esperar respuesta y capturar mensaje
+                    cy.wait('@guardar').then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
+
+                        // Capturar mensaje del snack bar (si aparece)
+                        cy.get('span.message-snack', { timeout: 3000 }).then(($snack) => {
+                            if ($snack.length) {
+                                mensaje = $snack.text().trim();
+                                cy.log(`Mensaje capturado: ${mensaje}`);
+                            } else {
+                                cy.log('No se detectó mensaje en snack bar');
+                            }
+                        }).then(() => {
+                            // Decidir estado y realizar acciones posteriores
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                                cy.contains('h2', 'Nuevo Registro').should('not.exist');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                                Generales.BtnCancelarRegistro();
+                                cy.contains('h2', 'Nuevo Registro').should('not.exist');
+                            }
+
+                            // Enviar resultado a la tarea
+                            cy.task('guardarResultado', {
+                                describe: '002 - Tipo de Dato',
+                                crud: 'Tipo de Dato',
+                                descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                estado: estado,
+                                numero: numero,
+                                mensaje: mensaje
+                            });
+                        });
+                    });
+
+                });
+            });
+        });
+    });
+
 
     describe("014 -  Campos de la transacción ...", () =>{
 
