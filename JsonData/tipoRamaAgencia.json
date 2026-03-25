@@ -1,0 +1,16 @@
+{
+  "agregar": [
+    {
+    "codigo":"2",
+    "nombre":"Sucursal",
+    "descripcion":"Sucursal",
+    "canal":"Cajeros"
+    },
+    {
+    "codigo":"3",
+    "nombre":"Ventanilla",
+    "descripcion":"Ventanilla",
+    "canal":"Cajeros"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "agregar": [
+    {
+    "codigo":"2",
+    "nombre":"Region central",
+    "descripcion":"Region central"
+    },
+    {
+    "codigo":"3",
+    "nombre":"Region Este",
+    "descripcion":"Region Este"
+    }
+  ]
+}
