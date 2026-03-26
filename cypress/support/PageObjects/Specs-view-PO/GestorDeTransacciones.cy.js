@@ -188,8 +188,8 @@ AsignacionDCaracteristicaAPasoB(paso, caracteristica, tamanioLetra, visualizar, 
             this.Generales.llenarCampoIframe(icono, "Ícono", { timeout: 10000, skipContext: true });
             this.Generales.seleccionarComboIframe(DepartamentodeAutorizacion, "Departamento de autorización", { timeout: 10000, force: true, skipContext: true });
             this.Generales.llenarCampoIframe(textoAyuda, "Texto de ayuda", { timeout: 10000, skipContext: true });
-                // Carga de logo this.Generales.cargarArchivo(logo, "Logo"); pendiente
-    }
+            this.Generales.cargarImagen(data.logo, "Logo", { timeout: 10000, skipContext: true, force: true }) 
+        }
 
     //Seleccionar tipos de cajero del gestor de TX`s
     TiposCajero(roles) {
