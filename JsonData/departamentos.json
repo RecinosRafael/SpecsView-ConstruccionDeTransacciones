@@ -1,0 +1,12 @@
+{
+  "agregar": [
+    {
+      "codigo": "1",
+      "nombre": "Departamento QA-Auto 1"
+    },
+    {
+      "codigo": "2",
+      "nombre": "Departamento QA-Auto 2"
+    }
+  ]
+}

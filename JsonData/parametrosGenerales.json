@@ -1,0 +1,12 @@
+{
+  "agregar": [
+    {
+      "nombre": "Nombre de empresa 1",
+      "moneda": "Quetzal"
+    },
+    {
+      "nombre": "Nombre de empresa 2",
+      "moneda": "Lempiras"
+    }
+  ]
+}
