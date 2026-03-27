@@ -1,0 +1,23 @@
+{
+  "modificar": [
+    {
+      "codigollave": "GTQ",
+      "codigo": "L",
+      "codigoIso": "L",
+      "nombre": "Lempiras",
+      "codigoNumerico": "340",
+      "decimales": "2",
+      "puntoFlotante": ""
+    }
+  ],
+  "agregar": [
+    {
+      "codigo": "ARG",
+      "codigoIso": "A",
+      "nombre": "peso argentino",
+      "codigoNumerico": "341",
+      "decimales": "2",
+      "puntoFlotante": ""
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "agregar": [
+    {
+      "codigoTRX": "700",
+      "paso": "Paso 1",
+      "rutina": "Consultar cuenta core Byte",
+      "estado": "Lanzado",
+      "correlativo": "1",
+      "requiereLogin": false,
+      "descripcion": "",
+      "fechaInicio": "01/01/2026",
+      "fechaFin": "",
+      "paremetros": ""
+    }
+  ]
+}

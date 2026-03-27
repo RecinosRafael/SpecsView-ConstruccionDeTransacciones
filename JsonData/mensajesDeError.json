@@ -1,0 +1,18 @@
+{
+  "agregar": [
+    {
+      "codigo": 1,
+      "mensajeError": "001 - SE REQUIERE CLAVE DE SUPERVISOR",
+      "descripcion": "",
+      "valorTipoMensaje": "No Aplica",
+      "valorAccion": "Flujo normal"
+    },
+    {
+      "codigo": 2,
+      "mensajeError": "002 - TRANSACCION NO REALIZADA",
+      "descripcion": " ",
+      "valorTipoMensaje": "No Aplica",
+      "valorAccion": "Flujo normal"
+    }
+  ]
+}

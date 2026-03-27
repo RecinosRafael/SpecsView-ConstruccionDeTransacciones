@@ -1,0 +1,16 @@
+{
+  "agregar": [
+    {
+      "codigoTRX": "700",
+      "caracteristicasTrx": [
+        "Efectivo físico",
+        "Moneda",
+        "Nombre de cliente",
+        "Número de cuenta",
+        "Cheques otros bancos",
+        "Producto",
+        "Total"
+      ]
+    }
+  ]
+}

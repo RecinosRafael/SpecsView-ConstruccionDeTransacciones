@@ -335,10 +335,11 @@ AsignacionDCaracteristicaAPasoB(paso, caracteristica, tamanioLetra, visualizar, 
     }
 
     //Totales a afectar gestor de TX`s
-    TotalesAfectar(caracteristica, totalCajero, operacion, exp1, operacion2, exp2){
+    TotalesAfectar(caracteristica, arbolRaiz, totalCajero, operacion, exp1, operacion2, exp2){
 
         this.Generales.arrastrarCaracteristica(caracteristica)
         cy.wait(500)
+        this.Generales.seleccionarComboIframe(arbolRaiz, "Árbol Raíz", { timeout: 10000, force: true, skipContext: true } )
         this.Generales.seleccionarComboIframe(totalCajero, "Total de Cajero", { timeout: 10000, force: true, skipContext: true } )
         this.Generales.seleccionarRadio(operacion, "Operacion", { timeout: 10000, skipContext: true, force: true } )
         this.Generales.llenarCampoReadonlySinClick(exp1, "Expresion 1", { timeout: 10000, skipContext: true, force: true } )        // if(exp1){

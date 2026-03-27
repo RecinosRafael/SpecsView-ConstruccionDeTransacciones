@@ -1,0 +1,10 @@
+{
+  "agregar": [
+
+    { "codigoTX": "700",
+      "formaAfectarTotales": "Moneda de campo",
+      "metodoAsignacionMoneda": "Campo",
+      "correlativoMoneda": "Moneda"
+    }
+  ]
+}

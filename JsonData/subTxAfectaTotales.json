@@ -1,0 +1,15 @@
+{
+  "agregar": [
+    {
+      "codigoTX": "700",
+      "caracteristica": "Total",
+      "arbolRaiz": "Byte S.A.",
+      "afectar": "Totales",
+      "totalCajero": "Depositos monetarios",
+      "operacion": "+",
+      "exp1": "C(5)",
+      "operacion2": "=",
+      "exp2": "CT(\"US$,Dolares\")"
+    }
+  ]
+}

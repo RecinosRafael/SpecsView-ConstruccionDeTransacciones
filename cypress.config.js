@@ -259,76 +259,6 @@ module.exports = defineConfig({
           return null;
         },
 
-        /*generarExcel(ruta = 'reporte.xlsx') {
-          const fs = require('fs');
-          const path = require('path');
-
-          // Convertir a ruta absoluta para saber exactamente dónde se guarda
-          const rutaAbsoluta = path.resolve(ruta);
-          console.log(`📂 Ruta absoluta de destino: ${rutaAbsoluta}`);
-
-          // Crear directorio si no existe (aunque ya lo hayas creado manualmente, no duele)
-          const dir = path.dirname(rutaAbsoluta);
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-            console.log(`📁 Directorio creado: ${dir}`);
-          }
-
-          // Agrupar resultados (tu lógica actual)
-          const agrupado = {};
-          resultados.forEach(r => {
-            if (!agrupado[r.describe]) agrupado[r.describe] = [];
-            agrupado[r.describe].push(r);
-          });
-
-          for (const key in agrupado) {
-            agrupado[key].sort((a, b) => a.numero - b.numero);
-          }
-
-          const workbook = new ExcelJS.Workbook();
-          const worksheet = workbook.addWorksheet('Reporte');
-
-          worksheet.columns = [
-            { header: 'No de prueba', key: 'noPrueba', width: 15 },
-            { header: 'CRUD', key: 'crud', width: 25 },
-            { header: 'Descripción', key: 'descripcion', width: 50 },
-            { header: 'Estado', key: 'estado', width: 15 },
-            { header: 'Mensaje', key: 'mensaje', width: 40 },
-            { header: 'Evidencia', key: 'evidencia', width: 50 }
-          ];
-
-          let primera = true;
-          for (const suite in agrupado) {
-            if (!primera) worksheet.addRow({});
-            primera = false;
-            agrupado[suite].forEach(r => {
-              worksheet.addRow({
-                noPrueba: r.numero,
-                crud: r.crud,
-                descripcion: r.descripcion,
-                estado: r.estado,
-                mensaje: r.mensaje || '',
-                evidencia: r.evidencia || ''
-              });
-            });
-          }
-
-          return workbook.xlsx.writeFile(rutaAbsoluta)
-              .then(() => {
-                if (fs.existsSync(rutaAbsoluta)) {
-                  console.log(`✅ Excel generado exitosamente en: ${rutaAbsoluta}`);
-                } else {
-                  console.error(`❌ Se ejecutó writeFile pero el archivo NO existe en: ${rutaAbsoluta}`);
-                }
-                resultados = [];
-                return null;
-              })
-              .catch(err => {
-                console.error(`❌ Error al generar Excel:`, err);
-                return null;
-              });
-        }*/
-
         generarExcel(ruta = 'reporte.xlsx') {
           const fs = require('fs');
           const path = require('path');
@@ -359,9 +289,9 @@ module.exports = defineConfig({
               tl: { col: 0, row: 0 },
               ext: { width: 100, height: 100 },
             });
-            console.log(`🖼️ Logo agregado desde: ${logoPath}`);
+            console.log(`Logo agregado desde: ${logoPath}`);
           } else {
-            console.log(`ℹ️ Logo no encontrado en: ${logoPath}`);
+            console.log(`Logo no encontrado en: ${logoPath}`);
           }
 
           // ========== TÍTULO Y FECHA ==========

@@ -1,0 +1,42 @@
+{
+  "agregar": [
+    {
+      "codigo": 1,
+      "arbolRaiz": "Byte S.A.",
+      "nombre": "Efectivo en caja",
+      "nombreCorto": "Efectivo en caja",
+      "descripcion": "",
+      "validaMontos": "true",
+      "minimoRequiereAutorizacion": "true",
+      "maximoRequiereAutorizacion": "true",
+      "correlativoImpreso": 1,
+      "enviarHost": "",
+      "cicloVida": "Activo",
+      "validoDesde": "01/02/26",
+      "validoHasta": "",
+      "totalMonitoreado": "true",
+      "rutinaCalculamontoConciliar": "",
+      "rutinacalculaMontoConciliado": "",
+      "esControlEfectivo": "Efectivo Físico"
+    },
+    {
+      "codigo": 102,
+      "arbolRaiz": "Byte S.A.",
+      "nombre": "Depositos monetarios",
+      "nombreCorto": "Depositos monetari",
+      "descripcion": "",
+      "validaMontos": "",
+      "minimoRequiereAutorizacion": "",
+      "maximoRequiereAutorizacion": "",
+      "correlativoImpreso": 102,
+      "enviarHost": "",
+      "cicloVida": "Activo",
+      "validoDesde": "01/02/26",
+      "validoHasta": "",
+      "totalMonitoreado": "true",
+      "rutinaCalculamontoConciliar": "",
+      "rutinacalculaMontoConciliado": "",
+      "esControlEfectivo": "No Aplica"
+    }
+  ]
+}

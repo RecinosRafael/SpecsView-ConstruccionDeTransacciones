@@ -1,0 +1,14 @@
+{
+  "agregar": [
+    {
+      "codigo": "1",
+      "razon": "Retirada de empresa",
+      "mensaje": "Usuario fue retirado de la empresa"
+    },
+    {	
+      "codigo": "2",
+      "razon": "Renuncia de la empresa",
+      "mensaje": "Usuario renuncio de la empresa"
+    }
+  ]
+}

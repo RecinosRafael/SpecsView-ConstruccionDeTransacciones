@@ -578,7 +578,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
             Generales.IrAPantalla('country')
         })
 
-        it("Agregar múltiples registros en crud de paises", () => {
+        /*it("Agregar múltiples registros en crud de paises", () => {
             //cy.fixture('pais').then((dataPais) => {
             cy.readFile('./JsonData/pais.json').then((dataPais) => {
                 cy.wrap(dataPais.agregar).each((item, index) => {
@@ -611,7 +611,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
                     //Intercept backend
                     const alias = `guardar-${numero}`;
-                    cy.intercept('POST', '**/country').as(alias);
+                    cy.intercept('POST', '**!/country').as(alias);
 
 
                     Generales.BtnAceptarRegistro()
@@ -669,7 +669,124 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
                 })
             })
-        })
+        })*/
+
+
+        it("Agregar/modificar múltiples registros en crud de países", () => {
+            cy.readFile('./JsonData/pais.json').then((data) => {
+                let contador = 0; // contador global para números consecutivos
+
+                const procesarRegistro = (item, numero, operacion) => {
+                    cy.log(`🔢 Operación: ${operacion} - Código: ${item.iso3Code || item.iso2Code}`);
+
+                    // Asegurar estado limpio
+                    cy.get('body').then(($body) => {
+                        if ($body.find('h2:contains("Nuevo Registro")').length > 0 ||
+                            $body.find('h2:contains("Registro")').length > 0) {
+                            cy.log('Formulario abierto detectado, cerrando...');
+                            Generales.BtnCancelarRegistro();
+                        }
+                    });
+
+                    // Abrir formulario según operación
+                    if (operacion === 'agregar') {
+                        cy.log('Agregando nuevo país');
+                        Generales.BtnAgregarRegistro();
+                        cy.contains('h2', 'Nuevo Registro', { timeout: 10000 }).should('be.visible');
+                    } else if (operacion === 'modificar') {
+                        cy.log('Modificando país existente');
+                        Generales.BuscarRegistroIso3Code(item.iso3Codellave || item.iso3Code);
+                        Generales.BtnModificarRegistro();
+                        //cy.contains('h2', 'Registro', { timeout: 10000 }).should('be.visible');
+                    } else {
+                        cy.log(`Operación desconocida: ${operacion} - se omite`);
+                        return;
+                    }
+
+                    // Llenar datos
+                    Paises.Pais(
+                        item.nombre,
+                        item.iso2Code,
+                        item.iso3Code,
+                        item.tipo
+                    );
+
+                    // Interceptar según operación (método específico)
+                    const alias = `guardarPais-${numero}`;
+                    if (operacion === 'agregar') {
+                        cy.intercept('POST', '**/country').as(alias);
+                        cy.log(`Interceptando POST **/country (alias: ${alias})`);
+                    } else if (operacion === 'modificar') {
+                        cy.intercept('PATCH', '**/country/*').as(alias);
+                        cy.log(`Interceptando PATCH **/country/* (alias: ${alias})`);
+                    }
+
+                    Generales.BtnAceptarRegistro();
+
+                    cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                        const status = interception.response.statusCode;
+                        const method = interception.request.method;
+                        let estado = 'fallida';
+                        let mensaje = '';
+
+                        cy.log(`📡 Método: ${method} - Status: ${status}`);
+
+                        // Capturar mensaje del snackbar
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                            else cy.log('No se encontró snackbar');
+                        }).then(() => {
+                            if (status >= 200 && status < 300) {
+                                estado = 'exitosa';
+                                cy.log(`${operacion} correcto: ${item.iso3Code || item.iso2Code}`);
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error al ${operacion}. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Países-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '003 - Países',
+                                    crud: "Países",
+                                    descripcion: `Código: ${item.iso3Code || item.iso2Code} - Nombre: ${item.nombre}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            // Cierre del modal según resultado
+                            if (estado === 'exitosa') {
+                                cy.log('Operación exitosa → cerrando modal con "Atrás"');
+
+                                Generales.Regresar()
+                            } else {
+                                cy.log('Operación fallida → cerrando modal con "Cancelar"');
+                                Generales.BtnCancelarRegistro();
+                            }
+                            // Esperar a que el modal desaparezca
+                            cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist');
+                            cy.wait(1000);
+                        });
+                    });
+                };
+
+                // Procesar en el orden de las propiedades del JSON (primero agregar, luego modificar)
+                Object.entries(data).forEach(([key, registros]) => {
+                    if (Array.isArray(registros) && registros.length > 0) {
+                        const operacion = key.toLowerCase();
+                        cy.wrap(registros).each((item) => {
+                            contador++;
+                            procesarRegistro(item, contador, operacion);
+                        });
+                    }
+                });
+            });
+        });
 
     })
 
@@ -679,7 +796,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
             Generales.IrAPantalla('money')
         })
 
-        it("Agregar múltiples registros en crud de Monedas", () => {
+        /*it("Agregar múltiples registros en crud de Monedas", () => {
             cy.readFile('./JsonData/monedas.json').then((dataMonedas) => {
                 cy.wrap(dataMonedas.agregar).each((item) => {
                     const numero = index + 1;
@@ -711,9 +828,9 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     )
 
                     //Intercept backend
-                    //cy.intercept('POST', '**/money').as('guardar')
+                    //cy.intercept('POST', '**!/money').as('guardar')
                     const alias = `guardar-${numero}`;
-                    cy.intercept('POST', '**/money').as(alias);
+                    cy.intercept('POST', '**!/money').as(alias);
 
                     Generales.BtnAceptarRegistro()
 
@@ -770,7 +887,126 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     });
                 })
             })
-        })
+        })*/
+
+       it("Agregar/modificar múltiples registros en crud de Monedas", () => {
+           cy.readFile('./JsonData/monedas.json').then((data) => {
+               let contador = 0;
+
+               const procesarRegistro = (item, numero, operacion) => {
+                   cy.log(`🔢 Operación: ${operacion} - Código: ${item.codigo}`);
+
+                   // Asegurar estado limpio
+                   cy.get('body').then(($body) => {
+                       if ($body.find('h2:contains("Nuevo Registro")').length > 0 ||
+                           $body.find('h2:contains("Registro")').length > 0) {
+                           cy.log('Formulario abierto detectado, cerrando...');
+                           Generales.BtnCancelarRegistro();
+                       }
+                   });
+
+                   // Abrir formulario según operación
+                   if (operacion === 'agregar') {
+                       cy.log('Agregando nueva moneda');
+                       Generales.BtnAgregarRegistroSubnivel();
+                       cy.contains('h2', 'Nuevo Registro', { timeout: 10000 }).should('be.visible');
+                   } else if (operacion === 'modificar') {
+                       cy.log('Modificando moneda existente');
+                       Generales.BuscarRegistroCodigo(item.codigollave);
+                       Generales.BtnModificarRegistro();
+                       // En lugar de validar un título fijo, esperamos a que el modal esté presente (formulario visible)
+                       cy.get('form', { timeout: 10000 }).should('be.visible');
+                   } else {
+                       cy.log(`⚠️ Operación desconocida: ${operacion} - se omite`);
+                       return;
+                   }
+
+                   // Llenar datos
+                   Monedas.Monedas(
+                       item.codigo,
+                       item.codigoIso,
+                       item.nombre,
+                       item.codigoNumerico,
+                       item.decimales,
+                       item.puntoFlotante
+                   );
+
+                   // Interceptar según operación
+                   const alias = `guardarMoneda-${numero}`;
+                   if (operacion === 'agregar') {
+                       cy.intercept('POST', '**/money').as(alias);
+                       cy.log(`Interceptando POST **/money (alias: ${alias})`);
+                   } else if (operacion === 'modificar') {
+                       cy.intercept('PATCH', '**/money/*').as(alias);
+                       cy.log(`Interceptando PATCH **/money/* (alias: ${alias})`);
+                   }
+
+                   Generales.BtnAceptarRegistro();
+
+                   cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                       const status = interception.response.statusCode;
+                       const method = interception.request.method;
+                       let estado = 'fallida';
+                       let mensaje = '';
+
+                       cy.log(`Método: ${method} - Status: ${status}`);
+
+                       // Capturar mensaje del snackbar
+                       cy.wait(500);
+                       cy.get('body').then(($body) => {
+                           const $snack = $body.find('span.message-snack');
+                           if ($snack.length) mensaje = $snack.text().trim();
+                           else cy.log('No se encontró snackbar');
+                       }).then(() => {
+                           if (status >= 200 && status < 300) {
+                               estado = 'exitosa';
+                               cy.log(`${operacion} correcto: ${item.codigo}`);
+                           } else {
+                               estado = 'fallida';
+                               cy.log(`Error al ${operacion}. Status: ${status}`);
+                           }
+                       }).then(() => {
+                           const nombreCaptura = `Captura-${numero}-Monedas-${estado}`;
+                           cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                               cy.task('guardarResultado', {
+                                   describe: '004 - Monedas',
+                                   crud: "Monedas",
+                                   descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                   estado: estado,
+                                   numero: numero,
+                                   mensaje: mensaje,
+                                   evidencia: `${nombreCaptura}.png`
+                               });
+                           });
+                       }).then(() => {
+                           // Cierre del modal según resultado
+                           if (estado === 'exitosa') {
+                               cy.log('Operación exitosa → esperando cierre automático del modal');
+                               // No se hace clic, se espera que el modal se cierre solo
+                           } else {
+                               cy.log('Operación fallida → cerrando modal con "Cancelar"');
+                               Generales.BtnCancelarRegistro();
+                           }
+                           // Esperar a que el modal desaparezca
+                           cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist');
+                           cy.wait(1000);
+                       });
+                   });
+               };
+
+               // Procesar en el orden de las propiedades del JSON (primero agregar, luego modificar según orden)
+               Object.entries(data).forEach(([key, registros]) => {
+                   if (Array.isArray(registros) && registros.length > 0) {
+                       const operacion = key.toLowerCase();
+                       cy.wrap(registros).each((item) => {
+                           contador++;
+                           procesarRegistro(item, contador, operacion);
+                       });
+                   }
+               });
+           });
+       });
+
 
     })
 
@@ -908,7 +1144,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
     })
 
-    describe('004.2 -  Monedas > Países que usan moneda', () => {
+    describe.skip('004.2 -  Monedas > Países que usan moneda', () => {
 
         beforeEach(() => {
             Generales.IrAPantalla('money')
@@ -1052,7 +1288,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
         it("Agregar múltiples registros en crud de productos", () => {
             cy.readFile('./JsonData/productos.json').then((dataProductos) => {
-                cy.wrap(dataProductos.agregar).each((item) => {
+                cy.wrap(dataProductos.agregar).each((item, index) => {
                     cy.log(`Insertando código: ${item.codigo}`)
                     const numero = index + 1;
 
@@ -1109,11 +1345,11 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                                 cy.log(`Error detectado. Status: ${status}`);
                             }
                         }).then(() => {
-                            const nombreCaptura = `Captura-${numero}-Tipo de Dato-${estado}`;
+                            const nombreCaptura = `Captura-${numero}-Productos-${estado}`;
                             cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
                                 cy.task('guardarResultado', {
-                                    describe: '002 - Tipo de Dato',
-                                    crud: "Tipo de Dato",
+                                    describe: '005 - Productos',
+                                    crud: "Productos",
                                     descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
                                     estado: estado,
                                     numero: numero,
@@ -1157,10 +1393,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros dinámicamente", () => {
-            cy.fixture('RazonesReversa').then((data) => {
-                cy.wrap(data.agregar).each((item) => {
+            cy.readFile('./JsonData/razonesReversa.json').then((data) => {
+                cy.wrap(data.agregar).each((item,index) => {
                     cy.log(`Insertando código: ${item.codigo}`)
-
+                    const numero = index + 1;
                     //Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
                         if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
@@ -1178,30 +1414,72 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
                     // Llenar datos
                     RazonesReversa.RazonReversion(
-                        //cocodigo,
                         item.codigo,
                         item.nombre,
                         item.descripcion
                     )
 
                     //Intercept backend
-                    cy.intercept('POST', '**/reasonsReverse').as('guardar')
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/reasonsReverse').as(alias);
+
 
                     Generales.BtnAceptarRegistro()
 
+                    // Esperar respuesta y decidir estado
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Razones de Reversión-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '006 - Razones de Reversión',
+                                    crud: "Razones de Reversión",
+                                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('⚠️ El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
+                    });
+
+
+
                 })
             })
         })
@@ -1214,75 +1492,23 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
             Generales.IrAPantalla('errorMessage');
         });
 
-
-        /*it("Agregar múltiples registros en crud de Mensajes de Error", () => {
-            cy.fixture('MensajesDeError').then((dataMensajesDeError) => {
-                cy.wrap(dataMensajesDeError.agregar).each((item) => {
-                    cy.log(`Insertando código: ${item.codigo}`)
-
-                    //Asegurar estado limpio antes de comenzar
-                    cy.get('body').then(($body) => {
-                        if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
-                            cy.log('Formulario abierto detectado, cerrando...')
-                            Generales.BtnCancelarRegistro()
-                        }
-                    })
-
-                    //Abrir formulario
-                    Generales.BtnAgregarRegistroSubnivel()
-
-                    //Validar que el modal realmente abrió
-                    cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
-                        .should('be.visible')
-
-                    // Llenar datos
-                    MensajeDeError.MensajesError(
-                        item.codigo,
-                        item.mensajeError,
-                        item.descripcion,
-                        item.valorTipoMensaje,
-                        item.valorAccion
-                    )
-
-                    //Intercept backend
-                    cy.intercept('POST', '**!/errorMessage').as('guardar')
-
-                    Generales.BtnAceptarRegistro()
-
-
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
-                })
-            })
-        })*/
-
-
         it("Agregar múltiples registros en crud de Mensajes de Error", () => {
-            cy.fixture('MensajesDeError').then((dataMensajesDeError) => {
-                cy.wrap(dataMensajesDeError.agregar).each((item) => {
-                    cy.log(`\n🔵 Insertando código: ${item.codigo}`)
+            cy.readFile('./JsonData/MensajesDeError.json').then((dataMensajesDeError) => {
+                cy.wrap(dataMensajesDeError.agregar).each((item, index) => {
+                    cy.log(`\n🔵 Insertando código: ${item.codigo}`);
+                    const numero = index + 1;
 
                     // Asegurar estado limpio
                     cy.get('body').then(($body) => {
                         if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
-                            cy.log('Cerrando formulario abierto...')
-                            Generales.BtnCancelarRegistro()
+                            cy.log('Cerrando formulario abierto...');
+                            Generales.BtnCancelarRegistro();
                         }
-                    })
+                    });
 
                     // Abrir formulario
-                    Generales.BtnAgregarRegistroSubnivel()
-                    cy.contains('h2', 'Nuevo Registro', { timeout: 10000 }).should('be.visible')
+                    Generales.BtnAgregarRegistroSubnivel();
+                    cy.contains('h2', 'Nuevo Registro', { timeout: 10000 }).should('be.visible');
 
                     // Llenar datos
                     MensajeDeError.MensajesError(
@@ -1291,43 +1517,72 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         item.descripcion,
                         item.valorTipoMensaje,
                         item.valorAccion
-                    )
+                    );
+
+                    // 🔧 Interceptar la petición POST antes de hacer clic
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/errorMessages').as(alias);   // <- URL con 's'
 
                     // Hacer clic en Aceptar
-                    Generales.BtnAceptarRegistro()
+                    Generales.BtnAceptarRegistro();
 
-                    // ESPERAR Y VERIFICAR
-                    cy.wait(2000)
+                    // Esperar respuesta y decidir estado
+                    cy.wait(`@${alias}`, { timeout: 5000 }).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                    // VERIFICAR SI HAY MENSAJE DE ERROR
-                    cy.get('body').then(($body) => {
-                        // Buscar cualquier mensaje de error visible
-                        const hayErrorVisible = $body.find('.error, .alert, .toast, .message, div:contains("error"):visible, div:contains("ya existe"):visible').length > 0
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Mensajes de error-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '007 - Mensajes de error',
+                                    crud: "Mensajes de error",
+                                    descripcion: `Código: ${item.codigo} -  ${item.mensajeError}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
+                    });
 
-                        if (hayErrorVisible) {
-                            cy.log(`⚠️ Error detectado para código ${item.codigo}`)
-                        } else {
-                            cy.log(`ℹ️ No se detectaron errores visibles para código ${item.codigo}`)
-                        }
-
-                        // MOSTRAR INFORMACIÓN DE DEPURACIÓN
-                        cy.log(`🔍 Estado del modal: ${$body.find('h2:contains("Nuevo Registro")').length > 0 ? 'ABIERTO' : 'CERRADO'}`)
-
-                        // SIEMPRE CERRAR EL MODAL PARA CONTINUAR
-                        if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
-                            cy.log('🔄 Cerrando modal manualmente...')
-                            Generales.BtnCancelarRegistro()
-                            cy.wait(500)
-                        }
-                    })
-
-                    // VERIFICAR QUE EL MODAL ESTÉ CERRADO
-                    cy.contains('h2', 'Nuevo Registro', { timeout: 5000 }).should('not.exist')
-                    cy.log(`✅ Procesamiento completado para código ${item.codigo}`)
-                })
-            })
-        })
-
+                    // Opcional: verificar que el modal se cerró
+                    cy.get('mat-dialog-container', { timeout: 10000 }).should('not.exist');
+                });
+            });
+        });
 
     })
 
@@ -1338,9 +1593,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros dinámicamente", () => {
-            cy.fixture('equivalencias').then((data) => {
-                cy.wrap(data.agregar).each((item) => {
+            cy.readFile('./JsonData/equivalencias.json').then((data) => {
+                cy.wrap(data.agregar).each((item, index) => {
                     cy.log(`Insertando código: ${item.codigo}`)
+                    const numero = index + 1;
 
                     //Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
@@ -1366,46 +1622,66 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     )
 
                     //Intercept backend
-                    cy.intercept('POST', '**/equivalencies').as('guardar')
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/equivalencies').as(alias);
 
                     Generales.BtnAceptarRegistro()
 
-                    cy.wait(1500)
-                    return cy.get('body').then(($body) => {
-                        // Buscar específicamente el snackbar de error
-                        const snackBarError = $body.find('.snack-container__error');
 
-                        if (snackBarError.length > 0) {
-                            // Obtener el mensaje específico
-                            const mensajeError = snackBarError.find('.message-snack').text();
-                            cy.log(`⚠️ Error detectado: ${mensajeError}`);
+                    // Esperar respuesta y decidir estado
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                            // Cerrar el snackbar si tiene botón de cerrar
-                            cy.get('.snack--btn-close').click();
-
-                            Generales.BtnCancelarRegistro();
-                            cy.log('❌ Registro duplicado - cancelando');
-                        } else {
-                            cy.log('✅ No hay errores - aceptando');
-                        }
-
-                        return cy.get('mat-dialog-container', { timeout: 10000 })
-                            .should('not.exist');
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Equivalencias-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '008 - Equivalencias',
+                                    crud: "Equivalencias",
+                                    descripcion: `Llave: ${item.llave} - Dato Equivalente: ${item.datosEquivalentes}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('⚠️ El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
                     });
 
 
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
+
                 })
             })
         })
@@ -1419,9 +1695,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros en crud de Region", () => {
-            cy.fixture('regiones').then((data) => {
-                cy.wrap(data.agregar).each((item) => {
+            cy.readFile('./JsonData/regiones.json').then((data) => {
+                cy.wrap(data.agregar).each((item, index) => {
                     cy.log(`Insertando código: ${item.codigo}`)
+                    const numero = index + 1;
 
                     //Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
@@ -1447,23 +1724,65 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     )
 
                     //Intercept backend
-                    cy.intercept('POST', '**/region').as('guardar')
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/region').as(alias);
 
                     Generales.BtnAceptarRegistro()
 
+// Esperar respuesta y decidir estado
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Regiones-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '009 - Regiones',
+                                    crud: "Regiones",
+                                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('⚠️ El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
+                    });
+
+
+
                 })
             })
         })
@@ -1477,9 +1796,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros en crud de Niveles de cajero", () => {
-            cy.fixture('NivelDeCajero').then((dataNivelDeCajero) => {
-                cy.wrap(dataNivelDeCajero.agregar).each((item) => {
+            cy.readFile('./JsonData/NivelDeCajero.json').then((dataNivelDeCajero) => {
+                cy.wrap(dataNivelDeCajero.agregar).each((item, index) => {
                     cy.log(`Insertando código: ${item.codigo}`)
+                    const numero = index + 1;
 
                     //Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
@@ -1508,23 +1828,63 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     )
 
                     //Intercept backend
-                    cy.intercept('POST', '**/cashierLevel').as('guardar')
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/cashierLevel').as(alias);
 
                     Generales.BtnAceptarRegistro()
 
+// Esperar respuesta y decidir estado
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Niveles de Cajero-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '010- Niveles de Cajero',
+                                    crud: "Niveles de Cajero",
+                                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('⚠️ El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
+                    });
+
                 })
             })
         })
@@ -1538,9 +1898,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros en crud Tipo de Cajero", () => {
-            cy.fixture('tipoCajero').then((data) => {
-                cy.wrap(data.agregar).each((item) => {
+            cy.readFile('./JsonData/tipoCajero.json').then((data) => {
+                cy.wrap(data.agregar).each((item,index) => {
                     cy.log(`Insertando código: ${item.codigo}`)
+                    const numero = index + 1;
 
                     //Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
@@ -1568,23 +1929,64 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     )
 
                     //Intercept backend
-                    cy.intercept('POST', '**/typeCashier').as('guardar')
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/typeCashier').as(alias);
 
                     Generales.BtnAceptarRegistro()
 
+                    // Esperar respuesta y decidir estado
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Niveles de Cajero-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '011 - Niveles de Cajero',
+                                    crud: "Niveles de Cajero",
+                                    descripcion: `Código: ${item.codigo} - Descripción: ${item.descripcion}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
+                    });
+
+
                 })
             })
         })
@@ -1597,170 +1999,174 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
             Generales.IrAPantalla('user');
         });
 
-        it("Buscar persona y agregar múltiples registros en crud Usuarios", () => {
-            cy.fixture('usuarios').then((dataUsuarios) => {
-                cy.log(`📋 Total de registros a procesar: ${dataUsuarios.agregar.length}`);
-                let registrosExitosos = 0;
-                let registrosFallidos = 0;
+       it("Buscar persona y agregar múltiples registros en crud Usuarios", () => {
+           cy.readFile('./JsonData/usuarios.json').then((dataUsuarios) => {
+               cy.wrap(dataUsuarios.agregar).each((item, index) => {
+                   const numero = index + 1;
+                   cy.log(`\n🔵 Procesando registro ${numero}: ${item.usuario}`);
 
-                cy.wrap(dataUsuarios.agregar).each((item, index) => {
-                    cy.log(`\n Procesando registro ${index + 1}/${dataUsuarios.agregar.length}`);
-                    cy.log(` Usuario: ${item.codigo} - ${item.usuario}`);
+                   // Asegurar estado limpio
+                   cy.get('body').then(($body) => {
+                       if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                           cy.log('Cerrando formulario abierto...');
+                           Generales.BtnCancelarRegistro();
+                       }
+                   });
 
-                    // =============================================
-                    // PASO 1: Buscar Persona
-                    // =============================================
-                    cy.log('🔍 PASO 1: Buscando persona');
+                   // 1. Buscar persona (modal de búsqueda)
+                   cy.log('🔍 Buscando persona...');
+                   Generales.BtnAgregarRegistroSubnivel();
+                   cy.contains('h2', 'Buscar persona', { timeout: 10000 }).should('be.visible');
 
-                    // Abrir formulario de búsqueda de persona
-                    Generales.BtnAgregarRegistroSubnivel();
+                   Usuarios.BuscarPersona(
+                       item.tipoIdentificacion,
+                       item.numeroIdentificacion
+                   );
 
-                    // Validar que el modal de búsqueda abrió
-                    cy.contains('h2', 'Buscar persona', { timeout: 10000 }).should('be.visible');
+                   // Verificar si la búsqueda falló
+                   let busquedaExitosa = true;
+                   cy.get('body', { timeout: 5000 }).then(($body) => {
+                       const hayErrorBusqueda =
+                           $body.text().includes('no encontrado') ||
+                           $body.text().includes('no existe') ||
+                           $body.text().includes('invalid') ||
+                           $body.find('.error-message, .alert-danger, .toast-error, .mat-error').length > 0;
 
-                    // Usar el método BuscarPersona
-                    Usuarios.BuscarPersona(
-                        item.tipoIdentificacion,
-                        item.numeroIdentificacion
-                    );
+                       if (hayErrorBusqueda) {
+                           busquedaExitosa = false;
+                           cy.log('❌ Error en búsqueda de persona');
+                           cy.get('button').contains('Cancelar').click();
+                           cy.contains('h2', 'Buscar persona').should('not.exist');
+                       } else {
+                           cy.log('✅ Búsqueda exitosa');
+                       }
+                   }).then(() => {
+                       if (!busquedaExitosa) {
+                           // Fallo en búsqueda → guardar resultado
+                           const nombreCaptura = `Captura-${numero}-Usuarios-fallida`;
+                           cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                               cy.task('guardarResultado', {
+                                   describe: '012 - Usuario',
+                                   crud: "Usuario",
+                                   descripcion: `Usuario: ${item.usuario} - Identificación: ${item.numeroIdentificacion}`,
+                                   estado: 'fallida',
+                                   numero: numero,
+                                   mensaje: 'Error en búsqueda de persona: no encontrada',
+                                   evidencia: `${nombreCaptura}.png`
+                               });
+                           });
+                           return;
+                       }
 
-                    // Esperar que se complete la búsqueda
-                    cy.wait(2000);
+                       // 2. Llenar datos de usuario (modal ahora es "Nuevo Registro")
+                       cy.log('✍️ Agregando usuario...');
+                       cy.contains('h2', 'Nuevo Registro', { timeout: 10000 }).should('be.visible');
 
-                    // =============================================
-                    // Verificar ERRORES en búsqueda (solo aquí cerramos si hay error)
-                    // =============================================
-                    cy.get('body').then(($body) => {
-                        const hayErrorBusqueda =
-                            $body.text().includes('no encontrado') ||
-                            $body.text().includes('no existe') ||
-                            $body.text().includes('invalid') ||
-                            $body.find('.error-message, .alert-danger, .toast-error, .mat-error').length > 0;
+                       Usuarios.Usuario(
+                           item.codigo,
+                           item.usuario,
+                           item.pNombre,
+                           item.sNombre,
+                           item.pApellido,
+                           item.sApellido,
+                           item.valorPais,
+                           item.codigoEbs,
+                           item.correo,
+                           item.telTrabajo,
+                           item.codigoEmpleado,
+                           item.valorArbolRaiz,
+                           item.valorRamaArbol,
+                           item.valorDepartamento,
+                           item.valorTipoCajero,
+                           item.valorJornadaLaboral,
+                           item.valorNivelCajero,
+                           item.puertoImpre
+                       );
 
-                        if (hayErrorBusqueda) {
-                            cy.log('Error en búsqueda de persona - Cancelando este registro');
+                       // Verificar errores en combos
+                       let comboError = false;
+                       cy.get('body', { timeout: 5000 }).then(($body) => {
+                           const hayErrorCombos =
+                               $body.find('.error-message, .alert-danger, .toast-error, .mat-error').length > 0 ||
+                               $body.text().includes('requerido') ||
+                               $body.text().includes('obligatorio');
 
-                            // SOLO cerramos si hay error
-                            if ($body.find('h2:contains("Buscar persona")').length > 0) {
-                                cy.get('button').contains('Cancelar').click();
-                                cy.contains('h2', 'Buscar persona').should('not.exist');
-                            }
+                           if (hayErrorCombos) {
+                               comboError = true;
+                               cy.log('❌ Error en combos detectado');
+                           }
+                       }).then(() => {
+                           if (comboError) {
+                               const nombreCaptura = `Captura-${numero}-Usuarios-fallida`;
+                               cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                   cy.task('guardarResultado', {
+                                       describe: '012 - Usuario',
+                                       crud: "Usuario",
+                                       descripcion: `Usuario: ${item.usuario} - Identificación: ${item.numeroIdentificacion}`,
+                                       estado: 'fallida',
+                                       numero: numero,
+                                       mensaje: 'Error en combos: algún campo requerido no seleccionado',
+                                       evidencia: `${nombreCaptura}.png`
+                                   });
+                               }).then(() => {
+                                   Generales.BtnCancelarRegistro();
+                                   cy.contains('h2', 'Nuevo Registro').should('not.exist');
+                               });
+                               return;
+                           }
 
-                            registrosFallidos++;
-                            cy.log(`Registro ${index + 1} fallido - Continuando con el siguiente`);
-                            return; // Salir de este registro
-                        } else {
-                            cy.log('✅ Búsqueda exitosa - Continuamos con el modal abierto');
-                        }
-                    });
+                           // 3. Enviar y capturar respuesta
+                           const alias = `guardar-${numero}`;
+                           cy.intercept('POST', '**/user').as(alias);
+                           Generales.BtnAceptarRegistro();
 
-                    // =============================================
-                    // PASO 2: Agregar Usuario (con el modal de búsqueda aún abierto)
-                    // =============================================
-                    cy.log(' PASO 2: Agregando usuario');
+                           cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                               const status = interception.response.statusCode;
+                               let estado = 'fallida';
+                               let mensaje = '';
 
-                    // Llenar datos de usuario
-                    Usuarios.Usuario(
-                        item.codigo,
-                        item.usuario,
-                        item.pNombre,
-                        item.sNombre,
-                        item.pApellido,
-                        item.sApellido,
-                        item.valorPais,
-                        item.codigoEbs,
-                        item.correo,
-                        item.telTrabajo,
-                        item.codigoEmpleado,
-                        item.valorArbolRaiz,
-                        item.valorRamaArbol,
-                        item.valorDepartamento,
-                        item.valorTipoCajero,
-                        item.valorJornadaLaboral,
-                        item.valorNivelCajero,
-                        item.puertoImpre
-                    );
-
-                    // Verificar errores en combos (solo aquí cerramos si hay error)
-                    cy.get('body', { timeout: 5000 }).then(($body) => {
-                        const hayErrorCombos =
-                            $body.find('.error-message, .alert-danger, .toast-error, .mat-error').length > 0 ||
-                            $body.text().includes('requerido') ||
-                            $body.text().includes('obligatorio');
-
-                        if (hayErrorCombos) {
-                            cy.log('Error en combos detectado - Cancelando este registro');
-
-                            // SOLO cerramos si hay error
-                            if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
-                                Generales.BtnCancelarRegistro();
-                                cy.contains('h2', 'Nuevo Registro').should('not.exist');
-                            }
-
-                            registrosFallidos++;
-                            cy.log(` Registro ${index + 1} fallido - Continuando con el siguiente`);
-                            return; // Salir de este registro
-                        }
-                    });
-
-                    // Interceptar petición
-                    cy.intercept('POST', '**/user').as('guardar');
-
-                    // Hacer clic en Aceptar
-                    Generales.BtnAceptarRegistro();
-
-                    // Esperar respuesta del backend
-                    cy.wait('@guardar', { timeout: 15000 }).then((interception) => {
-                        const status = interception.response.statusCode;
-                        cy.log(`Status: ${status}`);
-
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente');
-                            registrosExitosos++;
-                            // El modal se cierra automáticamente con éxito
-                            cy.contains('h2', 'Nuevo Registro', { timeout: 10000 }).should('not.exist');
-                        } else {
-                            cy.log(` Error detectado. Status: ${status}`);
-                            registrosFallidos++;
-
-                            // SOLO cerramos si hay error
-                            cy.get('body').then(($body) => {
-                                if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
-                                    Generales.BtnCancelarRegistro();
-                                    cy.contains('h2', 'Nuevo Registro', { timeout: 10000 }).should('not.exist');
-                                }
-                            });
-                        }
-                    });
-
-                    // Verificación de timeout (solo cerramos si hay error)
-                    cy.wait(16000).then(() => {
-                        cy.get('body').then(($body) => {
-                            if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
-                                cy.log('Timeout detectado - Cancelando por error');
-                                Generales.BtnCancelarRegistro();
-                                cy.contains('h2', 'Nuevo Registro', { timeout: 5000 }).should('not.exist');
-                                registrosFallidos++;
-                            }
-                        });
-                    });
-
-                    // Pausa entre registros
-                    cy.wait(1000);
-                });
-
-                // =============================================
-                // RESUMEN FINAL
-                // =============================================
-                cy.then(() => {
-                    cy.log('\n ====== RESUMEN FINAL ======');
-                    cy.log(` Total procesados: ${dataUsuarios.agregar.length}`);
-                    cy.log(` Exitosos: ${registrosExitosos}`);
-                    cy.log(` Fallidos: ${registrosFallidos}`);
-                    cy.log(` ===========================`);
-                });
-            });
-        });
+                               cy.wait(500);
+                               cy.get('body').then(($body) => {
+                                   const $snack = $body.find('span.message-snack');
+                                   if ($snack.length) mensaje = $snack.text().trim();
+                               }).then(() => {
+                                   if (status === 200 || status === 201) {
+                                       estado = 'exitosa';
+                                       cy.log('✅ Usuario insertado correctamente');
+                                   } else {
+                                       estado = 'fallida';
+                                       cy.log(`❌ Error detectado. Status: ${status}`);
+                                   }
+                               }).then(() => {
+                                   const nombreCaptura = `Captura-${numero}-Usuarios-${estado}`;
+                                   cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                       cy.task('guardarResultado', {
+                                           describe: '012 - Usuario',
+                                           crud: "Usuario",
+                                           descripcion: `Usuario: ${item.usuario} - Identificación: ${item.numeroIdentificacion}`,
+                                           estado: estado,
+                                           numero: numero,
+                                           mensaje: mensaje,
+                                           evidencia: `${nombreCaptura}.png`
+                                       });
+                                   });
+                               }).then(() => {
+                                   // Cerrar modal si aún está abierto
+                                   cy.get('body').then(($body) => {
+                                       if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                                           cy.log('Modal sigue abierto → cerrando manualmente');
+                                           Generales.BtnCancelarRegistro();
+                                           cy.wait(2000);
+                                       }
+                                   });
+                               });
+                           });
+                       });
+                   });
+                   cy.wait(1000);
+               });
+           });
+       });
     });
 
     describe.skip("013 -  Razones de Bloqueo de Usuario...", () =>{
@@ -1771,9 +2177,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros en el crud Razones de Bloqueo de Usuarios", () => {
-            cy.fixture('razonesBloqueoUsuario').then((data) => {
-                cy.wrap(data.agregar).each((item) => {
+            cy.readFile('./JsonData/razonesBloqueoUsuario.json').then((data) => {
+                cy.wrap(data.agregar).each((item, index) => {
                     cy.log(`Insertando código: ${item.codigo}`)
+                    const numero = index + 1;
 
                     //Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
@@ -1799,23 +2206,63 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     )
 
                     //Intercept backend
-                    cy.intercept('POST', '**/reasonsUserBlock').as('guardar')
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/reasonsUserBlock').as(alias);
 
                     Generales.BtnAceptarRegistro()
 
+// Esperar respuesta y decidir estado
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Razones de Bloqueo de Usuarios-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '013 - Razones de Bloqueo de Usuarios',
+                                    crud: "Razones de Bloqueo de Usuarios",
+                                    descripcion: `Código: ${item.codigo} - Razón: ${item.razon}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
+                    });
+
                 })
             })
         })
@@ -1829,9 +2276,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros en el crud Campos de la transacción", () => {
-            cy.fixture('camposTransaccion').then((data) => {
-                cy.wrap(data.agregar).each((item) => {
+            cy.readFile('./JsonData/camposTransaccion.json').then((data) => {
+                cy.wrap(data.agregar).each((item, index) => {
                     cy.log(`Insertando código: ${item.codigo}`)
+                    const numero = index + 1;
 
                     //Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
@@ -1858,23 +2306,64 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     )
 
                     //Intercept backend
-                    cy.intercept('POST', '**/characteristicSpec').as('guardar')
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/characteristicSpec').as(alias);
 
                     Generales.BtnAceptarRegistro()
 
+                    // Esperar respuesta y decidir estado
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Campos de transacción-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '014 - Campos de transacción',
+                                    crud: "Campos de transacción",
+                                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('⚠️ El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
+                    });
+
+
                 })
             })
         })
@@ -1883,12 +2372,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     describe.skip("014.1 -  transacció > Valores de Caracteristicas...", () =>{
 
-        before(() => {
-            cy.fixture('valoresCaracteristicas').as('valoresCaracteristicas')
-        })
 
         beforeEach(() => {
             Generales.IrAPantalla('characteristicSpec')
+            cy.readFile('./JsonData/valoresCaracteristicas.json').as('valoresCaracteristicas')
         })
 
         it("Agregar multiples registros en Subnivel Campos de la transacció > Valores de Caracteristica ", function () {
@@ -1903,9 +2390,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 return acc
             }, {})
 
-            cy.wrap(Object.keys(agrupadas)).each((codigo) => {
+            cy.wrap(Object.keys(agrupadas)).each((codigo,index) => {
                 cy.log('Procesando Regla con nombre: ' + codigo)
 
+                const numero = index + 1;
                 // 🔎 Buscar Regla
                 Generales.BuscarRegistroCodigo(codigo)
                 Generales.NavegacionSubMenu('Valores de Característica')
@@ -1922,50 +2410,83 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         registro.descriptor4
                     )
 
+                    const alias = `guardar-${numero}`
+                    cy.intercept('POST', '**/characteristicSpecValue').as(alias)
+
                     Generales.BtnAceptarRegistro();
-                    cy.wait(2000)
-                    return cy.get('body').then(($body) => {
-                        // Buscar específicamente el snackbar de error
-                        const snackBarError = $body.find('.snack-container__error');
-
-                        if (snackBarError.length > 0) {
-                            // Obtener el mensaje específico
-                            const mensajeError = snackBarError.find('.message-snack').text();
-                            cy.log(`Error detectado: ${mensajeError}`);
-
-                            // Cerrar el snackbar si tiene botón de cerrar
-                            cy.get('.snack--btn-close').click();
-
-                            Generales.BtnCancelarRegistro();
-                            cy.log('Registro duplicado - cancelando');
-                        } else {
-                            cy.log('No hay errores - aceptando');
-                        }
-
-                        return cy.get('mat-dialog-container', { timeout: 10000 })
-                            .should('not.exist');
-                    });
 
 
-                }).then(() => {
-                    cy.log('Regresando al nivel principal')
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode
+                        let estado = 'fallida'
+                        let mensaje = ''
 
-                    // Primer regreso - SALIR DEL SUBNIVEL
-                    return cy.then(() => {
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que salimos del subnivel (modal cerrado)
-                        return cy.get('mat-dialog-container', { timeout: 5000 })
-                            .should('not.exist')
-                    }).then(() => {
-                        // Segundo regreso - SALIR DEL DETALLE DE MONEDA
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que estamos en el listado principal
-                        return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
-                            .should('be.visible')
+                        cy.wait(500)
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack')
+                            if ($snack.length) mensaje = $snack.text().trim()
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa'
+                                cy.log('Denominación insertada correctamente')
+                            } else {
+                                estado = 'fallida'
+                                cy.log(`Error detectado. Status: ${status}`)
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Campos de la transccion > Valores de Característica-${estado}`
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '014.1 - Valores de Característica',
+                                    crud: "Valores de Característica",
+                                    descripcion: `Código: ${codigo} - Valor: ${registro.valor} - Descriptor: ${registro.descriptor}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                })
+                            })
+                        }).then(() => {
+                            // Cerrar el modal si aún está abierto
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente')
+                                    Generales.BtnCancelarRegistro()
+                                    cy.wait(2000)
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('El modal no se cerró después de intentarlo, pero continuamos')
+                                        } else {
+                                            cy.log('Modal cerrado correctamente')
+                                        }
+                                    })
+                                } else {
+                                    cy.log('Modal ya cerrado')
+                                }
+                            })
+                        })
                     })
+
+                    // Opcional: Verificar que el modal de denominación se cerró completamente
+                    cy.get('mat-dialog-container', { timeout: 10000 }).should('not.exist')
+                }).then(() => {
+                    cy.log('🔙 Regresando al nivel principal después de procesar todas las denominaciones de la moneda')
+
+                    // Primer regreso - SALIR DEL SUBNIVEL (listado de denominaciones)
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que salimos del subnivel (modal cerrado)
+                    cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist')
+
+                    // Segundo regreso - SALIR DEL DETALLE DE MONEDA
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que estamos en el listado principal de monedas
+                    cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 }).should('be.visible')
                 })
+
+
             })
         })
 
@@ -1973,12 +2494,11 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     describe.skip("014.2 -  transacción > Sub Características...", () =>{
 
-        before(() => {
-            cy.fixture('subCaracteristicas').as('subCaracteristicas')
-        })
 
         beforeEach(() => {
             Generales.IrAPantalla('characteristicSpec')
+            cy.readFile('./JsonData/subCaracteristicas.json').as('subCaracteristicas')
+
         })
 
         it("Agregar multiples registros en Subnivel Campos de la transacció > Sub Características", function () {
@@ -1993,8 +2513,9 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 return acc
             }, {})
 
-            cy.wrap(Object.keys(agrupadas)).each((codigo) => {
+            cy.wrap(Object.keys(agrupadas)).each((codigo, index) => {
                 cy.log('Procesando subCaracteristicas con codigo: ' + codigo)
+                const numero = index + 1;
 
                 // 🔎 Buscar Regla
                 Generales.BuscarRegistroCodigo(codigo)
@@ -2012,50 +2533,84 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         registro.campoProtegido
                     )
 
+                    const alias = `guardar-${numero}`
+                    //cy.intercept('POST', '**/money').as(alias)
+                    cy.intercept('POST', '**/subCharacteristicSpec').as(alias)
+
                     Generales.BtnAceptarRegistro();
-                    cy.wait(2000)
-                    return cy.get('body').then(($body) => {
-                        // Buscar específicamente el snackbar de error
-                        const snackBarError = $body.find('.snack-container__error');
 
-                        if (snackBarError.length > 0) {
-                            // Obtener el mensaje específico
-                            const mensajeError = snackBarError.find('.message-snack').text();
-                            cy.log(` Error detectado: ${mensajeError}`);
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode
+                        let estado = 'fallida'
+                        let mensaje = ''
 
-                            // Cerrar el snackbar si tiene botón de cerrar
-                            cy.get('.snack--btn-close').click();
-
-                            Generales.BtnCancelarRegistro();
-                            cy.log(' Registro duplicado - cancelando');
-                        } else {
-                            cy.log(' No hay errores - aceptando');
-                        }
-
-                        return cy.get('mat-dialog-container', { timeout: 10000 })
-                            .should('not.exist');
-                    });
-
-
-                }).then(() => {
-                    cy.log(' Regresando al nivel principal')
-
-                    // Primer regreso - SALIR DEL SUBNIVEL
-                    return cy.then(() => {
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que salimos del subnivel (modal cerrado)
-                        return cy.get('mat-dialog-container', { timeout: 5000 })
-                            .should('not.exist')
-                    }).then(() => {
-                        // Segundo regreso - SALIR DEL DETALLE DE MONEDA
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que estamos en el listado principal
-                        return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
-                            .should('be.visible')
+                        cy.wait(500)
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack')
+                            if ($snack.length) mensaje = $snack.text().trim()
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa'
+                                cy.log('Denominación insertada correctamente')
+                            } else {
+                                estado = 'fallida'
+                                cy.log(`Error detectado. Status: ${status}`)
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Campos de transacción > Sub Características-${estado}`
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '014.2 - Sub Características',
+                                    crud: "Sub-característica",
+                                    descripcion: `Código: ${codigo} - Correlativo: ${registro.correlativo} - Sub-característica: ${registro.subCaracteristica}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                })
+                            })
+                        }).then(() => {
+                            // Cerrar el modal si aún está abierto
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente')
+                                    Generales.BtnCancelarRegistro()
+                                    cy.wait(2000)
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('El modal no se cerró después de intentarlo, pero continuamos')
+                                        } else {
+                                            cy.log('Modal cerrado correctamente')
+                                        }
+                                    })
+                                } else {
+                                    cy.log('Modal ya cerrado')
+                                }
+                            })
+                        })
                     })
+
+                    // Opcional: Verificar que el modal de denominación se cerró completamente
+                    cy.get('mat-dialog-container', { timeout: 10000 }).should('not.exist')
+                }).then(() => {
+                    cy.log('🔙 Regresando al nivel principal después de procesar todas las denominaciones de la moneda')
+
+                    // Primer regreso - SALIR DEL SUBNIVEL (listado de denominaciones)
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que salimos del subnivel (modal cerrado)
+                    cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist')
+
+                    // Segundo regreso - SALIR DEL DETALLE DE MONEDA
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que estamos en el listado principal de monedas
+                    cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 }).should('be.visible')
                 })
+
+
+
             })
         })
 
@@ -2068,9 +2623,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros en crud de Formatos", () => {
-            cy.fixture('formatos').then((dataFormatos) => {
-                cy.wrap(dataFormatos.agregar).each((item) => {
+            cy.readFile('./JsonData/formatos.json').then((dataFormatos) => {
+                cy.wrap(dataFormatos.agregar).each((item,index) => {
                     cy.log(`Insertando código: ${item.codigo}`)
+                    const numero = index + 1;
 
                     //Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
@@ -2106,23 +2662,65 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     )
 
                     //Intercept backend
-                    cy.intercept('POST', '**/format').as('guardar')
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/format').as(alias);
 
                     Generales.BtnAceptarRegistro()
 
+                    // Esperar respuesta y decidir estado
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Formatos-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '015 - Formatos',
+                                    crud: "Formatos",
+                                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('⚠️ El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
+                    });
+
+
+
                 })
             })
         })
@@ -2131,12 +2729,9 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     describe.skip("015.1 - Formato > Detalle de Formato...", () =>{
 
-        before(() => {
-            cy.fixture('detalleDeFormato').as('dataDetalleFromato')
-        })
-
         beforeEach(() => {
             Generales.IrAPantalla('format')
+            cy.readFile('./JsonData/detalleDeFormato.json').as('dataDetalleFromato')
         })
 
         it("Agregar registros a subnivel Detalle de Formatos", function () {
@@ -2151,14 +2746,19 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 return acc
             }, {})
 
+            let numero = 0
+
             cy.wrap(Object.keys(agrupadas)).each((codigoFormato) => {
                 cy.log('Procesando Regla con nombre: ' + codigoFormato)
+                numero++
 
                 // 🔎 Buscar Formato
                 Generales.BuscarRegistroCodigo(codigoFormato)
                 Generales.NavegacionSubMenu('Detalle de Formato')
 
                 return cy.wrap(agrupadas[codigoFormato]).each((registro) => {
+
+
                     Generales.BtnAgregarRegistroSubnivel()
                     cy.log("y el agregar que pedo")
                     //  const pais = registro.valorPais || registro.nombre
@@ -2185,50 +2785,85 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         registro.valorTipoExpresion
                     )
 
+                    const alias = `guardar-${numero}`
+                    cy.intercept('POST', '**/formatDetail').as(alias)
+
                     Generales.BtnAceptarRegistro();
-                    cy.wait(2000)
-                    return cy.get('body').then(($body) => {
-                        // Buscar específicamente el snackbar de error
-                        const snackBarError = $body.find('.snack-container__error');
-
-                        if (snackBarError.length > 0) {
-                            // Obtener el mensaje específico
-                            const mensajeError = snackBarError.find('.message-snack').text();
-                            cy.log(`Error detectado: ${mensajeError}`);
-
-                            // Cerrar el snackbar si tiene botón de cerrar
-                            cy.get('.snack--btn-close').click();
-
-                            Generales.BtnCancelarRegistro();
-                            cy.log('Registro duplicado - cancelando');
-                        } else {
-                            cy.log('No hay errores - aceptando');
-                        }
-
-                        return cy.get('mat-dialog-container', { timeout: 10000 })
-                            .should('not.exist');
-                    });
 
 
-                }).then(() => {
-                    cy.log('🔙 Regresando al nivel principal')
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode
+                        let estado = 'fallida'
+                        let mensaje = ''
 
-                    // Primer regreso - SALIR DEL SUBNIVEL
-                    return cy.then(() => {
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que salimos del subnivel (modal cerrado)
-                        return cy.get('mat-dialog-container', { timeout: 5000 })
-                            .should('not.exist')
-                    }).then(() => {
-                        // Segundo regreso - SALIR DEL DETALLE DE MONEDA
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que estamos en el listado principal
-                        return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
-                            .should('be.visible')
+                        cy.wait(500)
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack')
+                            if ($snack.length) mensaje = $snack.text().trim()
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa'
+                                cy.log('Denominación insertada correctamente')
+                            } else {
+                                estado = 'fallida'
+                                cy.log(`Error detectado. Status: ${status}`)
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Formato > Detalle de Formato-${estado}`
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '015.1 - Detalle de Formato',
+                                    crud: "Detalle de Formato",
+                                    descripcion: `Código: ${codigoFormato} - Correlativo: ${registro.correlativo} - Descripción: ${registro.descripcion}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                })
+                            })
+                        }).then(() => {
+                            // Cerrar el modal si aún está abierto
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente')
+                                    Generales.BtnCancelarRegistro()
+                                    cy.wait(2000)
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('⚠️ El modal no se cerró después de intentarlo, pero continuamos')
+                                        } else {
+                                            cy.log('Modal cerrado correctamente')
+                                        }
+                                    })
+                                } else {
+                                    cy.log('Modal ya cerrado')
+                                }
+                            })
+                        })
                     })
+
+                    // Opcional: Verificar que el modal de denominación se cerró completamente
+                    cy.get('mat-dialog-container', { timeout: 10000 }).should('not.exist')
+                }).then(() => {
+                    cy.log('🔙 Regresando al nivel principal después de procesar todas las denominaciones de la moneda')
+
+                    // Primer regreso - SALIR DEL SUBNIVEL (listado de denominaciones)
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que salimos del subnivel (modal cerrado)
+                    cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist')
+
+                    // Segundo regreso - SALIR DEL DETALLE DE MONEDA
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que estamos en el listado principal de monedas
+                    cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 }).should('be.visible')
                 })
+
+
+
+
             })
         })
 
@@ -2243,13 +2878,11 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros en Crud de Rutinas", () => {
-            cy.fixture('rutinas').then((dataRutinas) => {
-                let exitosos = 0;
-                let duplicados = 0;
-                let otrosErrores = 0;
+            cy.readFile('./JsonData/rutinas.json').then((dataRutinas) => {
 
-                cy.wrap(dataRutinas.agregar).each((item) => {
+                cy.wrap(dataRutinas.agregar).each((item, index) => {
                     cy.log(`\n ===== Insertando código: ${item.codigo} =====`);
+                    const numero = index + 1;
 
                     // Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
@@ -2292,59 +2925,68 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     );
 
                     // Intercept backend
-                    cy.intercept('POST', '**/routine').as('guardar');
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/routine').as(alias);
 
                     // Hacer clic en Aceptar
                     Generales.BtnAceptarRegistro();
 
-                    // Esperar respuesta del backend
-                    cy.wait('@guardar', { timeout: 10000 }).then((interception) => {
-                        const status = interception.response.statusCode;
-                        cy.log(`📊 Status: ${status}`);
+                        // Esperar respuesta y decidir estado
+                        cy.wait(`@${alias}`).then((interception) => {
+                            const status = interception.response.statusCode;
+                            let estado = 'fallida';
+                            let mensaje = '';
 
-                        if (status === 200 || status === 201) {
-                            // ✅ CASO EXITOSO
-                            cy.log('✅ Registro insertado correctamente');
-                            exitosos++;
+                            cy.wait(500);
+                            cy.get('body').then(($body) => {
+                                const $snack = $body.find('span.message-snack');
+                                if ($snack.length) mensaje = $snack.text().trim();
+                            }).then(() => {
+                                if (status === 200 || status === 201) {
+                                    estado = 'exitosa';
+                                    cy.log('Registro insertado correctamente');
+                                } else {
+                                    estado = 'fallida';
+                                    cy.log(`Error detectado. Status: ${status}`);
+                                }
+                            }).then(() => {
+                                const nombreCaptura = `Captura-${numero}-Rutinas-${estado}`;
+                                cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                    cy.task('guardarResultado', {
+                                        describe: '016 - Rutinas',
+                                        crud: "Rutinas",
+                                        descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                        estado: estado,
+                                        numero: numero,
+                                        mensaje: mensaje,
+                                        evidencia: `${nombreCaptura}.png`
+                                    });
+                                });
+                            }).then(() => {
+                                cy.get('body').then(($body) => {
+                                    const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                    if (modalAbierto) {
+                                        cy.log('Modal sigue abierto → cerrando manualmente');
+                                        Generales.BtnCancelarRegistro();
+                                        cy.wait(2000);
+                                        cy.get('body').then(($bodyAfter) => {
+                                            if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                                cy.log('⚠️ El modal no se cerró después de intentarlo, pero continuamos');
+                                            } else {
+                                                cy.log('Modal cerrado correctamente');
+                                            }
+                                        });
+                                    } else {
+                                        cy.log('Modal ya cerrado');
+                                    }
+                                });
+                            });
+                        });
 
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro', { timeout: 10000 }).should('not.exist');
+                }
+                );
 
-                        } else {
-                            // ❌ CASO ERROR
-                            cy.log(`⚠️ Error detectado. Status: ${status}`);
 
-                            // Verificar si es error 409 (conflicto/duplicado) o cualquier otro
-                            if (status === 409) {
-                                cy.log('⚠️ Registro duplicado detectado');
-                                duplicados++;
-                            } else {
-                                cy.log(`⚠️ Otro tipo de error: ${status}`);
-                                otrosErrores++;
-                            }
-
-                            // ESPERAR UN MOMENTO PARA QUE APAREZCA EL MENSAJE DE ERROR
-                            cy.wait(1000);
-
-                            // Hacer clic en Cancelar para cerrar el modal
-                            cy.log('🔄 Cancelando registro con error...');
-                            Generales.BtnCancelarRegistro();
-
-                            // Verificar que el modal se cerró
-                            cy.contains('h2', 'Nuevo Registro', { timeout: 5000 }).should('not.exist');
-                            cy.log('✅ Modal cerrado correctamente');
-                        }
-                    });
-
-                    cy.wait(1000); // Pausa entre iteraciones
-
-                }).then(() => {
-                    cy.log('\n📊 ===== RESUMEN FINAL =====');
-                    cy.log(`✅ Registros exitosos: ${exitosos}`);
-                    cy.log(`⚠️ Registros duplicados: ${duplicados}`);
-                    cy.log(`❌ Otros errores: ${otrosErrores}`);
-                    cy.log(`📊 Total procesados: ${exitosos + duplicados + otrosErrores}`);
-                });
             });
         });
 
@@ -2358,9 +3000,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros en crud Totales de cajero", () => {
-            cy.fixture('totalesDeCajero').then((dataTotalesDeCajero) => {
-                cy.wrap(dataTotalesDeCajero.agregar).each((item) => {
+            cy.readFile('./JsonData/totalesDeCajero.json').then((dataTotalesDeCajero) => {
+                cy.wrap(dataTotalesDeCajero.agregar).each((item, index) => {
                     cy.log(`Insertando código: ${item.codigo}`)
+                    const numero = index + 1;
 
                     //Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
@@ -2398,23 +3041,64 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     )
 
                     //Intercept backend
-                    cy.intercept('POST', '**/totalCashier').as('guardar')
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/totalCashier').as(alias);
 
                     Generales.BtnAceptarRegistro()
 
+                    // Esperar respuesta y decidir estado
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Totales de cajero-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '017 - Totales de cajero',
+                                    crud: "Totales de cajero",
+                                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('⚠️ El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
+                    });
+
+
                 })
             })
         })
@@ -2423,14 +3107,9 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     describe.skip("017.1 -  Totales de Cajero > Totales a cuadrar...", () =>{
 
-        before(() => {
-
-            cy.fixture('totalesACuadrar').as('dataTotalesACuadrar')
-
-        })
-
         beforeEach(() => {
             Generales.IrAPantalla('totalCashier')
+            cy.readFile('./JsonData/totalesACuadrar.json').as('dataTotalesACuadrar')
         })
 
         it("Agregar registros a sub nivel Totales A cuadrar", function () {
@@ -2445,65 +3124,109 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 return acc
             }, {})
 
-            cy.wrap(Object.keys(agrupadas)).each((codigoTotCaj) => {
+            cy.wrap(Object.keys(agrupadas)).each((codigoTotCaj, index) => {
                 cy.log('Procesando Regla con nombre: ' + codigoTotCaj)
+                const numero = index + 1;
 
                 // Buscar Formato
                 Generales.BuscarRegistroCodigo(codigoTotCaj)
                 Generales.NavegacionSubMenu('Totales a Cuadrar')
 
                 return cy.wrap(agrupadas[codigoTotCaj]).each((registro) => {
+
+                    cy.get('body').then(($body) => {
+                        if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                            cy.log('Formulario abierto detectado, cerrando...')
+                            Generales.BtnCancelarRegistro()
+                        }
+                    })
+
                     Generales.BtnAgregarRegistroSubnivel()
-                    //  const pais = registro.valorPais || registro.nombre
+
+                    cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
+                        .should('be.visible')
+
                     TotalesACuadrar.TotalesCuadra(
                         registro.tipoCajero,
                         registro.cuadraEfectivo
                     )
 
+                    const alias = `guardar-${numero}`
+                    cy.intercept('POST', '**/totalsToSquare').as(alias)
+
                     Generales.BtnAceptarRegistro();
-                    cy.wait(2000)
-                    return cy.get('body').then(($body) => {
-                        // Buscar específicamente el snackbar de error
-                        const snackBarError = $body.find('.snack-container__error');
 
-                        if (snackBarError.length > 0) {
-                            // Obtener el mensaje específico
-                            const mensajeError = snackBarError.find('.message-snack').text();
-                            cy.log(`⚠️ Error detectado: ${mensajeError}`);
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode
+                        let estado = 'fallida'
+                        let mensaje = ''
 
-                            // Cerrar el snackbar si tiene botón de cerrar
-                            cy.get('.snack--btn-close').click();
-
-                            Generales.BtnCancelarRegistro();
-                            cy.log('❌ Registro duplicado - cancelando');
-                        } else {
-                            cy.log('✅ No hay errores - aceptando');
-                        }
-
-                        return cy.get('mat-dialog-container', { timeout: 10000 })
-                            .should('not.exist');
-                    });
-
-
-                }).then(() => {
-                    cy.log('🔙 Regresando al nivel principal')
-
-                    // Primer regreso - SALIR DEL SUBNIVEL
-                    return cy.then(() => {
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que salimos del subnivel (modal cerrado)
-                        return cy.get('mat-dialog-container', { timeout: 5000 })
-                            .should('not.exist')
-                    }).then(() => {
-                        // Segundo regreso - SALIR DEL DETALLE DE MONEDA
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que estamos en el listado principal
-                        return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
-                            .should('be.visible')
+                        cy.wait(500)
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack')
+                            if ($snack.length) mensaje = $snack.text().trim()
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa'
+                                cy.log('Denominación insertada correctamente')
+                            } else {
+                                estado = 'fallida'
+                                cy.log(`Error detectado. Status: ${status}`)
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Totales de cajero > Totales a Cuadrar-${estado}`
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '004.1 - Totales a Cuadrar',
+                                    crud: "Totales a Cuadrar",
+                                    descripcion: `Código: ${codigoTotCaj} - Tipo de cajero: ${registro.tipoCajero} - Cuadra Efectivo: ${registro.cuadraEfectivo}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                })
+                            })
+                        }).then(() => {
+                            // Cerrar el modal si aún está abierto
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente')
+                                    Generales.BtnCancelarRegistro()
+                                    cy.wait(2000)
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('El modal no se cerró después de intentarlo, pero continuamos')
+                                        } else {
+                                            cy.log('Modal cerrado correctamente')
+                                        }
+                                    })
+                                } else {
+                                    cy.log('Modal ya cerrado')
+                                }
+                            })
+                        })
                     })
+
+                    // Opcional: Verificar que el modal de denominación se cerró completamente
+                    cy.get('mat-dialog-container', { timeout: 10000 }).should('not.exist')
+                }).then(() => {
+                    cy.log('Regresando al nivel principal después de procesar todas las denominaciones de la moneda')
+
+                    // Primer regreso - SALIR DEL SUBNIVEL (listado de denominaciones)
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que salimos del subnivel (modal cerrado)
+                    cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist')
+
+                    // Segundo regreso - SALIR DEL DETALLE DE MONEDA
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que estamos en el listado principal de monedas
+                    cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 }).should('be.visible')
                 })
+
+
             })
         })
 
@@ -2513,12 +3236,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     describe.skip("017.2 -   Totales de Cajero > Minimos y Maximos...", () =>{
 
-        before(() => {
-            cy.fixture('minimosYmaximos').as('dataDinimosYmaximos')
-        })
-
         beforeEach(() => {
             Generales.IrAPantalla('totalCashier')
+            cy.readFile('./JsonData/minimosYmaximos.json').as('dataDinimosYmaximos')
+
         })
 
         it("Agregar registros a sub nivel Totales de Cajero > Minimos y Maximos", function () {
@@ -2533,14 +3254,19 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 return acc
             }, {})
 
+            let numero = 0
+
             cy.wrap(Object.keys(agrupadas)).each((codigoTotCaj) => {
                 cy.log('Procesando Regla con nombre: ' + codigoTotCaj)
 
-                // 🔎 Buscar Formato
+
                 Generales.BuscarRegistroCodigo(codigoTotCaj)
                 Generales.NavegacionSubMenu('Mínimos y Máximos')
 
                 return cy.wrap(agrupadas[codigoTotCaj]).each((registro) => {
+
+                    numero++
+
                     Generales.BtnAgregarRegistroSubnivel()
                     cy.wait(1000)
                     MinimosMaximos.MinimosMaximos(
@@ -2553,50 +3279,86 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         registro.maximoTipoRama,
                     )
 
+                    const alias = `guardar-${numero}`
+                    cy.intercept('POST', '**/minMaxTypeTreebranch').as(alias)
+
                     Generales.BtnAceptarRegistro();
-                    cy.wait(2000)
-                    return cy.get('body').then(($body) => {
-                        // Buscar específicamente el snackbar de error
-                        const snackBarError = $body.find('.snack-container__error');
-
-                        if (snackBarError.length > 0) {
-                            // Obtener el mensaje específico
-                            const mensajeError = snackBarError.find('.message-snack').text();
-                            cy.log(`⚠️ Error detectado: ${mensajeError}`);
-
-                            // Cerrar el snackbar si tiene botón de cerrar
-                            cy.get('.snack--btn-close').click();
-
-                            Generales.BtnCancelarRegistro();
-                            cy.log('❌ Registro duplicado - cancelando');
-                        } else {
-                            cy.log('✅ No hay errores - aceptando');
-                        }
-
-                        return cy.get('mat-dialog-container', { timeout: 10000 })
-                            .should('not.exist');
-                    });
 
 
-                }).then(() => {
-                    cy.log('🔙 Regresando al nivel principal')
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode
+                        let estado = 'fallida'
+                        let mensaje = ''
 
-                    // Primer regreso - SALIR DEL SUBNIVEL
-                    return cy.then(() => {
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que salimos del subnivel (modal cerrado)
-                        return cy.get('mat-dialog-container', { timeout: 5000 })
-                            .should('not.exist')
-                    }).then(() => {
-                        // Segundo regreso - SALIR DEL DETALLE DE MONEDA
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que estamos en el listado principal
-                        return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
-                            .should('be.visible')
+                        cy.wait(500)
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack')
+                            if ($snack.length) mensaje = $snack.text().trim()
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa'
+                                cy.log('Denominación insertada correctamente')
+                            } else {
+                                estado = 'fallida'
+                                cy.log(`Error detectado. Status: ${status}`)
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Totales de cajero > Mínimos y Máximos-${estado}`
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '017.2 - Mínimos y Máximos',
+                                    crud: "Mínimos y Máximos",
+                                    descripcion: `Código: ${codigoTotCaj} - Moneda: ${registro.moneda} - Tipo de Rama: ${registro.tipoRama} - Tipo de cajero: ${registro.tipoCajero}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                })
+                            })
+                        }).then(() => {
+                            // Cerrar el modal si aún está abierto
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente')
+                                    Generales.BtnCancelarRegistro()
+                                    cy.wait(2000)
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('El modal no se cerró después de intentarlo, pero continuamos')
+                                        } else {
+                                            cy.log('Modal cerrado correctamente')
+                                        }
+                                    })
+                                } else {
+                                    cy.log('Modal ya cerrado')
+                                }
+                            })
+                        })
                     })
+
+                    // Opcional: Verificar que el modal de denominación se cerró completamente
+                    cy.get('mat-dialog-container', { timeout: 10000 }).should('not.exist')
+                }).then(() => {
+                    cy.log('Regresando al nivel principal después de procesar todas las denominaciones de la moneda')
+
+                    // Primer regreso - SALIR DEL SUBNIVEL (listado de denominaciones)
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que salimos del subnivel (modal cerrado)
+                    cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist')
+
+                    // Segundo regreso - SALIR DEL DETALLE DE MONEDA
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que estamos en el listado principal de monedas
+                    cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 }).should('be.visible')
                 })
+
+
+
+
+
             })
         })
 
@@ -2612,12 +3374,11 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros en crud plantilla de comprobante", () => {
-            cy.fixture('plantillasDeComprobante').then((dataPlantillasDeComprobante) => {
-                let exitosos = 0;
-                let errores = 0;
+            cy.readFile('./JsonData/plantillasDeComprobante.json').then((dataPlantillasDeComprobante) => {
 
-                cy.wrap(dataPlantillasDeComprobante.agregar).each((item) => {
+                cy.wrap(dataPlantillasDeComprobante.agregar).each((item, index) => {
                     cy.log(`\n🔵 Insertando key: ${item.key}`);
+                    const numero = index + 1;
 
                     // Limpiar estado
                     cy.get('body').then(($body) => {
@@ -2639,50 +3400,68 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         item.descripcion,
                         item.archivo
                     );
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/report').as(alias);
 
                     // Guardar
                     Generales.BtnAceptarRegistro();
 
-                    // ESPERAR UN MOMENTO PARA VER QUÉ PASA
-                    cy.wait(3000);
+                    // Esperar respuesta y decidir estado
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                    // VERIFICAR EL RESULTADO POR UI
-                    cy.get('body').then(($body) => {
-                        const pantallaComprobante = $body.find('h2:contains("Comprobante desde automatizacion")').length > 0;
-                        const modalAbierto = $body.find('h2:contains("Nuevo registro")').length > 0;
-                        const hayError = $body.find('.error, .alert, .toast, .message-error').length > 0;
-
-                        if (pantallaComprobante) {
-                            // ÉXITO
-                            cy.log('✅ Registro insertado correctamente');
-                            exitosos++;
-
-                            // Regresar
-                            cy.get('button.back').first().click({ force: true });
-
-                        } else if (modalAbierto && hayError) {
-                            // ERROR (probablemente duplicado)
-                            cy.log('⚠️ Error detectado (registro duplicado)');
-                            errores++;
-
-                            // Cancelar
-                            Generales.BtnCancelarRegistro();
-
-                        } else if (modalAbierto) {
-                            // Modal abierto sin error visible
-                            cy.log('⚠️ Modal abierto sin error visible');
-                            errores++;
-                            Generales.BtnCancelarRegistro();
-                        }
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Plantillas de Comprobantes-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '00x - Plantillas de Comprobantes',
+                                    crud: "Plantillas de Comprobantes",
+                                    descripcion: `Key: ${item.key} - Nombre: ${item.nombre}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('⚠️ El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
                     });
 
-                    // Verificar que el modal/pantalla se cerró
-                    cy.contains('h2', 'Nuevo registro', { timeout: 5000 }).should('not.exist');
-                    cy.contains('h2', 'Comprobante desde automatizacion', { timeout: 5000 }).should('not.exist');
+                })
 
-                    cy.wait(1000);
-                }).then(() => {
-                });
+
+
             });
         });
 
@@ -2697,8 +3476,9 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         it("Agregar múltiples registros en crud Gestor de transacciones", () => {
 
 
-            cy.fixture('gestorTransaccion').then((data) => {
-                cy.wrap(data.agregar).each((item) => {
+            cy.readFile('./JsonData/gestorTransaccion.json').then((data) => {
+                cy.wrap(data.agregar).each((item, index) => {
+                    const numero = index + 1;
                     cy.then(() => {
                         const doc = window.top.document;
                         // Intentamos con varios selectores que usa Cypress para su log
@@ -2738,10 +3518,13 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                             const tipoNormalizado = item.tipo?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
                             //Intercept backend
-                            cy.intercept('POST', '**/transactionSpec').as('guardar')
+                            const alias = `guardar-${numero}`;
+                            cy.intercept('POST', '**/transactionSpec').as(alias);
+
+
                             Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
 
-                            cy.wait('@guardar').then((interception) => {
+                            /*cy.wait('@guardar').then((interception) => {
                                 const status = interception.response.statusCode
                                 if (status === 200 || status === 201) {
                                     cy.log('Registro insertado correctamente')
@@ -2761,7 +3544,188 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                                     Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
                                     cy.contains('h2', 'Nuevo Registro').should('not.exist')
                                 }
-                            })
+                            })*/
+
+                            //casi funciona
+                            /*cy.wait(`@${alias}`).then((interception) => {
+                                const status = interception.response.statusCode;
+                                let estado = 'fallida';
+                                let mensaje = '';
+
+                                // Capturar mensaje del snackbar usando el documento principal
+                                cy.wait(500);
+                                cy.document().then((doc) => {
+                                    if (doc && doc.body) {
+                                        const $body = Cypress.$(doc.body);
+                                        const $snack = $body.find('.snackbar');
+                                        if ($snack.length) mensaje = $snack.text().trim();
+                                    } else {
+                                        mensaje = 'No se pudo acceder al body del documento';
+                                    }
+                                }).then(() => {
+                                    if (status === 200 || status === 201) {
+                                        estado = 'exitosa';
+                                        cy.log('Registro insertado correctamente');
+
+                                        // --- Lógica original de éxito (con iframe y condicional) ---
+                                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                                        cy.wait(2000);
+                                        if (tipoNormalizado === "administrativas") {
+                                            cy.log('✅ Es tipo ADMINISTRATIVAS, ejecutando acción especial');
+                                            Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                                        } else {
+                                            cy.log('➡️ No es ADMINISTRATIVAS, continuando con flujo normal');
+                                            Generales.BtnIframe('Sí', { timeout: 10000, force: true, skipContext: true });
+                                            Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                                        }
+                                    } else {
+                                        estado = 'fallida';
+                                        cy.log(`Error detectado. Status: ${status}`);
+
+                                        // --- Lógica original de error ---
+                                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                                        cy.contains('h2', 'Nuevo Registro').should('not.exist');
+                                    }
+                                }).then(() => {
+                                    // --- Captura de pantalla y guardado en reporte ---
+                                    const nombreCaptura = `Captura-${numero}-Gestor de transacciones-${estado}`;
+                                    cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                        cy.task('guardarResultado', {
+                                            describe: '019 - Gestor de transacciones',
+                                            crud: "Gestor de transacciones",
+                                            descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                            estado: estado,
+                                            numero: numero,
+                                            mensaje: mensaje,
+                                            evidencia: `${nombreCaptura}.png`
+                                        });
+                                    });
+                                }).then(() => {
+                                    // (Opcional) Verificar que el modal se cerró, si es necesario
+                                    cy.document().then((doc) => {
+                                        if (doc && doc.body) {
+                                            const $body = Cypress.$(doc.body);
+                                            const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                            if (modalAbierto) {
+                                                cy.log('Modal sigue abierto → cerrando manualmente');
+                                                Generales.BtnCancelarRegistro();
+                                                cy.wait(2000);
+                                                cy.document().then((doc2) => {
+                                                    if (doc2 && doc2.body) {
+                                                        const $bodyAfter = Cypress.$(doc2.body);
+                                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                                            cy.log('⚠️ El modal no se cerró, pero continuamos');
+                                                        } else {
+                                                            cy.log('Modal cerrado correctamente');
+                                                        }
+                                                    }
+                                                });
+                                            } else {
+                                                cy.log('Modal ya cerrado');
+                                            }
+                                        }
+                                    });
+                                });
+                            });*/
+
+                            cy.wait(`@${alias}`).then((interception) => {
+                                const status = interception.response.statusCode;
+                                let estado = 'fallida';
+                                let mensaje = '';
+
+                                // -----------------------------------------------------------------
+                                // 1. Capturar mensaje de error de validación si la petición no se envió
+                                // -----------------------------------------------------------------
+                                // Si la petición no se envió (timeout), intentamos capturar el error en el modal
+                                if (!interception) {
+                                    cy.log('⚠️ No se recibió respuesta del servidor. Buscando mensaje de validación en el modal...');
+                                    cy.get('body', { timeout: 3000 }).then(($body) => {
+                                        // Buscar mensajes de error dentro del modal (pueden estar en .mat-error o divs con clases)
+                                        const $error = $body.find('.mat-error, .error-message, .alert-danger, .toast-error');
+                                        if ($error.length) {
+                                            mensaje = $error.first().text().trim();
+                                            cy.log(`📢 Mensaje de validación: "${mensaje}"`);
+                                        } else {
+                                            // También puede ser un texto plano dentro del modal
+                                            const $textError = $body.find('h2:contains("Nuevo Registro")').parents('form').find('div:contains("seleccionado")');
+                                            if ($textError.length) {
+                                                mensaje = $textError.first().text().trim();
+                                            } else {
+                                                mensaje = 'Error desconocido: formulario inválido';
+                                            }
+                                        }
+                                        // Cerrar el modal manualmente
+                                        Generales.BtnCancelarRegistro();
+                                        cy.contains('h2', 'Nuevo Registro').should('not.exist');
+                                    }).then(() => {
+                                        // Guardar resultado fallido
+                                        const nombreCaptura = `Captura-${numero}-Gestor de transacciones-fallida`;
+                                        cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                            cy.task('guardarResultado', {
+                                                describe: '019 - Gestor de transacciones',
+                                                crud: "Gestor de transacciones",
+                                                descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                                estado: 'fallida',
+                                                numero: numero,
+                                                mensaje: mensaje,
+                                                evidencia: `${nombreCaptura}.png`
+                                            });
+                                        });
+                                    });
+                                    return; // Salir del bloque, no continuar con el flujo de éxito
+                                }
+
+                                // -----------------------------------------------------------------
+                                // 2. Si la petición se envió, capturar snackbar (si existe)
+                                // -----------------------------------------------------------------
+                                cy.wait(500);
+                                cy.document().then((doc) => {
+                                    if (doc && doc.body) {
+                                        const $body = Cypress.$(doc.body);
+                                        const $snack = $body.find('.snackbar, .mat-mdc-snack-bar-label');
+                                        if ($snack.length) {
+                                            mensaje = $snack.text().trim();
+                                            cy.log(`📢 Snackbar: "${mensaje}"`);
+                                        }
+                                    }
+                                }).then(() => {
+                                    // Lógica de éxito/error con iframes
+                                    if (status === 200 || status === 201) {
+                                        estado = 'exitosa';
+                                        cy.log('Registro insertado correctamente');
+                                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                                        cy.wait(2000);
+                                        if (tipoNormalizado === "administrativas") {
+                                            cy.log('✅ Es tipo ADMINISTRATIVAS, ejecutando acción especial');
+                                            Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                                        } else {
+                                            cy.log('➡️ No es ADMINISTRATIVAS, continuando con flujo normal');
+                                            Generales.BtnIframe('Sí', { timeout: 10000, force: true, skipContext: true });
+                                            Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                                        }
+                                    } else {
+                                        estado = 'fallida';
+                                        cy.log(`Error detectado. Status: ${status}`);
+                                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                                        cy.contains('h2', 'Nuevo Registro').should('not.exist');
+                                    }
+                                }).then(() => {
+                                    // Captura de pantalla y guardado en reporte
+                                    const nombreCaptura = `Captura-${numero}-Gestor de transacciones-${estado}`;
+                                    cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                        cy.task('guardarResultado', {
+                                            describe: '019 - Gestor de transacciones',
+                                            crud: "Gestor de transacciones",
+                                            descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                            estado: estado,
+                                            numero: numero,
+                                            mensaje: mensaje,
+                                            evidencia: `${nombreCaptura}.png`
+                                        });
+                                    });
+                                });
+                            });
+
 
 
 
@@ -2775,15 +3739,13 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
    describe.skip("019.1 -  Gestor de Transacciones > Caracteristicas de la transaccione ...", () =>{
 
-        before(() => {
-            cy.fixture('caracteristicasTrx').as('dataCaracteristicasTrx')
-        })
 
         beforeEach(() => {
             Generales.IrAPantalla('transactionManager')
+            cy.readFile('./JsonData/caracteristicasTrx.json').as('dataCaracteristicasTrx')
         })
 
-        it("Agregar multiples registros a sub nivel Transacciones > Caracteristicas de la transaccione", function () {
+        /*it("Agregar multiples registros a sub nivel Transacciones > Caracteristicas de la transaccione", function () {
             const datos = this.dataCaracteristicasTrx.agregar;
 
             // Agrupar manteniendo el orden del JSON original
@@ -2864,91 +3826,131 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         });
                     });
                 });
-        });
+        });*/
 
+       it("Agregar multiples registros a sub nivel Transacciones > Caracteristicas de la transaccione", function () {
+           const datos = this.dataCaracteristicasTrx.agregar;
 
-        /* it("Agregar registros a sub nivel", function () {
-             const datos = this.dataCaracteristicasTrx.agregar;
+           // Agrupar manteniendo el orden del JSON original
+           const agrupadas = {};
+           const ordenCodigos = [];
 
-             // Agrupar manteniendo el orden del JSON original
-             const agrupadas = {};
-             const ordenCodigos = [];
+           datos.forEach(item => {
+               if (!agrupadas[item.codigoTRX]) {
+                   agrupadas[item.codigoTRX] = [];
+                   ordenCodigos.push(item.codigoTRX);
+               }
+               agrupadas[item.codigoTRX].push(item);
+           });
 
-             datos.forEach(item => {
-                 if (!agrupadas[item.codigoTRX]) {
-                     agrupadas[item.codigoTRX] = [];
-                     ordenCodigos.push(item.codigoTRX);
-                 }
-                 agrupadas[item.codigoTRX].push(item);
-             });
+           let numero = 0;
 
-             cy.get('iframe.frame', { timeout: 10000 })
-                 .its('0.contentDocument.body')
-                 .should('not.be.empty')
-                 .then(cy.wrap)
-                 .within(() => {
+           cy.get('iframe.frame', { timeout: 10000 })
+               .its('0.contentDocument.body')
+               .should('not.be.empty')
+               .then(cy.wrap)
+               .within(() => {
+                   cy.wrap(ordenCodigos).each((codigoTRX) => {
+                       cy.log(`\n🔄 Procesando transacción con código: ${codigoTRX}`);
 
-                     cy.wrap(ordenCodigos).each((codigoTRX) => {
-                         cy.log(`\n🔄 Procesando transacción con código: ${codigoTRX}`);
+                       // PASO 1: Filtrar por código
+                       Generales.filtrarPorCodigo(codigoTRX);
 
-                         // PASO 1: Filtrar por código
-                         Generales.filtrarPorCodigo(codigoTRX);
+                       // PASO 2: Verificar que se encontró el registro
+                       cy.contains('td.mat-column-codeOfTheTransaction', codigoTRX, { timeout: 10000 })
+                           .should('be.visible')
+                           .then(() => {
+                               cy.log(`✅ Registro ${codigoTRX} encontrado y seleccionado`);
+                           });
 
-                         // PASO 2: Verificar que se encontró el registro
-                         cy.contains('td.mat-column-codeOfTheTransaction', codigoTRX, { timeout: 10000 })
-                             .should('be.visible')
-                             .then(() => {
-                                 cy.log(`✅ Registro ${codigoTRX} encontrado y seleccionado`);
-                             });
+                       // PASO 3: Abrir panel Opciones
+                       cy.xpath("//mat-expansion-panel-header[.//h2[normalize-space()='Opciones']]")
+                           .then($header => {
+                               if ($header.attr('aria-expanded') !== 'true') {
+                                   cy.wrap($header).click({ force: true });
+                                   cy.wait(500);
+                               }
+                           });
 
-                         // PASO 3: Abrir panel Opciones
-                         cy.xpath("//mat-expansion-panel-header[.//h2[normalize-space()='Opciones']]")
-                             .then($header => {
-                                 if ($header.attr('aria-expanded') !== 'true') {
-                                     cy.wrap($header).click({ force: true });
-                                     cy.wait(500);
-                                 }
-                             });
+                       // PASO 4: Procesar características con reporte
+                       return cy.wrap(agrupadas[codigoTRX]).each((registro, index) => {
+                           numero++;
+                           const alias = `guardarCaracteristica-${numero}`;
 
-                         // PASO 4: Procesar características (CADA REGISTRO DEL JSON)
-                         return cy.wrap(agrupadas[codigoTRX]).each((registro, index) => {
-                             cy.log(`\n📌 Procesando lote de características ${index + 1}/${agrupadas[codigoTRX].length}`);
+                           // Interceptar la petición POST que hace CaracteristicasTrx
+                           cy.intercept('POST', '**/transactionCharacteristicSpec').as(alias);
 
-                             // LLAMAR AL MÉTODO QUE AGREGA TODAS LAS CARACTERÍSTICAS DE UNA VEZ
-                             GestorDeTransacciones.CaracteristicasTrx(registro.caracteristicasTrx);
+                           // Llamar al método que llena y envía el formulario
+                           GestorDeTransaccion.CaracteristicasTrx(registro.caracteristicasTrx);
 
-                             cy.log(`✅ Lote ${index + 1} completado`);
+                           // Esperar la respuesta y procesar reporte
+                           cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                               const status = interception.response.statusCode;
+                               let estado = 'fallida';
+                               let mensaje = '';
 
-                         }).then(() => {
-                             cy.log(`\n🔙 Regresando al nivel principal para código ${codigoTRX}`);
+                               // Capturar snackbar (usando documento principal para evitar contexto)
+                               cy.wait(500);
+                               cy.document().then((doc) => {
+                                   if (doc && doc.body) {
+                                       const $body = Cypress.$(doc.body);
+                                       const $snack = $body.find('.snackbar, .mat-mdc-snack-bar-label');
+                                       if ($snack.length) mensaje = $snack.text().trim();
+                                   }
+                               }).then(() => {
+                                   if (status === 200 || status === 201) {
+                                       estado = 'exitosa';
+                                       cy.log(`✅ Característica insertada correctamente: ${registro.caracteristicasTrx}`);
+                                   } else {
+                                       estado = 'fallida';
+                                       cy.log(`❌ Error al insertar característica. Status: ${status}`);
+                                   }
+                               }).then(() => {
+                                   // Captura de pantalla y guardado en reporte
+                                   const nombreCaptura = `Captura-${numero}-Caracteristicas-${estado}`;
+                                   cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                       cy.task('guardarResultado', {
+                                           describe: '019.1 - Características de la transacción',
+                                           crud: "Características",
+                                           descripcion: `Transacción: ${codigoTRX} - Característica: ${registro.caracteristicasTrx}`,
+                                           estado: estado,
+                                           numero: numero,
+                                           mensaje: mensaje,
+                                           evidencia: `${nombreCaptura}.png`
+                                       });
+                                   });
+                               });
+                           });
+                       }).then(() => {
+                           // Después de procesar todas las características de esta transacción
+                           cy.wait(2000);
+                           Generales.BtnIframe("Atrás", { timeout: 10000, force: true, skipContext: true });
 
-                             // ✅ PRIMER ATRÁS - Intenta salir del detalle de características
-                             cy.wait(2000);
-                             Generales.BtnIframe("Atrás", { timeout: 10000, force: true, skipContext: true });
+                           cy.wait(1000);
+                           cy.get('mat-dialog-container', { timeout: 5000 }).then($dialog => {
+                               if ($dialog.length > 0) {
+                                   cy.xpath("//mat-dialog-actions//button[.//mat-icon[text()='check']]")
+                                       .click({ force: true });
+                                   cy.wait(1000);
+                               }
+                           });
 
-                             // ✅ VERIFICAR DIÁLOGO DE CONFIRMACIÓN Y HACER CLIC EN CHECK (✓)
-                             cy.wait(1000);
-                             cy.get('mat-dialog-container', { timeout: 5000 }).then($dialog => {
-                                 if ($dialog.length > 0) {
-                                     cy.log('⚠️ Diálogo de confirmación detectado');
+                           cy.get('mat-expansion-panel-header').contains('Filtros', { timeout: 15000 })
+                               .should('be.visible');
+                           cy.get('table', { timeout: 10000 }).should('be.visible');
 
-                                     // Hacer clic en el botón con icono "check" (confirmar)
-                                     cy.xpath("//mat-dialog-actions//button[.//mat-icon[text()='check']]")
-                                         .should('be.visible')
-                                         .click({ force: true });
+                           cy.document().then($document => {
+                               const $body = Cypress.$($document).find('body');
+                               const $span = $body.find('span.mat-button-wrapper:contains("Buscar por")');
+                               if ($span.length === 0) {
+                                   cy.log('Elemento "Buscar por" no encontrado (no es obligatorio)');
+                               }
+                           });
+                       });
+                   });
+               });
+       });
 
-                                     cy.log('✅ Confirmación con check realizada');
-                                     cy.wait(1000);
-                                 }
-                             });
-                             // Verificar que estamos en el listado principal
-                             cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 }).should('be.visible');
-
-                             cy.log(`✅ Transacción ${codigoTRX} completada`);
-                         });
-                     });
-                 });
-         });*/
 
 
     })
@@ -2957,13 +3959,13 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
-            cy.fixture('creacionDePasosTRX').as('data')
-            cy.wait(5000)
+            cy.readFile('./JsonData/creacionDePasosTRX.json').as('data')
+            cy.wait(3000)
         });
 
 
-        //este funciona
-        it("Agregar múltiples registros dinámicamente", function() {
+        //este funciona sin reporte
+        /*it("Agregar múltiples registros dinámicamente", function() {
             cy.log('Datos cargados:', JSON.stringify(this.data));
 
             // Agrupar los items por código de transacción
@@ -3065,318 +4067,129 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
 
             });
-        });
-
-        /*it("Agregar múltiples registros dinámicamente", function() {
-            cy.log('Datos cargados:', JSON.stringify(this.data));
-
-            // Agrupar manteniendo el orden del JSON original
-            const agrupadas = {};
-            const ordenCodigos = [];
-
-            this.data.agregar.forEach(item => {
-                if (!agrupadas[item.codigoTRX]) {
-                    agrupadas[item.codigoTRX] = [];
-                    ordenCodigos.push(item.codigoTRX);
-                }
-                agrupadas[item.codigoTRX].push(item);
-            });
-
-            cy.get('iframe.frame', { timeout: 10000 })
-                .its('0.contentDocument.body')
-                .should('not.be.empty')
-                .then(cy.wrap)
-                .within(() => {
-
-                    cy.wrap(ordenCodigos).each((codigoTRX) => {
-                        const pasos = agrupadas[codigoTRX];
-
-                        cy.log(`\n🔄 Procesando transacción: ${codigoTRX} (${pasos.length} pasos)`);
-
-                        // PASO 1: Filtrar por código
-                        Generales.filtrarPorCodigo(codigoTRX);
-
-                        // PASO 2: Verificar que se encontró el registro y hacer clic para entrar al detalle
-                        cy.contains('td.mat-column-codeOfTheTransaction', codigoTRX, { timeout: 10000 })
-                            .should('be.visible')
-                            .click({ force: true })
-                            .then(() => {
-                                cy.log(`✅ Registro ${codigoTRX} encontrado y seleccionado`);
-                            });
-
-                        // PASO 3: Esperar a que cargue el detalle
-                        cy.wait(2000);
-
-                        // PASO 4: Abrir panel Opciones
-                        cy.xpath("//mat-expansion-panel-header[.//h2[normalize-space()='Opciones']]")
-                            .then($header => {
-                                if ($header.attr('aria-expanded') !== 'true') {
-                                    cy.wrap($header).click({ force: true });
-                                    cy.wait(500);
-                                }
-                            });
-
-                        // PASO 5: Procesar TODOS los pasos de esta transacción SIN SALIR
-                        cy.wrap(pasos).each((paso, index) => {
-                            cy.log(`📝 Paso ${index + 1}/${pasos.length}: ${paso.nombrePaso}`);
-
-                            GestorDeTransacciones.definirPaso(
-                                paso.nombrePaso,
-                                paso.tieneReglaCondionanteDePaso,
-                                paso.typeReglaParaCondicionarPaso,
-                                paso.descripcionPasoTrx
-                            );
-
-                            cy.wait(500);
-                        }).then(() => {
-                            cy.log(`✅ Todos los ${pasos.length} pasos de ${codigoTRX} creados`);
-
-                            // PASO 6: ATRÁS - Salir de la transacción
-                            cy.wait(2000);
-                            Generales.BtnIframe("Atrás", { timeout: 10000, force: true, skipContext: true });
-
-                            // PASO 7: VERIFICAR DIÁLOGO DE CONFIRMACIÓN
-                            cy.wait(1000);
-
-                            cy.document().then(doc => {
-                                const $dialog = Cypress.$('mat-dialog-container', doc);
-                                if ($dialog.length > 0) {
-                                    cy.log('⚠️ Diálogo de confirmación detectado');
-
-                                    // CORRECCIÓN: Buscar el botón que contiene texto "Sí"
-                                    cy.xpath("//mat-dialog-actions//button[contains(text(), 'Sí')]")
-                                        .should('be.visible')
-
-                                    Generales.BtnIframe("Si", { timeout: 10000, force: true, skipContext: true });
-
-
-                                    cy.wait(3000);
-                                    cy.log('✅ Clic en Sí realizado');
-                                } else {
-                                    cy.log('ℹ️ No apareció diálogo de confirmación');
-                                }
-                            });
-
-                            // PASO 8: ESPERAR A QUE LA UI SE ESTABILICE
-                            cy.wait(2000);
-
-                            // PASO 9: VERIFICAR QUE ESTAMOS EN EL LISTADO PRINCIPAL
-                            cy.log('🔍 Verificando retorno al listado principal...');
-
-                            // Verificar que estamos de vuelta en el listado
-                            cy.get('mat-expansion-panel-header').contains('Filtros', { timeout: 15000 })
-                                .should('be.visible');
-                            cy.get('table', { timeout: 10000 }).should('be.visible');
-
-                            cy.log(`✅ Transacción ${codigoTRX} completada - listo para siguiente`);
-                        });
-                    });
-                });
         });*/
 
-        /*it("Agregar múltiples registros dinámicamente", function() {
-            cy.log('Datos cargados:', JSON.stringify(this.data));
+       it("Agregar múltiples registros dinámicamente", function() {
+           cy.log('Datos cargados:', JSON.stringify(this.data));
 
-            // Agrupar manteniendo el orden del JSON original
-            const agrupadas = {};
-            const ordenCodigos = [];
+           const transacciones = this.data.agregar.reduce((acc, item) => {
+               if (!acc[item.codigoTRX]) acc[item.codigoTRX] = [];
+               acc[item.codigoTRX].push(item);
+               return acc;
+           }, {});
 
-            this.data.agregar.forEach(item => {
-                if (!agrupadas[item.codigoTRX]) {
-                    agrupadas[item.codigoTRX] = [];
-                    ordenCodigos.push(item.codigoTRX);
-                }
-                agrupadas[item.codigoTRX].push(item);
-            });
+           let contadorPasos = 0;
 
-            cy.get('iframe.frame', { timeout: 10000 })
-                .its('0.contentDocument.body')
-                .should('not.be.empty')
-                .then(cy.wrap)
-                .within(() => {
+           Object.entries(transacciones).forEach(([codigoTRX, pasos]) => {
+               cy.then(() => {
+                   // limpiar logs opcional
+                   const doc = window.top.document;
+                   const logContainer = doc.querySelector('.reporter .commands') ||
+                       doc.querySelector('.command-list') ||
+                       doc.querySelector('.runnable-commands-region');
+                   if (logContainer) logContainer.innerHTML = '';
+               });
 
-                    cy.wrap(ordenCodigos).each((codigoTRX) => {
-                        const pasos = agrupadas[codigoTRX];
+               cy.log(`🔄 Procesando transacción: ${codigoTRX} (${pasos.length} pasos)`);
 
-                        cy.log(`\n🔄 Procesando transacción: ${codigoTRX} (${pasos.length} pasos)`);
+               cy.get('iframe.frame', { timeout: 10000 })
+                   .its('0.contentDocument.body')
+                   .should('not.be.empty')
+                   .then(cy.wrap)
+                   .within(() => {
+                       cy.wait(1500);
+                       Generales.filtrarPorCodigo(codigoTRX);
+                       Generales.abrirPanel("Opciones");
 
-                        // PASO 1: Filtrar por código
-                        Generales.filtrarPorCodigo(codigoTRX);
+                       pasos.forEach((paso, index) => {
+                           cy.log(` Paso ${index + 1}/${pasos.length}: ${paso.nombrePaso}`);
+                           contadorPasos++;
+                           const alias = `guardarPaso-${contadorPasos}`;
+                           cy.log(` Contador actual: ${contadorPasos}, alias: ${alias}`);
 
-                        // PASO 2: Verificar que se encontró el registro y hacer clic para entrar al detalle
-                        cy.contains('td.mat-column-codeOfTheTransaction', codigoTRX, { timeout: 10000 })
-                            .should('be.visible')
-                            .click({ force: true })
-                            .then(() => {
-                                cy.log(`✅ Registro ${codigoTRX} encontrado y seleccionado`);
-                            });
+                           cy.intercept('POST', '**/transactionFlow').as(alias);
 
-                        // PASO 3: Esperar a que cargue el detalle
-                        cy.wait(2000);
+                           GestorDeTransaccion.definirPaso(
+                               paso.nombrePaso,
+                               paso.tieneReglaCondionanteDePaso,
+                               paso.typeReglaParaCondicionarPaso,
+                               paso.descripcionPasoTrx
+                           );
 
-                        // PASO 4: Abrir panel Opciones
-                        cy.xpath("//mat-expansion-panel-header[.//h2[normalize-space()='Opciones']]")
-                            .then($header => {
-                                if ($header.attr('aria-expanded') !== 'true') {
-                                    cy.wrap($header).click({ force: true });
-                                    cy.wait(500);
-                                }
-                            });
+                           cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                               const status = interception.response.statusCode;
+                               let estado = 'fallida';
+                               let mensaje = '';
 
-                        // PASO 5: Procesar TODOS los pasos de esta transacción SIN SALIR
-                        cy.wrap(pasos).each((paso, index) => {
-                            cy.log(`📝 Paso ${index + 1}/${pasos.length}: ${paso.nombrePaso}`);
+                               // Capturar mensaje desde el documento principal (fuera del iframe)
+                               cy.wait(500);
+                               cy.document().then((doc) => {
+                                   const $body = Cypress.$(doc.body);
+                                   const $snack = $body.find('.snackbar, .mat-mdc-snack-bar-label');
+                                   if ($snack.length) mensaje = $snack.text().trim();
+                               }).then(() => {
+                                   if (status === 200 || status === 201) {
+                                       estado = 'exitosa';
+                                       cy.log(`✅ Paso insertado correctamente: ${paso.nombrePaso}`);
+                                   } else {
+                                       estado = 'fallida';
+                                       cy.log(` Error al insertar paso. Status: ${status}`);
+                                   }
+                               }).then(() => {
+                                   // Tomar captura de pantalla del viewport completo (desde el documento principal)
+                                   cy.screenshot(`Captura-${contadorPasos}-Paso-${estado}`, { capture: 'viewport' }).then(() => {
+                                       cy.task('guardarResultado', {
+                                           describe: '019.2 - Pasos de la transacción',
+                                           crud: "Paso de transacción",
+                                           descripcion: `Transacción: ${codigoTRX} - Paso: ${paso.nombrePaso}`,
+                                           estado: estado,
+                                           numero: contadorPasos,
+                                           mensaje: mensaje,
+                                           evidencia: `Captura-${contadorPasos}-Paso-${estado}.png`
+                                       });
+                                   });
+                               });
+                           });
 
-                            GestorDeTransacciones.definirPaso(
-                                paso.nombrePaso,
-                                paso.tieneReglaCondionanteDePaso,
-                                paso.typeReglaParaCondicionarPaso,
-                                paso.descripcionPasoTrx
-                            );
+                           cy.wait(500);
+                       });
 
-                            cy.wait(500);
-                        }).then(() => {
-                            cy.log(`✅ Todos los ${pasos.length} pasos de ${codigoTRX} creados`);
+                       cy.log(`Todos los ${pasos.length} pasos de ${codigoTRX} han sido creados`);
+                   });
 
-                            // PASO 6: ATRÁS - Salir de la transacción
-                            cy.wait(2000);
-                            Generales.BtnIframe("Atrás", { timeout: 10000, force: true, skipContext: true });
+               cy.wait(2000);
 
-                            // PASO 7: VERIFICAR DIÁLOGO DE CONFIRMACIÓN (CORREGIDO)
-                            cy.wait(1000);
+               // Salir del detalle de pasos
+               cy.get('iframe.frame', { timeout: 10000 })
+                   .its('0.contentDocument.body')
+                   .should('not.be.empty')
+                   .then(cy.wrap)
+                   .within(() => {
+                       Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                   });
 
-                            cy.get('iframe.frame', { timeout: 10000 })
-                                .its('0.contentDocument.body')
-                                .should('not.be.empty')
-                                .then(($body) => {
-                                    // Buscar el diálogo de confirmación de forma síncrona
-                                    const $dialog = Cypress.$('mat-dialog-container', $body);
-                                    if ($dialog.length > 0) {
-                                        cy.log('✅ Diálogo de confirmación detectado');
-                                        // Hacer clic en el botón primario dentro del diálogo
-                                        cy.wrap($dialog).find('button[color="primary"]').click();
-                                        // Esperar a que el diálogo desaparezca
-                                        cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist');
-                                        cy.log('✅ Diálogo cerrado correctamente');
-                                    } else {
-                                        cy.log('ℹ️ No apareció diálogo de confirmación');
-                                    }
-                                });
+               cy.wait(2000);
 
-                            // PASO 8: ESPERAR A QUE LA UI SE ESTABILICE
-                            cy.wait(2000);
-
-                            // PASO 9: VERIFICAR QUE ESTAMOS EN EL LISTADO PRINCIPAL
-                            cy.log('🔍 Verificando retorno al listado principal...');
-
-                            // Verificar que estamos de vuelta en el listado
-                            cy.get('mat-expansion-panel-header').contains('Filtros', { timeout: 15000 })
-                                .should('be.visible');
-                            cy.get('table', { timeout: 10000 }).should('be.visible');
-
-                            cy.log(`✅ Transacción ${codigoTRX} completada - listo para siguiente`);
-                        });
-                    });
-                });
-        });*/
-
-
-        /*it("Agregar múltiples registros dinámicamente", function() {
-            cy.log('Datos cargados:', JSON.stringify(this.data));
-
-            // Agrupar los items por código de transacción
-            const transacciones = this.data.agregar.reduce((acc, item) => {
-                if (!acc[item.codigoTRX]) {
-                    acc[item.codigoTRX] = [];
-                }
-                acc[item.codigoTRX].push(item);
-                return acc;
-            }, {});
-
-            // Procesar cada transacción y TODOS sus pasos
-            Object.entries(transacciones).forEach(([codigoTRX, pasos]) => {
-                cy.then(() => {
-                    // Limpiar logs de Cypress (opcional)
-                    const doc = window.top.document;
-                    const logContainer = doc.querySelector('.reporter .commands') ||
-                        doc.querySelector('.command-list') ||
-                        doc.querySelector('.runnable-commands-region');
-                    if (logContainer) {
-                        logContainer.innerHTML = '';
-                    }
-                });
-
-                cy.log(`🔄 Procesando transacción: ${codigoTRX} (${pasos.length} pasos)`);
-
-                // Entrar al iframe para procesar TODOS los pasos de esta transacción
-                cy.get('iframe.frame', { timeout: 10000 })
-                    .its('0.contentDocument.body')
-                    .should('not.be.empty')
-                    .then(cy.wrap)
-                    .within(() => {
-                        cy.wait(1500);
-
-                        // Filtrar por el código de transacción actual
-                        Generales.filtrarPorCodigo(codigoTRX);
-                        Generales.abrirPanel("Opciones");
-
-                        // Procesar TODOS los pasos de esta transacción SIN SALIR
-                        pasos.forEach((paso, index) => {
-                            cy.log(`📝 Paso ${index + 1}/${pasos.length}: ${paso.nombrePaso}`);
-
-                            GestorDeTransacciones.definirPaso(
-                                paso.nombrePaso,
-                                paso.tieneReglaCondionanteDePaso,
-                                paso.typeReglaParaCondicionarPaso,
-                                paso.descripcionPasoTrx
-                            );
-
-                            // Pequeña pausa entre pasos si es necesario
-                            cy.wait(500);
-                        });
-
-                        cy.log(`✅ Todos los ${pasos.length} pasos de ${codigoTRX} han sido creados`);
-                    }); // Salimos del iframe SOLO después de crear TODOS los pasos
-
-                // Esperamos un tiempo para que la operación se complete
-                cy.wait(2000);
-
-                // Volvemos a entrar al iframe para hacer clic en "Atrás"
-                cy.get('iframe.frame', { timeout: 10000 })
-                    .its('0.contentDocument.body')
-                    .should('not.be.empty')
-                    .then(cy.wrap)
-                    .within(() => {
-                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
-                    });
-
-                // Espera a que el posible diálogo aparezca
-                cy.wait(2000);
-
-                // CORRECCIÓN: Verificar diálogo SIN USAR BtnIframe
-                cy.get('iframe.frame', { timeout: 10000 })
-                    .its('0.contentDocument.body')
-                    .should('not.be.empty')
-                    .then(cy.wrap)
-                    .within(() => {
-                        // Buscar el botón con color primary (el de confirmar)
-                        cy.get('button[color="primary"]').then($btn => {
-                            if ($btn.length > 0) {
-                                cy.log('✅ Diálogo detectado, haciendo clic en Confirmar');
-                                // ✅ CLICK DIRECTO - NO USA BtnIframe
-                                $btn.first().click({ force: true });
-                                cy.wait(1000);
-                            } else {
-                                cy.log('ℹ️ No apareció diálogo de confirmación - continuando flujo normal');
-                            }
-                        });
-                    });
-            });
-        });*/
-
-
-
-
+               // Manejar diálogo de confirmación si aparece
+               cy.get('iframe.frame', { timeout: 10000 })
+                   .its('0.contentDocument.body')
+                   .should('not.be.empty')
+                   .then(($body) => {
+                       const $dialog = Cypress.$('mat-dialog-container:contains("Confirmar")', $body);
+                       if ($dialog.length) {
+                           cy.log(' Diálogo Confirmar detectado');
+                           const $btnSi = Cypress.$('button mat-icon:contains("check")', $dialog).parents('button');
+                           if ($btnSi.length) {
+                               cy.log('Botón Sí encontrado, haciendo clic');
+                               $btnSi.first().click();
+                               cy.wait(1000);
+                           }
+                       } else {
+                           cy.log('ℹ️ No apareció diálogo de confirmación');
+                       }
+                   });
+           });
+       });
 
     });
 
@@ -3384,11 +4197,12 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
-            cy.fixture('asignacionDeCaracteristicas').as('data');
+            cy.readFile('./JsonData/asignacionDeCaracteristicas.json').as('data');
 
         });
 
-        it("Agregar múltiples registros dinámicamente", function() {
+            //Funciona sin reporte
+        /*it("Agregar múltiples registros dinámicamente", function() {
             const datos = this.data.agregar;
 
             const agrupadas = datos.reduce((acc, item) => {
@@ -3503,19 +4317,166 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         });
                 });
             });
-        });
+        });*/
+
+       it("Agregar múltiples registros dinámicamente", function() {
+           const datos = this.data.agregar;
+
+           const agrupadas = datos.reduce((acc, item) => {
+               if (!acc[item.codigoTX]) {
+                   acc[item.codigoTX] = [];
+               }
+               acc[item.codigoTX].push(item);
+               return acc;
+           }, {});
+
+           let contadorAsignaciones = 0;
+
+           cy.wrap(Object.keys(agrupadas)).each((codigoTX) => {
+               cy.log('Procesando Tx: ' + codigoTX);
+
+               // Opcional: limpiar logs de Cypress
+               cy.then(() => {
+                   const doc = window.top.document;
+                   const logContainer = doc.querySelector('.reporter .commands') ||
+                       doc.querySelector('.command-list') ||
+                       doc.querySelector('.runnable-commands-region');
+                   if (logContainer) {
+                       logContainer.innerHTML = '';
+                   }
+               });
+
+               cy.get('iframe.frame', { timeout: 10000 })
+                   .its('0.contentDocument.body')
+                   .should('not.be.empty')
+                   .then(cy.wrap)
+                   .within(() => {
+                       Generales.filtrarPorCodigo(codigoTX);
+                       let pasoActual = null;
+
+                       return cy.wrap(agrupadas[codigoTX]).each((item) => {
+                           Generales.abrirPanel("Opciones", { timeout: 20000, force: true });
+                           cy.wait(500);
+
+                           const pasoRequerido = item.paso ? item.paso.toString().trim() : null;
+                           if (pasoRequerido && pasoRequerido !== pasoActual) {
+                               cy.log(`Cambiando de paso "${pasoActual}" a "${pasoRequerido}"`);
+                               Generales.seleccionarPaso(item.paso, { timeout: 10000, skipContext: true, force: true });
+                               pasoActual = pasoRequerido;
+                           } else if (!pasoRequerido) {
+                               Generales.BtnIframe("Cuenta", { timeout: 10000, force: true, skipContext: true });
+                               cy.wait(1500);
+                           } else {
+                               cy.log(`Paso "${pasoRequerido}" ya está seleccionado, se omite clic.`);
+                           }
+
+                           cy.wait(2500);
+                           GestorDeTransaccion.AsignacionDCaracteristicaAPaso(
+                               item.caracteristica,
+                               item.tamanioLetra,
+                               item.visualizar,
+                               item.proteger,
+                               item.obligatorio,
+                               item.negrita,
+                               item.verFirmas,
+                               item.expresionCalcularCampo,
+                               item.ReglasCondicionarCampo,
+                               item.operacion,
+                               item.expresionParaValidar,
+                               item.mensajeError,
+                               item.correlativo,
+                               item.productos
+                           );
+
+                           // ========== REPORTE ==========
+                           contadorAsignaciones++;
+                           const alias = `guardarAsignacion-${contadorAsignaciones}`;
+                           cy.log(`🔢 Asignación #${contadorAsignaciones} para característica: ${item.caracteristica}`);
+
+                           // 🔧 URL CORRECTA según el log
+                           cy.intercept('POST', '**/transactionCharactByStep').as(alias);
+
+                           Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+
+                           cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                               const status = interception.response.statusCode;
+                               let estado = 'fallida';
+                               let mensaje = '';
+
+                               cy.wait(500);
+                               cy.document().then((doc) => {
+                                   const $body = Cypress.$(doc.body);
+                                   const $snack = $body.find('.snackbar, .mat-mdc-snack-bar-label');
+                                   if ($snack.length) mensaje = $snack.text().trim();
+                               }).then(() => {
+                                   if (status === 200 || status === 201) {
+                                       estado = 'exitosa';
+                                       cy.log(`Asignación guardada correctamente: ${item.caracteristica}`);
+                                   } else {
+                                       estado = 'fallida';
+                                       cy.log(`Error al guardar asignación. Status: ${status}`);
+                                   }
+                               }).then(() => {
+                                   const nombreCaptura = `Captura-${contadorAsignaciones}-AsignacionCaracteristica-${estado}`;
+                                   cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                       cy.task('guardarResultado', {
+                                           describe: '019.3 - Asignar Características a Pasos',
+                                           crud: "Asignación Característica-Paso",
+                                           descripcion: `Transacción: ${codigoTX} - Paso: ${item.paso || 'desconocido'} - Característica: ${item.caracteristica}`,
+                                           estado: estado,
+                                           numero: contadorAsignaciones,
+                                           mensaje: mensaje,
+                                           evidencia: `${nombreCaptura}.png`
+                                       });
+                                   });
+                               });
+                           });
+                           // ========== FIN REPORTE ==========
+                       });
+                   }).then(() => {
+                   cy.wait(2000);
+                   cy.get('iframe.frame', { timeout: 10000 })
+                       .its('0.contentDocument.body')
+                       .should('not.be.empty')
+                       .then(cy.wrap)
+                       .within(() => {
+                           Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                       });
+
+                   cy.wait(2000);
+                   cy.get('iframe.frame', { timeout: 10000 })
+                       .its('0.contentDocument.body')
+                       .should('not.be.empty')
+                       .then(($body) => {
+                           const $dialog = Cypress.$('mat-dialog-container:contains("Confirmar")', $body);
+                           if ($dialog.length) {
+                               cy.log('Diálogo Confirmar detectado');
+                               const $btnSi = Cypress.$('button mat-icon:contains("check")', $dialog).parents('button');
+                               if ($btnSi.length) {
+                                   cy.log('Botón Sí encontrado, haciendo clic');
+                                   $btnSi.first().click();
+                                   cy.wait(1000);
+                               }
+                           } else {
+                               cy.log('ℹ️ No apareció diálogo de confirmación');
+                           }
+                       });
+               });
+           });
+       });
     });
 
     describe.skip("019.4 -  Gestor de Transacciones > Creacion de rutinas PRE...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
-            cy.fixture('rutinaPre').as('data');
-            cy.wait(5000)
+            cy.readFile('./JsonData/rutinaPre.json').as('data');
+            cy.wait(3000)
         });
 
 
-        it("Agregar múltiples registros dinámicamente", function() {
+        //Sirve sin reporte
+        /*it("Agregar múltiples registros dinámicamente", function() {
 
             const datos = this.data.agregar
 
@@ -3626,6 +4587,146 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 })
 
             });
+        });*/
+
+        it("Agregar múltiples registros dinámicamente", function() {
+            const datos = this.data.agregar;
+
+            const agrupadas = datos.reduce((acc, item) => {
+                if (!acc[item.codigoTRX]) {
+                    acc[item.codigoTRX] = [];
+                }
+                acc[item.codigoTRX].push(item);
+                return acc;
+            }, {});
+
+            let contadorRutinas = 0; // Contador global para reportes
+
+            cy.wrap(Object.keys(agrupadas)).each((codigoTRX) => {
+                cy.log('Procesando Tx: ' + codigoTRX);
+
+                cy.then(() => {
+                    const doc = window.top.document;
+                    const logContainer = doc.querySelector('.reporter .commands') ||
+                        doc.querySelector('.command-list') ||
+                        doc.querySelector('.runnable-commands-region');
+                    if (logContainer) {
+                        logContainer.innerHTML = '';
+                    }
+                });
+
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        Generales.filtrarPorCodigo(codigoTRX);
+
+                        return cy.wrap(agrupadas[codigoTRX]).each((item) => {
+                            Generales.abrirPanel("Opciones", { timeout: 20000, force: true });
+                            cy.wait(500);
+
+                            if (item.paso) {
+                                Generales.seleccionarPaso(item.paso, { timeout: 10000, skipContext: true, force: true });
+                            } else {
+                                Generales.BtnIframe("Cuenta", { timeout: 10000, force: true, skipContext: true });
+                            }
+
+                            cy.wait(500);
+                            Generales.agregarRutinaTRX("pre");
+                            cy.wait(3000);
+
+                            // ========== REPORTE ==========
+                            contadorRutinas++;
+                            const alias = `guardarRutina-${contadorRutinas}`;
+                            cy.log(`🔢 Rutina #${contadorRutinas} para: ${item.rutina || 'sin nombre'}`);
+
+                            // Interceptar la petición POST (ajustar URL si es diferente)
+                            cy.intercept('POST', '**/transactionFlowRoutine').as(alias);
+
+                            GestorDeTransaccion.RutinasTRX(
+                                item.rutina,
+                                item.estado,
+                                item.correlativo,
+                                item.requiereLogin,
+                                item.descripcion,
+                                item.fechaInicio,
+                                item.fechaFin,
+                                item.paremetros
+                            );
+
+                            cy.xpath("//button[.//mat-icon[text()='check']]")
+                                .scrollIntoView({ duration: 500 })
+                                .click({ force: true });
+
+                            // Esperar respuesta y procesar reporte
+                            cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                                const status = interception.response.statusCode;
+                                let estado = 'fallida';
+                                let mensaje = '';
+
+                                cy.wait(500);
+                                cy.document().then((doc) => {
+                                    const $body = Cypress.$(doc.body);
+                                    const $snack = $body.find('.snackbar, .mat-mdc-snack-bar-label');
+                                    if ($snack.length) mensaje = $snack.text().trim();
+                                }).then(() => {
+                                    if (status === 200 || status === 201) {
+                                        estado = 'exitosa';
+                                        cy.log(`Rutina guardada correctamente: ${item.rutina}`);
+                                    } else {
+                                        estado = 'fallida';
+                                        cy.log(`Error al guardar rutina. Status: ${status}`);
+                                    }
+                                }).then(() => {
+                                    const nombreCaptura = `Captura-${contadorRutinas}-Rutina PRE-${estado}`;
+                                    cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                        cy.task('guardarResultado', {
+                                            describe: '019.4 - Creación de rutinas PRE',
+                                            crud: "Rutina PRE",
+                                            descripcion: `Transacción: ${codigoTRX} - Paso: ${item.paso || 'desconocido'} - Rutina: ${item.rutina}`,
+                                            estado: estado,
+                                            numero: contadorRutinas,
+                                            mensaje: mensaje,
+                                            evidencia: `${nombreCaptura}.png`
+                                        });
+                                    });
+                                });
+                            });
+                            // ========== FIN REPORTE ==========
+                        });
+                    }).then(() => {
+                    cy.wait(2000);
+
+                    cy.get('iframe.frame', { timeout: 10000 })
+                        .its('0.contentDocument.body')
+                        .should('not.be.empty')
+                        .then(cy.wrap)
+                        .within(() => {
+                            Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                        });
+
+                    cy.wait(2000);
+
+                    cy.get('iframe.frame', { timeout: 10000 })
+                        .its('0.contentDocument.body')
+                        .should('not.be.empty')
+                        .then(($body) => {
+                            const $dialog = Cypress.$('mat-dialog-container:contains("Confirmar")', $body);
+                            if ($dialog.length > 0) {
+                                cy.log('Diálogo Confirmar detectado');
+                                const $btnSi = Cypress.$('button mat-icon:contains("check")', $dialog).parents('button');
+                                if ($btnSi.length > 0) {
+                                    cy.log('Botón Sí encontrado, haciendo clic');
+                                    $btnSi.first().click();
+                                    cy.wait(1000);
+                                }
+                            } else {
+                                cy.log('ℹ️ No apareció diálogo de confirmación');
+                            }
+                        });
+                });
+            });
         });
 
 
@@ -3636,12 +4737,12 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
-            cy.fixture('rutinaPos').as('data');
+            cy.readFile('./JsonData/rutinaPos.json').as('data');
             cy.wait(5000)
         });
 
-
-        it("Agregar múltiples registros dinámicamente", function() {
+        //Sirve sin reporte
+        /*it("Agregar múltiples registros dinámicamente", function() {
 
             const datos = this.data.agregar
 
@@ -3752,7 +4853,154 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 })
 
             });
+        });*/
+
+        it("Agregar múltiples registros dinámicamente", function() {
+            const datos = this.data.agregar;
+
+            const agrupadas = datos.reduce((acc, item) => {
+                if (!acc[item.codigoTRX]) {
+                    acc[item.codigoTRX] = [];
+                }
+                acc[item.codigoTRX].push(item);
+                return acc;
+            }, {});
+
+            let contadorRutinas = 0; // Contador global para reportes
+
+            cy.wrap(Object.keys(agrupadas)).each((codigoTRX) => {
+                cy.log('Procesando Tx: ' + codigoTRX);
+
+                cy.then(() => {
+                    // Limpiar logs de Cypress (opcional)
+                    const doc = window.top.document;
+                    const logContainer = doc.querySelector('.reporter .commands') ||
+                        doc.querySelector('.command-list') ||
+                        doc.querySelector('.runnable-commands-region');
+                    if (logContainer) {
+                        logContainer.innerHTML = '';
+                    }
+                });
+
+                // Entrar al iframe y realizar acciones
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        // Dentro del iframe: acciones de edición
+                        Generales.filtrarPorCodigo(codigoTRX);
+
+                        return cy.wrap(agrupadas[codigoTRX]).each((item) => {
+                            Generales.abrirPanel("Opciones", { timeout: 20000, force: true });
+                            cy.wait(500);
+
+                            // Seleccionar paso
+                            if (item.paso) {
+                                Generales.seleccionarPaso(item.paso, { timeout: 10000, skipContext: true, force: true });
+                            } else {
+                                Generales.BtnIframe("Cuenta", { timeout: 10000, force: true, skipContext: true });
+                            }
+
+                            cy.wait(500);
+                            Generales.agregarRutinaTRX("pos"); // "pre" o "pos" según datos
+                            cy.wait(3000);
+
+                            GestorDeTransaccion.RutinasTRX(
+                                item.rutina,
+                                item.estado,
+                                item.correlativo,
+                                item.requiereLogin,
+                                item.descripcion,
+                                item.fechaInicio,
+                                item.fechaFin,
+                                item.paremetros
+                            );
+
+                            // ========== INICIO REPORTE ==========
+                            contadorRutinas++;
+                            const alias = `guardarRutina-${contadorRutinas}`;
+                            cy.log(`Rutina #${contadorRutinas}: ${item.rutina}`);
+
+                            // Interceptar la petición POST (URL real según logs anteriores)
+                            cy.intercept('POST', '**/transactionFlowRoutine').as(alias);
+
+                            // Hacer clic en el botón de guardar (check)
+                            cy.xpath("//button[.//mat-icon[text()='check']]")
+                                .scrollIntoView({ duration: 500 })
+                                .click({ force: true });
+
+                            cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                                const status = interception.response.statusCode;
+                                let estado = 'fallida';
+                                let mensaje = '';
+
+                                cy.wait(500);
+                                cy.document().then((doc) => {
+                                    const $body = Cypress.$(doc.body);
+                                    const $snack = $body.find('.snackbar, .mat-mdc-snack-bar-label');
+                                    if ($snack.length) mensaje = $snack.text().trim();
+                                }).then(() => {
+                                    if (status === 200 || status === 201) {
+                                        estado = 'exitosa';
+                                        cy.log(`Rutina guardada: ${item.rutina}`);
+                                    } else {
+                                        estado = 'fallida';
+                                        cy.log(`Error al guardar rutina. Status: ${status}`);
+                                    }
+                                }).then(() => {
+                                    const nombreCaptura = `Captura-${contadorRutinas}-Rutina POS-${estado}`;
+                                    cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                        cy.task('guardarResultado', {
+                                            describe: '019.5 - Rutina PRE',
+                                            crud: "Rutina PRE",
+                                            descripcion: `Transacción: ${codigoTRX} - Rutina POS: ${item.rutina}`,
+                                            estado: estado,
+                                            numero: contadorRutinas,
+                                            mensaje: mensaje,
+                                            evidencia: `${nombreCaptura}.png`
+                                        });
+                                    });
+                                });
+                            });
+                            // ========== FIN REPORTE ==========
+                        });
+                    }).then(() => {
+                    // Salir del detalle (botón Atrás)
+                    cy.wait(2000);
+                    cy.get('iframe.frame', { timeout: 10000 })
+                        .its('0.contentDocument.body')
+                        .should('not.be.empty')
+                        .then(cy.wrap)
+                        .within(() => {
+                            Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                        });
+
+                    cy.wait(1500);
+
+                    // Manejar diálogo de confirmación si aparece
+                    cy.get('iframe.frame', { timeout: 10000 })
+                        .its('0.contentDocument.body')
+                        .should('not.be.empty')
+                        .then(($body) => {
+                            const $dialog = Cypress.$('mat-dialog-container:contains("Confirmar")', $body);
+                            if ($dialog.length > 0) {
+                                cy.log('Diálogo Confirmar detectado');
+                                const $btnSi = Cypress.$('button mat-icon:contains("check")', $dialog).parents('button');
+                                if ($btnSi.length > 0) {
+                                    cy.log('Botón Sí encontrado, haciendo clic');
+                                    $btnSi.first().click();
+                                    cy.wait(1000);
+                                }
+                            } else {
+                                cy.log('No apareció diálogo de confirmación');
+                            }
+                        });
+                });
+            });
         });
+
+
 
 
 
@@ -3762,11 +5010,12 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
-            cy.fixture('subTxAsignacionMoneda').as('data');
+            cy.readFile('./JsonData/subTxAsignacionMoneda.json').as('data');
             cy.wait(5000)
         });
 
-        it("Agregar múltiples registros dinámicamente", function() {
+        //Sin reporte
+        /*it("Agregar múltiples registros dinámicamente", function() {
             cy.log('Datos cargados:', JSON.stringify(this.data));
 
             cy.wrap(this.data.agregar).each((item) => {
@@ -3836,8 +5085,108 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         }
                     });
             });
-        });
+        });*/
 
+
+       it("Agregar múltiples registros dinámicamente", function() {
+           cy.log('Datos cargados:', JSON.stringify(this.data));
+
+           let contadorAsignaciones = 0; // Contador global para reportes
+
+           cy.wrap(this.data.agregar).each((item) => {
+               cy.log("📝 Procesando item:", item);
+               cy.log(`🔢 Código TX: ${item.codigoTX}`);
+
+               // Entrar al iframe y realizar acciones
+               cy.get('iframe.frame', { timeout: 10000 })
+                   .its('0.contentDocument.body')
+                   .should('not.be.empty')
+                   .then(cy.wrap)
+                   .within(() => {
+                       Generales.filtrarPorCodigo(item.codigoTX);
+                       Generales.abrirPanel("Opciones", { timeout: 20000, force: true });
+                       Generales.abrirPanel("Totales a Afectar", { timeout: 20000, force: true });
+                       Generales.abrirPanel("Asignación de moneda", { timeout: 20000, force: true });
+
+                       // ========== INICIO REPORTE ==========
+                       contadorAsignaciones++;
+                       const alias = `guardarAsignacionMoneda-${contadorAsignaciones}`;
+                       cy.log(`🔢 Asignación de moneda #${contadorAsignaciones} para TX: ${item.codigoTX}`);
+
+                       // Interceptar el PATCH que actualiza la transacción (incluye la asignación de moneda)
+                       cy.intercept('PATCH', '**/transactionSpec/*').as(alias);
+
+                       GestorDeTransaccion.AsignarMoneda(
+                           item.formaAfectarTotales,
+                           item.metodoAsignacionMoneda,
+                           item.correlativoMoneda
+                       );
+
+                       Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+
+                       cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                           const status = interception.response.statusCode;
+                           let estado = 'fallida';
+                           let mensaje = '';
+
+                           cy.wait(500);
+                           cy.document().then((doc) => {
+                               const $body = Cypress.$(doc.body);
+                               const $snack = $body.find('.snackbar, .mat-mdc-snack-bar-label');
+                               if ($snack.length) mensaje = $snack.text().trim();
+                           }).then(() => {
+                               if (status === 200 || status === 201) {
+                                   estado = 'exitosa';
+                                   cy.log(`✅ Asignación de moneda guardada correctamente para TX: ${item.codigoTX}`);
+                               } else {
+                                   estado = 'fallida';
+                                   cy.log(`❌ Error al guardar asignación de moneda. Status: ${status}`);
+                               }
+                           }).then(() => {
+                               const nombreCaptura = `Captura-${contadorAsignaciones}-AsignacionMoneda-${estado}`;
+                               cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                   cy.task('guardarResultado', {
+                                       describe: '019.6 - Asignación de Moneda',
+                                       crud: "Asignación de Moneda",
+                                       descripcion: `Transacción: ${item.codigoTX} - Forma afectar: ${item.formaAfectarTotales} - Método asignación: ${item.metodoAsignacionMoneda}`,
+                                       estado: estado,
+                                       numero: contadorAsignaciones,
+                                       mensaje: mensaje,
+                                       evidencia: `${nombreCaptura}.png`
+                                   });
+                               });
+                           });
+                       });
+                       // ========== FIN REPORTE ==========
+                   });
+
+               cy.wait(2000);
+
+               cy.get('iframe.frame', { timeout: 10000 })
+                   .its('0.contentDocument.body')
+                   .should('not.be.empty')
+                   .then(cy.wrap)
+                   .within(() => {
+                       Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                   });
+
+               cy.wait(2000);
+
+               cy.get('iframe.frame', { timeout: 10000 })
+                   .its('0.contentDocument.body')
+                   .should('not.be.empty')
+                   .then(($body) => {
+                       const $dialog = Cypress.$('mat-dialog-container', $body);
+                       if ($dialog.length > 0) {
+                           cy.log('Diálogo de confirmación detectado');
+                           cy.wrap($dialog).find('button[color="primary"]').click();
+                           cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist');
+                       } else {
+                           cy.log('No apareció diálogo de confirmación');
+                       }
+                   });
+           });
+       });
 
 
 
@@ -3850,11 +5199,11 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
-            cy.fixture('subTxAfectaTotales').as('data');
+            cy.readFile('./JsonData/subTxAfectaTotales.json').as('data');
             cy.wait(5000)
         });
 
-        it("Agregar múltiples registros dinámicamente", function() {
+        /*it("Agregar múltiples registros dinámicamente", function() {
 
             const datos = this.data.agregar
 
@@ -3947,7 +5296,142 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 })
 
             });
-        });
+        });*/
+
+       it("Agregar múltiples registros dinámicamente", function() {
+           const datos = this.data.agregar;
+
+           const agrupadas = datos.reduce((acc, item) => {
+               if (!acc[item.codigoTX]) {
+                   acc[item.codigoTX] = [];
+               }
+               acc[item.codigoTX].push(item);
+               return acc;
+           }, {});
+
+           let contadorTotales = 0; // contador global para reportes
+
+           cy.wrap(Object.keys(agrupadas)).each((codigoTX) => {
+               cy.log('Procesando Tx: ' + codigoTX);
+
+               cy.then(() => {
+                   // Limpiar logs de Cypress (opcional)
+                   const doc = window.top.document;
+                   const logContainer = doc.querySelector('.reporter .commands') ||
+                       doc.querySelector('.command-list') ||
+                       doc.querySelector('.runnable-commands-region');
+                   if (logContainer) {
+                       logContainer.innerHTML = '';
+                   }
+               });
+
+               // Entrar al iframe y realizar acciones
+               cy.get('iframe.frame', { timeout: 10000 })
+                   .its('0.contentDocument.body')
+                   .should('not.be.empty')
+                   .then(cy.wrap)
+                   .within(() => {
+                       // Dentro del iframe: acciones de edición
+                       Generales.filtrarPorCodigo(codigoTX);
+
+                       return cy.wrap(agrupadas[codigoTX]).each((item) => {
+                           Generales.abrirPanel("Totales a Afectar", { timeout: 20000, force: true });
+                           cy.wait(500);
+
+                           // ========== INICIO REPORTE ==========
+                           contadorTotales++;
+                           const alias = `guardarTotal-${contadorTotales}`;
+                           cy.log(`🔢 Total a afectar #${contadorTotales}: ${item.caracteristica}`);
+
+                           // 🔧 AJUSTA ESTA URL SEGÚN LA PETICIÓN REAL (revisa Network)
+                           // Posibles candidatos:
+                           // - 'POST', '**/totalCashierAffect'
+                           // - 'POST', '**/transactionTotalToAffect'
+                           // - 'PATCH', '**/transactionSpec/*' (si actualiza la transacción principal)
+                           cy.intercept('POST', '**/totalCashierAffect').as(alias); // <-- CAMBIA SEGÚN LOGS
+
+                           GestorDeTransaccion.TotalesAfectar(
+                               item.caracteristica, item.arbolRaiz, item.totalCajero, item.operacion, item.exp1, item.operacion2, item.exp2
+                           );
+
+                           // Hacemos clic en Guardar
+                           Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+
+                           cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                               const status = interception.response.statusCode;
+                               let estado = 'fallida';
+                               let mensaje = '';
+
+                               cy.wait(500);
+                               cy.document().then((doc) => {
+                                   const $body = Cypress.$(doc.body);
+                                   const $snack = $body.find('.snackbar, .mat-mdc-snack-bar-label');
+                                   if ($snack.length) mensaje = $snack.text().trim();
+                               }).then(() => {
+                                   if (status === 200 || status === 201) {
+                                       estado = 'exitosa';
+                                       cy.log(`Total a afectar guardado: ${item.caracteristica}`);
+                                   } else {
+                                       estado = 'fallida';
+                                       cy.log(`Error al guardar total a afectar. Status: ${status}`);
+                                   }
+                               }).then(() => {
+                                   const nombreCaptura = `Captura-${contadorTotales}-TotalAfectar-${estado}`;
+                                   cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                       cy.task('guardarResultado', {
+                                           describe: '019.7 - Totales a Afectar',
+                                           crud: "Total a afectar",
+                                           descripcion: `TX: ${codigoTX} - Característica: ${item.caracteristica} - Total Cajero: ${item.totalCajero}`,
+                                           estado: estado,
+                                           numero: contadorTotales,
+                                           mensaje: mensaje,
+                                           evidencia: `${nombreCaptura}.png`
+                                       });
+                                   });
+                               });
+                           });
+                           // ========== FIN REPORTE ==========
+                       });
+                   }).then(() => {
+                   // Esperamos un tiempo para que la operación se complete
+                   cy.wait(2000);
+
+                   // Volvemos a entrar al iframe para hacer clic en "Atrás"
+                   cy.get('iframe.frame', { timeout: 10000 })
+                       .its('0.contentDocument.body')
+                       .should('not.be.empty')
+                       .then(cy.wrap)
+                       .within(() => {
+                           Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                       });
+
+                   cy.wait(2000);
+
+                   // Verificar si aparece el diálogo de confirmación DENTRO del iframe
+                   cy.get('iframe.frame', { timeout: 10000 })
+                       .its('0.contentDocument.body')
+                       .should('not.be.empty')
+                       .then(($body) => {
+                           const $dialog = Cypress.$('mat-dialog-container:contains("Confirmar")', $body);
+                           if ($dialog.length > 0) {
+                               cy.log('Diálogo Confirmar detectado');
+                               const $btnSi = Cypress.$('button mat-icon:contains("check")', $dialog).parents('button');
+                               if ($btnSi.length > 0) {
+                                   cy.log('✅ Botón Sí encontrado dentro del diálogo, haciendo clic');
+                                   $btnSi.first().click();
+                                   cy.wait(1000);
+                                   cy.log('Clic en Sí realizado');
+                               } else {
+                                   cy.log('No se encontró botón con icono check dentro del diálogo');
+                               }
+                           } else {
+                               cy.log('No apareció diálogo de confirmación - continuando flujo normal');
+                           }
+                       });
+               });
+           });
+       });
+
     });
 
    describe.skip("019.8 -  Gestor de Transacciones > Características del resultado ...", function() {
@@ -3955,11 +5439,11 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
-            cy.fixture('subTxCaracteristicResult').as('data');
-            cy.wait(5000)
+            cy.readFile('./JsonData/subTxCaracteristicResult.json').as('data');
+            cy.wait(2500)
         });
 
-        it("Agregar múltiples registros dinámicamente", function() {
+        /*it("Agregar múltiples registros dinámicamente", function() {
 
             const datos = this.data.agregar
 
@@ -4052,18 +5536,135 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 })
 
             });
-        });
+        });*/
+
+       it("Agregar múltiples registros dinámicamente", function() {
+           const datos = this.data.agregar;
+
+           const agrupadas = datos.reduce((acc, item) => {
+               if (!acc[item.codigoTX]) {
+                   acc[item.codigoTX] = [];
+               }
+               acc[item.codigoTX].push(item);
+               return acc;
+           }, {});
+
+           let contadorCaracteristicas = 0;
+
+           cy.wrap(Object.keys(agrupadas)).each((codigoTX) => {
+               cy.log('Procesando Tx: ' + codigoTX);
+
+               cy.then(() => {
+                   const doc = window.top.document;
+                   const logContainer = doc.querySelector('.reporter .commands') ||
+                       doc.querySelector('.command-list') ||
+                       doc.querySelector('.runnable-commands-region');
+                   if (logContainer) logContainer.innerHTML = '';
+               });
+
+               cy.get('iframe.frame', { timeout: 10000 })
+                   .its('0.contentDocument.body')
+                   .should('not.be.empty')
+                   .then(cy.wrap)
+                   .within(() => {
+                       Generales.filtrarPorCodigo(codigoTX);
+
+                       return cy.wrap(agrupadas[codigoTX]).each((item) => {
+                           Generales.abrirPanel("Características del resultado", { timeout: 20000, force: true });
+                           cy.wait(500);
+
+                           contadorCaracteristicas++;
+                           const alias = `guardarCaracteristicaResultado-${contadorCaracteristicas}`;
+                           cy.log(`Característica resultado #${contadorCaracteristicas}: ${item.caracteristica}`);
+
+                           // URL CORRECTA según el log
+                           cy.intercept('POST', '**/resultCharacteristic/dynamicUpdate').as(alias);
+
+                           GestorDeTransaccion.CaracteristicaResultado(
+                               item.caracteristica,
+                               item.caracteristicaOperar,
+                               item.operacioncaracteristicaOperar
+                           );
+
+                           Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+
+                           cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                               const status = interception.response.statusCode;
+                               let estado = 'fallida';
+                               let mensaje = '';
+
+                               cy.wait(500);
+                               cy.document().then((doc) => {
+                                   const $body = Cypress.$(doc.body);
+                                   const $snack = $body.find('.snackbar, .mat-mdc-snack-bar-label');
+                                   if ($snack.length) mensaje = $snack.text().trim();
+                               }).then(() => {
+                                   if (status === 200 || status === 201) {
+                                       estado = 'exitosa';
+                                       cy.log(`Característica resultado guardada: ${item.caracteristica}`);
+                                   } else {
+                                       estado = 'fallida';
+                                       cy.log(`Error al guardar característica resultado. Status: ${status}`);
+                                   }
+                               }).then(() => {
+                                   const nombreCaptura = `Captura-${contadorCaracteristicas}-CaracteristicaResultado-${estado}`;
+                                   cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                       cy.task('guardarResultado', {
+                                           describe: '019.8 - Características del resultado',
+                                           crud: "Característica resultado",
+                                           descripcion: `Transacción: ${codigoTX} - Característica: ${item.caracteristica} - Opera: ${item.caracteristicaOperar}`,
+                                           estado: estado,
+                                           numero: contadorCaracteristicas,
+                                           mensaje: mensaje,
+                                           evidencia: `${nombreCaptura}.png`
+                                       });
+                                   });
+                               });
+                           });
+                       });
+                   }).then(() => {
+                   cy.wait(2000);
+                   cy.get('iframe.frame', { timeout: 10000 })
+                       .its('0.contentDocument.body')
+                       .should('not.be.empty')
+                       .then(cy.wrap)
+                       .within(() => {
+                           Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                       });
+
+                   cy.wait(2000);
+                   cy.get('iframe.frame', { timeout: 10000 })
+                       .its('0.contentDocument.body')
+                       .should('not.be.empty')
+                       .then(($body) => {
+                           const $dialog = Cypress.$('mat-dialog-container:contains("Confirmar")', $body);
+                           if ($dialog.length) {
+                               cy.log('Diálogo Confirmar detectado');
+                               const $btnSi = Cypress.$('button mat-icon:contains("check")', $dialog).parents('button');
+                               if ($btnSi.length) {
+                                   $btnSi.first().click();
+                                   cy.wait(1000);
+                               }
+                           } else {
+                               cy.log('No apareció diálogo de confirmación');
+                           }
+                       });
+               });
+           });
+       });
+
+
     });
 
     describe.skip("019.9 -  Gestor de Transacciones > Tipos de cajero ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
-            cy.fixture('subTxTipoCajero').as('data');
+            cy.readFile('./JsonData/subTxTipoCajero.json').as('data');
             cy.wait(5000)
         });
 
-        it("Agregar múltiples registros dinámicamente", function() {
+        /*it("Agregar múltiples registros dinámicamente", function() {
             cy.log('Datos cargados:', JSON.stringify(this.data));
 
             cy.wrap(this.data.agregar).each((item) => {
@@ -4130,18 +5731,125 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         });
                     });
             });
+        });*/
+
+        it("Agregar múltiples registros dinámicamente", function() {
+            cy.log('Datos cargados:', JSON.stringify(this.data));
+
+            let contadorTipos = 0;
+
+            cy.wrap(this.data.agregar).each((item) => {
+                cy.then(() => {
+                    const doc = window.top.document;
+                    const logContainer = doc.querySelector('.reporter .commands') ||
+                        doc.querySelector('.command-list') ||
+                        doc.querySelector('.runnable-commands-region');
+                    if (logContainer) logContainer.innerHTML = '';
+                });
+
+                cy.log("Procesando item:", item);
+                cy.log(`Código TX: ${item.codigoTX}`);
+
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        Generales.filtrarPorCodigo(item.codigoTX);
+                        Generales.abrirPanel("Opciones");
+                        Generales.BtnIframe("Tipos de cajero", { timeout: 10000, force: true, skipContext: true });
+
+                        contadorTipos++;
+                        cy.log(`Tipo de cajero #${contadorTipos} para TX: ${item.codigoTX}`);
+
+                        // Interacción que togglea los roles (puede no generar petición)
+                        GestorDeTransaccion.TiposCajero(item);
+
+                        // Hacemos clic en Guardar (solo cierra el modal, sin petición)
+                        Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+
+                        // Esperamos un momento para que aparezca algún snackbar de error si lo hay
+                        cy.wait(1000);
+
+                        // Verificamos si hay algún mensaje de error en el documento principal
+                        cy.document().then((doc) => {
+                            const $body = Cypress.$(doc.body);
+                            const $snack = $body.find('.snackbar, .mat-mdc-snack-bar-label');
+                            let mensaje = '';
+                            let estado = 'exitosa';
+
+                            if ($snack.length) {
+                                mensaje = $snack.text().trim();
+                                // Si el snackbar contiene palabras como "error", "fallo", etc., marcamos como fallida
+                                const textoLower = mensaje.toLowerCase();
+                                if (textoLower.includes('error') || textoLower.includes('fallo') || textoLower.includes('no se pudo')) {
+                                    estado = 'fallida';
+                                    cy.log(`Error detectado: ${mensaje}`);
+                                } else {
+                                    cy.log(`${mensaje}`);
+                                }
+                            } else {
+                                cy.log('No se detectaron errores, operación exitosa');
+                            }
+
+                            // Captura de pantalla y guardado en reporte
+                            const nombreCaptura = `Captura-${contadorTipos}-TipoCajero-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '019.9 - Tipos de cajero',
+                                    crud: "Tipo de cajero",
+                                    descripcion: `Transacción: ${item.codigoTX} - Tipos: ${JSON.stringify(item.roles)}`,
+                                    estado: estado,
+                                    numero: contadorTipos,
+                                    mensaje: mensaje || (estado === 'exitosa' ? 'Operación completada' : 'Error desconocido'),
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        });
+                    });
+
+                cy.wait(2000);
+
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                    });
+
+                cy.wait(2000);
+
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        cy.get('button[color="primary"]').then($btn => {
+                            if ($btn.length > 0) {
+                                cy.log('Diálogo detectado, haciendo clic en Confirmar');
+                                cy.wrap($btn.first()).click({ force: true });
+                                cy.wait(1000);
+                            } else {
+                                cy.log('No apareció diálogo de confirmación');
+                            }
+                        });
+                    });
+            });
         });
+
+
     });
 
     describe.skip("019.10 -  Gestor de Transacciones > Comprobantes de Impresión ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
-            cy.fixture('subTxTipoComprobantesImpresiopn').as('data');
+            cy.readFile('./JsonData/subTxTipoComprobantesImpresiopn.json').as('data');
             cy.wait(5000)
         });
 
-        it("Agregar múltiples registros dinámicamente", function() {
+        /*it("Agregar múltiples registros dinámicamente", function() {
             cy.log('Datos cargados:', JSON.stringify(this.data));
 
             cy.wrap(this.data.agregar).each((item) => {
@@ -4216,18 +5924,125 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         }
                     });
             });
+        });*/
+
+        it("Agregar múltiples registros dinámicamente", function() {
+            cy.log('Datos cargados:', JSON.stringify(this.data));
+
+            let contadorComprobantes = 0;
+
+            cy.wrap(this.data.agregar).each((item) => {
+                cy.then(() => {
+                    const doc = window.top.document;
+                    const logContainer = doc.querySelector('.reporter .commands') ||
+                        doc.querySelector('.command-list') ||
+                        doc.querySelector('.runnable-commands-region');
+                    if (logContainer) logContainer.innerHTML = '';
+                });
+
+                cy.log("Procesando item:", item);
+                cy.log(`Código TX: ${item.codigoTX}`);
+
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        cy.wait(1500);
+                        Generales.filtrarPorCodigo(item.codigoTX);
+                        Generales.abrirPanel("Opciones");
+                        Generales.BtnIframe("Comprobantes", { timeout: 10000, force: true, skipContext: true });
+                        Generales.BtnIframe("Agregar", { timeout: 10000, force: true, skipContext: true }, 'add-button');
+
+                        contadorComprobantes++;
+                        const alias = `guardarComprobante-${contadorComprobantes}`;
+                        cy.log(`Comprobante #${contadorComprobantes} para TX: ${item.codigoTX}`);
+
+                        // URL CORRECTA según el log
+                        cy.intercept('POST', '**/formatsPrintTransaction').as(alias);
+
+                        GestorDeTransaccion.ComprobantesImpresion(
+                            item.tipoFormato, item.comprobante, item.esMandatorio, item.verComprobante, item.notificaComprobante,
+                            item.impAntesConsultarFirmas, item.copiasImprimir, ...item.etiquetas
+                        );
+
+                        Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+
+                        cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                            const status = interception.response.statusCode;
+                            let estado = 'fallida';
+                            let mensaje = '';
+
+                            cy.wait(500);
+                            cy.document().then((doc) => {
+                                const $body = Cypress.$(doc.body);
+                                const $snack = $body.find('.snackbar, .mat-mdc-snack-bar-label');
+                                if ($snack.length) mensaje = $snack.text().trim();
+                            }).then(() => {
+                                if (status === 200 || status === 201) {
+                                    estado = 'exitosa';
+                                    cy.log(`Comprobante guardado correctamente para TX: ${item.codigoTX}`);
+                                } else {
+                                    estado = 'fallida';
+                                    cy.log(`Error al guardar comprobante. Status: ${status}`);
+                                }
+                            }).then(() => {
+                                const nombreCaptura = `Captura-${contadorComprobantes}-Comprobante de Impresión-${estado}`;
+                                cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                    cy.task('guardarResultado', {
+                                        describe: '019.10 - Comprobantes de Impresión',
+                                        crud: "Comprobante",
+                                        descripcion: `Transacción: ${item.codigoTX} - Comprobante: ${item.comprobante}`,
+                                        estado: estado,
+                                        numero: contadorComprobantes,
+                                        mensaje: mensaje,
+                                        evidencia: `${nombreCaptura}.png`
+                                    });
+                                });
+                            });
+                        });
+                    });
+
+                cy.wait(2000);
+
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                    });
+
+                cy.wait(2000);
+
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(($body) => {
+                        const $dialog = Cypress.$('mat-dialog-container', $body);
+                        if ($dialog.length > 0) {
+                            cy.log('Diálogo de confirmación detectado');
+                            cy.wrap($dialog).find('button[color="primary"]').click();
+                            cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist');
+                        } else {
+                            cy.log('No apareció diálogo de confirmación');
+                        }
+                    });
+            });
         });
+
+
     });
 
     describe.skip("019.11 -  Gestor de Transacciones > Comprobantes de Notificaciones electrónicas ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
-            cy.fixture('subTxTipoComprobantesNotElectronica').as('data');
-            cy.wait(5000)
+            cy.readFile('./JsonData/subTxTipoComprobantesNotElectronica.json').as('data');
+            cy.wait(2500)
         });
 
-        it("Agregar múltiples registros dinámicamente", function() {
+        /*it("Agregar múltiples registros dinámicamente", function() {
             cy.log('Datos cargados:', JSON.stringify(this.data));
 
             cy.wrap(this.data.agregar).each((item) => {
@@ -4301,7 +6116,119 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         });
                     });
             });
+        });*/
+
+        it("Agregar múltiples registros dinámicamente", function() {
+            cy.log('Datos cargados:', JSON.stringify(this.data));
+
+            let contadorNotificaciones = 0;
+
+            cy.wrap(this.data.agregar).each((item) => {
+                cy.then(() => {
+                    const doc = window.top.document;
+                    const logContainer = doc.querySelector('.reporter .commands') ||
+                        doc.querySelector('.command-list') ||
+                        doc.querySelector('.runnable-commands-region');
+                    if (logContainer) logContainer.innerHTML = '';
+                });
+
+                cy.log("Procesando item:", item);
+                cy.log(`Código TX: ${item.codigoTX}`);
+
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        Generales.filtrarPorCodigo(item.codigoTX);
+                        Generales.abrirPanel("Opciones");
+                        Generales.BtnIframe("Comprobantes", { timeout: 10000, force: true, skipContext: true });
+                        Generales.BtnIframe("Notificaciones electrónicas", { timeout: 10000, skipContext: true }, 'div[role="tab"]', true);
+                        cy.wait(1500);
+                        Generales.BtnIframe("Agregar", { timeout: 10000, force: true, skipContext: true }, 'add-button');
+
+                        // ========== INICIO REPORTE ==========
+                        contadorNotificaciones++;
+                        const alias = `guardarNotificacion-${contadorNotificaciones}`;
+                        cy.log(`Notificación electrónica #${contadorNotificaciones} para TX: ${item.codigoTX}`);
+
+                        //URL CORRECTA según el log
+                        cy.intercept('POST', '**/formatsPrintTransaction/managePrintFormat').as(alias);
+
+                        GestorDeTransaccion.ComprobantesNotElectronica(
+                            item.tipoFormato, item.comprobante, item.verComprobante, item.seNotificaMedio,
+                            item.esMandatorio, item.notificaComprobante
+                        );
+
+                        Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+
+                        cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                            const status = interception.response.statusCode;
+                            let estado = 'fallida';
+                            let mensaje = '';
+
+                            cy.wait(500);
+                            cy.document().then((doc) => {
+                                const $body = Cypress.$(doc.body);
+                                const $snack = $body.find('.snackbar, .mat-mdc-snack-bar-label');
+                                if ($snack.length) mensaje = $snack.text().trim();
+                            }).then(() => {
+                                if (status === 200 || status === 201) {
+                                    estado = 'exitosa';
+                                    cy.log(`Notificación electrónica guardada correctamente para TX: ${item.codigoTX}`);
+                                } else {
+                                    estado = 'fallida';
+                                    cy.log(`Error al guardar notificación electrónica. Status: ${status}`);
+                                }
+                            }).then(() => {
+                                const nombreCaptura = `Captura-${contadorNotificaciones}-NotificacionElectronica-${estado}`;
+                                cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                    cy.task('guardarResultado', {
+                                        describe: '019.11 - Notificaciones electrónicas',
+                                        crud: "Notificación electrónica",
+                                        descripcion: `Transacción: ${item.codigoTX} - Comprobante: ${item.comprobante}`,
+                                        estado: estado,
+                                        numero: contadorNotificaciones,
+                                        mensaje: mensaje,
+                                        evidencia: `${nombreCaptura}.png`
+                                    });
+                                });
+                            });
+                        });
+                        // ========== FIN REPORTE ==========
+                    });
+
+                cy.wait(2000);
+
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                    });
+
+                cy.wait(2000);
+
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        cy.get('button[color="primary"]').then($btn => {
+                            if ($btn.length > 0) {
+                                cy.log('Diálogo detectado, haciendo clic en Confirmar');
+                                cy.wrap($btn.first()).click({ force: true });
+                                cy.wait(1000);
+                            } else {
+                                cy.log('No apareció diálogo de confirmación');
+                            }
+                        });
+                    });
+            });
         });
+
+
     });
 
     describe.skip("020 - Datos en Envio de la transaccion ...", () =>{
@@ -4310,7 +6237,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
             Generales.IrAPantalla('transactionSendSpec')
         })
 
-        it("Modificar  registro en Envio de la transaccion", () => {
+        /*it("Modificar  registro en Envio de la transaccion", () => {
             cy.fixture('envioTransaccionesUpdate').then((data) => {
                 cy.wrap(data.modificar).each((item) => {
                     cy.log(`Insertando código: ${item.correlativo}`)
@@ -4346,12 +6273,12 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     )
 
                     //Intercept backend
-                    cy.intercept('POST', '**/transactionSendSpec').as('guardar')
+                    cy.intercept('POST', '**!/transactionSendSpec').as('guardar')
 
                     Generales.BtnAceptarRegistro()
 
 
-                    /*cy.wait('@guardar').then((interception) => {
+                    /!*cy.wait('@guardar').then((interception) => {
                         const status = interception.response.statusCode
                         if (status === 200 || status === 201) {
                             cy.log('Registro insertado correctamente')
@@ -4362,10 +6289,138 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                             Generales.BtnCancelarRegistro()
                             cy.contains('h2', 'Nuevo Registro').should('not.exist')
                         }
-                    })*/
+                    })*!/
                 })
             })
-        })
+        })*/
+
+        it("Gestionar registros en Envío de la transacción (agregar/modificar)", () => {
+            cy.readFile('./JsonData/envioTransacciones.json').then((data) => {
+                let contador = 0;
+
+                const procesarRegistro = (item, numero, operacion) => {
+                    cy.log(`Operación: ${operacion} - Correlativo: ${item.correlativo}`);
+
+                    // Asegurar estado limpio
+                    cy.get('body').then(($body) => {
+                        if ($body.find('h2:contains("Nuevo Registro")').length > 0 ||
+                            $body.find('h2:contains("Registro")').length > 0) {
+                            cy.log('Formulario abierto detectado, cerrando...');
+                            Generales.BtnCancelarRegistro();
+                        }
+                    });
+
+                    // Abrir formulario según operación
+                    if (operacion === 'agregar') {
+                        cy.log('➕ Agregando nuevo registro');
+                        Generales.BtnAgregarRegistroSubnivel();
+                        cy.contains('h2', 'Nuevo Registro', { timeout: 10000 }).should('be.visible');
+                    } else if (operacion === 'modificar') {
+                        cy.log('Modificando registro existente');
+                        Generales.BuscarRegistroDescripcion(item.descripcion);
+                        Generales.BtnModificarRegistro();
+                        cy.contains('h2', 'Registro', { timeout: 10000 }).should('be.visible');
+                    } else {
+                        cy.log(`Operación desconocida: ${operacion} - se omite`);
+                        return;
+                    }
+
+                    // Llenar datos
+                    EnvioTransaccion.EnvioTransacciones(
+                        item.transaccion,
+                        item.correlativo,
+                        item.descripcion,
+                        item.pagoServicio,
+                        item.requiereLogin,
+                        item.endpointDeLogueo,
+                        item.formatoDeEnvio,
+                        item.progGeneraInfoDeEnvio,
+                        item.tipoDatoEnvio,
+                        item.endpointDeEnvio,
+                        item.tipoDatoRecibido,
+                        item.archivoRespuesta,
+                        item.progRecibeInfo,
+                        item.analizaRespuesta
+                    );
+
+                    // Interceptar cualquier método hacia rutas que contengan 'transactionSendSpec'
+                    const alias = `guardarEnvio-${numero}`;
+                    // Interceptar POST y PATCH con el mismo alias
+                    cy.intercept('POST', '**/transactionSendSpec').as(alias);
+                    cy.intercept('PATCH', '**/transactionSendSpec/*').as(alias);
+                    cy.log(`📡 Interceptando POST y PATCH a **/transactionSendSpec* (alias: ${alias})`);
+
+                    Generales.BtnAceptarRegistro();
+
+                    cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                        const status = interception.response.statusCode;
+                        const method = interception.request.method;
+                        let estado = 'fallida';
+                        let mensaje = '';
+
+                        cy.log(`📡 Método: ${method} - Status: ${status}`);
+
+                        // Capturar mensaje del snackbar (usar el mismo selector que funciona en otros CRUD)
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            // Intentar con varios selectores comunes
+                            let $snack = $body.find('span.message-snack');
+                            if (!$snack.length) $snack = $body.find('.snackbar');
+                            if (!$snack.length) $snack = $body.find('.mat-mdc-snack-bar-label');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                            else cy.log('No se encontró snackbar');
+                        }).then(() => {
+                            if (status >= 200 && status < 300) {
+                                estado = 'exitosa';
+                                cy.log(`${operacion} correcto: ${item.correlativo}`);
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error al ${operacion}. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            // Captura de pantalla y guardado en reporte
+                            const nombreCaptura = `Captura-${numero}-EnvioTransaccion-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '020 - Datos en Envío de la transacción',
+                                    crud: "Envío de transacción",
+                                    descripcion: `Correlativo: ${item.correlativo} - Descripción: ${item.descripcion}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            // Cerrar modal si aún está abierto
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0 ||
+                                    $body.find('h2:contains("Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.Regresar();
+                                    cy.wait(2000);
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
+                    });
+                };
+
+                // Procesar en el orden de las propiedades del JSON
+                Object.entries(data).forEach(([key, registros]) => {
+                    if (Array.isArray(registros) && registros.length > 0) {
+                        const operacion = key.toLowerCase();
+                        cy.wrap(registros).each((item) => {
+                            contador++;
+                            procesarRegistro(item, contador, operacion);
+                        });
+                    }
+                });
+            });
+        });
+
 
     })
 
@@ -4378,9 +6433,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros en crud de Reglas", () => {
-            cy.fixture('reglas').then((data) => {
-                cy.wrap(data.agregar).each((item) => {
+            cy.readFile('./JsonData/reglas.json').then((data) => {
+                cy.wrap(data.agregar).each((item,index) => {
                     cy.log(`Insertando código: ${item.codigo}`)
+                    const numero = index + 1;
 
                     //Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
@@ -4409,23 +6465,66 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     )
 
                     //Intercept backend
-                    cy.intercept('POST', '**/rulesSpec').as('guardar')
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/rulesSpec').as(alias);
 
                     Generales.BtnAceptarRegistro()
 
+                    // Esperar respuesta y decidir estado
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Reglas-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '021 - Reglas',
+                                    crud: "Reglas",
+                                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
+                    });
+
+
+
+
                 })
             })
         })
@@ -4434,15 +6533,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     describe.skip("021.1 - Reglas > Detalle de Reglas...", () =>{
 
-        before(() => {
-
-            cy.fixture('detalleReglas').as('dataDetalleReglas')
-
-        })
-
         beforeEach(() => {
             cy.wait(5000)
             Generales.IrAPantalla('rulesSpec')
+            cy.readFile('./JsonData/detalleReglas.json').as('dataDetalleReglas')
         })
 
         it("Agregar Multiples registros a sub nivel Reglas > Detalle de Reglas ", function () {
@@ -4457,6 +6551,8 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 return acc
             }, {})
 
+            let numero = 0
+
             cy.wrap(Object.keys(agrupadas)).each((nombreRegla) => {
                 cy.log('Procesando Regla con nombre: ' + nombreRegla)
 
@@ -4465,6 +6561,9 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                 Generales.NavegacionSubMenu('Detalle de reglas')
 
                 return cy.wrap(agrupadas[nombreRegla]).each((registro) => {
+
+                    numero++
+
                     Generales.BtnAgregarRegistroSubnivel()
                     cy.log("y el agregar que pedo")
                     //  const pais = registro.valorPais || registro.nombre
@@ -4476,50 +6575,83 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         registro.operadorLogico,
                         registro.tipoExpresion )
 
+                    const alias = `guardar-${numero}`
+                    cy.intercept('POST', '**/rulesDetail').as(alias)
+
                     Generales.BtnAceptarRegistro();
                     cy.wait(2000)
-                    return cy.get('body').then(($body) => {
-                        // Buscar específicamente el snackbar de error
-                        const snackBarError = $body.find('.snack-container__error');
 
-                        if (snackBarError.length > 0) {
-                            // Obtener el mensaje específico
-                            const mensajeError = snackBarError.find('.message-snack').text();
-                            cy.log(`⚠️ Error detectado: ${mensajeError}`);
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode
+                        let estado = 'fallida'
+                        let mensaje = ''
 
-                            // Cerrar el snackbar si tiene botón de cerrar
-                            cy.get('.snack--btn-close').click();
-
-                            Generales.BtnCancelarRegistro();
-                            cy.log('❌ Registro duplicado - cancelando');
-                        } else {
-                            cy.log('✅ No hay errores - aceptando');
-                        }
-
-                        return cy.get('mat-dialog-container', { timeout: 10000 })
-                            .should('not.exist');
-                    });
-
-
-                }).then(() => {
-                    cy.log('🔙 Regresando al nivel principal')
-
-                    // Primer regreso - SALIR DEL SUBNIVEL
-                    return cy.then(() => {
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que salimos del subnivel (modal cerrado)
-                        return cy.get('mat-dialog-container', { timeout: 5000 })
-                            .should('not.exist')
-                    }).then(() => {
-                        // Segundo regreso - SALIR DEL DETALLE DE MONEDA
-                        cy.wait(3000)
-                        Generales.Regresar()
-                        // Verificar que estamos en el listado principal
-                        return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
-                            .should('be.visible')
+                        cy.wait(500)
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack')
+                            if ($snack.length) mensaje = $snack.text().trim()
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa'
+                                cy.log('Denominación insertada correctamente')
+                            } else {
+                                estado = 'fallida'
+                                cy.log(`Error detectado. Status: ${status}`)
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-Detalle de reglas-${estado}`
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '021.1 - Detalle de reglas',
+                                    crud: "Detalle de reglas",
+                                    descripcion: `Correlativo: ${registro.correlativo} - Expresión 1: ${registro.exprsion1}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                })
+                            })
+                        }).then(() => {
+                            // Cerrar el modal si aún está abierto
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente')
+                                    Generales.BtnCancelarRegistro()
+                                    cy.wait(2000)
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('El modal no se cerró después de intentarlo, pero continuamos')
+                                        } else {
+                                            cy.log('Modal cerrado correctamente')
+                                        }
+                                    })
+                                } else {
+                                    cy.log('Modal ya cerrado')
+                                }
+                            })
+                        })
                     })
+
+                    // Opcional: Verificar que el modal de denominación se cerró completamente
+                    cy.get('mat-dialog-container', { timeout: 10000 }).should('not.exist')
+                }).then(() => {
+                    cy.log('Regresando al nivel principal después de procesar todas las denominaciones de la moneda')
+
+                    // Primer regreso - SALIR DEL SUBNIVEL (listado de denominaciones)
+                    cy.wait(1000)
+                    Generales.Regresar()
+                    // Verificar que salimos del subnivel (modal cerrado)
+                    cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist')
+
+                    // Segundo regreso - SALIR DEL DETALLE DE MONEDA
+                    cy.wait(3000)
+                    Generales.Regresar()
+                    // Verificar que estamos en el listado principal de monedas
+                    cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 }).should('be.visible')
                 })
+
+
             })
         })
 
@@ -4533,9 +6665,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         })
 
         it("Agregar múltiples registros dinámicamente", () => {
-            cy.fixture('accionesCondicionadas').then((data) => {
-                cy.wrap(data.agregar).each((item) => {
+            cy.readFile('./JsonData/accionesCondicionadas.json').then((data) => {
+                cy.wrap(data.agregar).each((item, index) => {
                     cy.log(`Insertando código: ${item.codigo}`)
+                    const numero = index + 1;
 
                     //Asegurar estado limpio antes de comenzar
                     cy.get('body').then(($body) => {
@@ -4564,46 +6697,66 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     )
 
                     //Intercept backend
-                    cy.intercept('POST', '**/conditionedActions').as('guardar')
+                    const alias = `guardar-${numero}`;
+                    cy.intercept('POST', '**/conditionedActions').as(alias);
 
                     Generales.BtnAceptarRegistro()
 
                     cy.wait(1500)
-                    return cy.get('body').then(($body) => {
-                        // Buscar específicamente el snackbar de error
-                        const snackBarError = $body.find('.snack-container__error');
+                    // Esperar respuesta y decidir estado
+                    cy.wait(`@${alias}`).then((interception) => {
+                        const status = interception.response.statusCode;
+                        let estado = 'fallida';
+                        let mensaje = '';
 
-                        if (snackBarError.length > 0) {
-                            // Obtener el mensaje específico
-                            const mensajeError = snackBarError.find('.message-snack').text();
-                            cy.log(`⚠️ Error detectado: ${mensajeError}`);
-
-                            // Cerrar el snackbar si tiene botón de cerrar
-                            cy.get('.snack--btn-close').click();
-
-                            Generales.BtnCancelarRegistro();
-                            cy.log('❌ Registro duplicado - cancelando');
-                        } else {
-                            cy.log('✅ No hay errores - aceptando');
-                        }
-
-                        return cy.get('mat-dialog-container', { timeout: 10000 })
-                            .should('not.exist');
+                        cy.wait(500);
+                        cy.get('body').then(($body) => {
+                            const $snack = $body.find('span.message-snack');
+                            if ($snack.length) mensaje = $snack.text().trim();
+                        }).then(() => {
+                            if (status === 200 || status === 201) {
+                                estado = 'exitosa';
+                                cy.log('Registro insertado correctamente');
+                            } else {
+                                estado = 'fallida';
+                                cy.log(`Error detectado. Status: ${status}`);
+                            }
+                        }).then(() => {
+                            const nombreCaptura = `Captura-${numero}-AccionesCondicionadas-${estado}`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '022 - Acciones Condicionadas',
+                                    crud: "Acciones Condicionadas",
+                                    descripcion: `Correlativo: ${item.correlativo} - Acción: ${item.accion}`,
+                                    estado: estado,
+                                    numero: numero,
+                                    mensaje: mensaje,
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            });
+                        }).then(() => {
+                            cy.get('body').then(($body) => {
+                                const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                                if (modalAbierto) {
+                                    cy.log('Modal sigue abierto → cerrando manualmente');
+                                    Generales.BtnCancelarRegistro();
+                                    cy.wait(2000);
+                                    cy.get('body').then(($bodyAfter) => {
+                                        if ($bodyAfter.find('h2:contains("Nuevo Registro")').length > 0) {
+                                            cy.log('El modal no se cerró después de intentarlo, pero continuamos');
+                                        } else {
+                                            cy.log('Modal cerrado correctamente');
+                                        }
+                                    });
+                                } else {
+                                    cy.log('Modal ya cerrado');
+                                }
+                            });
+                        });
                     });
 
 
-                    cy.wait('@guardar').then((interception) => {
-                        const status = interception.response.statusCode
-                        if (status === 200 || status === 201) {
-                            cy.log('Registro insertado correctamente')
-                            // Esperar que el modal desaparezca
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        } else {
-                            cy.log(`Error detectado. Status: ${status}`)
-                            Generales.BtnCancelarRegistro()
-                            cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        }
-                    })
+
                 })
             })
         })
@@ -4612,13 +6765,10 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     describe.skip("022.1 - AccionesCondicionadas > Afecta totales condicionados...", () =>{
 
-        before(() => {
-            cy.fixture('afectaTotalesCondicionados').as('afectarTotalesCondicionados')
-        })
-
         beforeEach(() => {
             cy.wait(5000)
             Generales.IrAPantalla('conditionedActions')
+            cy.fixture('afectaTotalesCondicionados').as('afectarTotalesCondicionados')
         })
 
         it("Agregar registros a sub nivel", function () {

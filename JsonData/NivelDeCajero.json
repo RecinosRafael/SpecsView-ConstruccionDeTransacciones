@@ -1,0 +1,35 @@
+{
+  "agregar": [
+    {
+      "codigo": "2",
+      "valorArbolRaiz": "Byte S.A.",
+      "nombre": "Supervisor",
+      "descripcion": "Supervisor",
+      "valorNivelAutorizacion": "Region",
+      "rolKeycloak": "admin"
+    },{
+      "codigo": "3",
+      "valorArbolRaiz": "Byte S.A.",
+      "nombre": "Jefe Agencia",
+      "descripcion": "Jefe Agencia",
+      "valorNivelAutorizacion": "Agencia",
+      "rolKeycloak": "user"
+    },
+    {
+      "codigo": "4",
+      "valorArbolRaiz": "Byte S.A.",
+      "nombre": "Sub Jefe agencia",
+      "descripcion": "Sub Jefe agencia",
+      "valorNivelAutorizacion": "Jornada",
+      "rolKeycloak": "operador"
+    },
+    {
+      "codigo": "5",
+      "valorArbolRaiz": "Byte S.A.",
+      "nombre": "Cajero",
+      "descripcion": "Cajero",
+      "valorNivelAutorizacion": "Cajero",
+      "rolKeycloak": "user"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "agregar": [
+    {
+      "codigo": "2",
+      "nombre": "Secuencia No documento",
+      "nombreRecurso": "rDOC",
+      "endpointRutinaRutaComponenteAngular": "/api/transaction-engine-service/v1/processTransaction/sequence",
+      "tipoRutina": "APIs DEL FLUJO DE TRANSACCION",
+      "capaEjecucion": "FrontEnd - EndPoint",
+      "descripcion": "",
+      "parametros": "",
+      "tipoOperacion": "GET",
+      "esLogin": "No",
+      "formatoEnvio": "",
+      "formatoRecibido": "",
+      "expresion1": "",
+      "operacion": "",
+      "expresion2": "",
+      "tipoExpresion": "",
+      "endpointRutinaSecundario": "",
+      "enviarListaRecursos": "false",
+      "ofline": "false",
+      "online": "false",
+      "noGuardarLOG": "false"
+    },
+    {
+      "codigo": "28",
+      "nombre": "Consultar cuenta core Byte",
+      "nombreRecurso": "rCuenta",
+      "endpointRutinaRutaComponenteAngular": "http://integrador-jteller:8080/processTransaction/",
+      "tipoRutina": "APIs DEL FLUJO DE TRANSACCION",
+      "capaEjecucion": "BackEnd",
+      "descripcion": "",
+      "parametros": "",
+      "tipoOperacion": "GET",
+      "esLogin": "No",
+      "formatoEnvio": "",
+      "formatoRecibido": "",
+      "expresion1": "",
+      "operacion": "",
+      "expresion2": "",
+      "tipoExpresion": "",
+      "endpointRutinaSecundario": "",
+      "enviarListaRecursos": "false",
+      "ofline": "true",
+      "online": "true",
+      "noGuardarLOG": "false"
+    }
+  ]
+}

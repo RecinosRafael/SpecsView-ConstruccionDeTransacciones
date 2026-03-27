@@ -1,0 +1,19 @@
+{
+  "agregar": [
+    {
+      "codigoTotCaj": "1",
+      "tipoCajero": "Cajero",
+      "cuadraEfectivo": true
+    },
+    {
+      "codigoTotCaj": "1",
+      "tipoCajero": "Cajero",
+      "cuadraEfectivo": true
+    },
+    {
+      "codigoTotCaj": "102",
+      "tipoCajero": "Cajero",
+      "cuadraEfectivo": true
+    }
+  ]
+}

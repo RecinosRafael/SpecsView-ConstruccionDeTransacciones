@@ -1,0 +1,11 @@
+{
+  "agregar": [
+    {
+      "codigoTX": "700",
+      "roles": [
+        { "texto": "Administrador", "valor": false },
+        { "texto": "Cajero", "valor": true }
+      ]
+    }
+  ]
+}
