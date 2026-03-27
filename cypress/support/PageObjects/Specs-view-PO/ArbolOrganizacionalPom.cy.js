@@ -77,6 +77,39 @@ class ArbolOrganizacionalPom{
 
     }
 
+    AgregarCamposAdicionales(data){
+        //ingresamos al arbol que deseamos agregar las TX
+        this.Generales.IngresarArbol(data.codigosArbol)
+        cy.wait(500)
+        this.Generales.esperarQueSpinnerDesaparezca()
+        cy.wait(500)
+        if(data.asignaTodas){
+            cy.log("Asignando todas las transacciones")
+            this.Generales.BtnIframe('Asignar todos', { timeout: 10000, force: true, skipContext: true });
+            this.Generales.IngresarFechaIframe(data.validoDesde, "Valido Desde", { timeout: 10000, skipContext: true, force: true });
+            this.Generales.IngresarFechaIframe(data.validoHasta, "Valido Hasta", { timeout: 10000, skipContext: true,  force: true});
+            this.Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+
+        }else{
+            cy.log("Asignando las transacciones", data.transaccionesAsignar)
+            this.Generales.AsignarTransacciones(data.transaccionesAsignar)
+            this.Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+            this.Generales.IngresarFechaIframe(data.validoDesde, "Valido Desde", { timeout: 10000, skipContext: true,  force: true });
+            this.Generales.IngresarFechaIframe(data.validoHasta, "Valido Hasta", { timeout: 10000, skipContext: true,  force: true });
+            this.Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+        }
+
+    }
+    
+    
+    CamposHabilitados(camposHabilitados) {
+        if (!camposHabilitados|| !Array.isArray(camposHabilitados)) return;
+        camposHabilitados.forEach(data => {
+            this.Generales.seleccionarComboIframe(data.campo, "Campos habilitados a Entidad", { timeout: 10000, force: true, skipContext: true })
+            this.Generales.seleccionarComboIframe(data.datoCampo, "Dato del campo", { timeout: 10000, force: true, skipContext: true })               
+            this.Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true })
+        });
+    }
 
 
 

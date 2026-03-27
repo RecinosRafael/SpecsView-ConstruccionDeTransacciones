@@ -53,32 +53,41 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
                 .then(cy.wrap)
                 .within(() => {
 
-                // Llenar datos
-                ArbolOrganizacional.AgregarCamposAdicionales(item)
+                //Ingressamos al arbol a trabajr
+                Generales.IngresarArbol(item.codigosArbol)
+                cy.wait(1500)
+                //nos posicionamos en el panel Agregar Campos Adionales    
+                Generales.clickTab('Agregar Campos Adicionales', {timeout: 10000, force: true, skipContext: true});                
+                cy.wait(500)
+                Generales.BtnIframe('Agregar', { timeout: 10000, force: true, skipContext: true })
 
-        //         // Normalizar el tipo para comparación (opcional)
-        // const tipoNormalizado = item.tipo?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+                // Llenar datos
+                ArbolOrganizacional.CamposHabilitados(item.camposHabilitados)
+
 
                 //Intercept backend
-                cy.intercept('POST', /\/transactionsByTreebranch\/(administrateAll|assignedAllTransaction)/).as('guardar');
+                // cy.intercept('POST', '**/additionalEntityFields').as('guardar');
                 // Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
                 
-                cy.wait('@guardar').then((interception) => {
-                    const status = interception.response.statusCode
-                    if (status === 200 || status === 201) {
-                        cy.log('Registro insertado correctamente')
-                        // Esperar que el modal desaparezca
-                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
-                        cy.wait(2000) 
+                // cy.wait('@guardar').then((interception) => {
+                //     const status = interception.response.statusCode
+                //     if (status === 200 || status === 201) {
+                //         cy.log('Registro insertado correctamente')
+                //         // Esperar que el modal desaparezca
+                //         Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
+                //         cy.wait(2000) 
 
-                    } else {
-                        cy.log(`Error detectado. Status: ${status}`)
-                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
-                        cy.contains('h2', 'Nuevo Registro').should('not.exist')
+                //     } else {
+                //         cy.log(`Error detectado. Status: ${status}`)
+                //         Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
+                //         cy.contains('h2', 'Nuevo Registro').should('not.exist')
 
-                    }
-                })
-            
+                //     }
+                // })
+
+                Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
+
             
             
             

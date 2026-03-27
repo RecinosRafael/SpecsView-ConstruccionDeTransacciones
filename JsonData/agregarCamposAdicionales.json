@@ -3,16 +3,16 @@
     {
       "codigosArbol": ["11", "12", "13"],
       "camposHabilitados": [
-        { "campo": "campo1", "datoCampo": "valor1" },
-        { "campo": "campo2", "datoCampo": "valor2" },
-        { "campo": "campon", "datoCampo": "valorn" }
+        { "campo": "Efectivo físico", "datoCampo": "test qa 1" },
+        { "campo": "Nombre de cliente", "datoCampo": "Miguel Alonzo" }
       ]
     },
     {
       "codigosArbol": ["11", "12"],
       "camposHabilitados": [
-        { "campo": "campo1", "datoCampo": "valor1" },
-        { "campo": "campon", "datoCampo": "valorn" }
+        { "campo": "Moneda", "datoCampo": "Quetzales" },
+        { "campo": "Efectivo físico", "datoCampo": "test qa 1" },
+        { "campo": "Nombre de cliente", "datoCampo": "Angel Lemus" }
       ]
     }
   ]
