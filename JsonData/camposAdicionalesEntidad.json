@@ -1,0 +1,28 @@
+{
+  "agregar": [
+    {
+      "entidad": "Árbol organizacional",
+      "caracteristica": "Moneda",
+      "campoMandatorio": false,
+      "Tipo": "Journal de Jteller",
+      "campoReferencia": "Moneda",
+      "descripcion": "QA-Automatizado descripcion 1"
+    },
+    {
+      "entidad": "Árbol organizacional",
+      "caracteristica": "Efectivo físico",
+      "campoMandatorio": true,
+      "Tipo": "Journal de Jteller",
+      "campoReferencia": "Efectivo físico",
+      "descripcion": "QA-Automatizado descripcion 2"
+    },
+    {
+      "entidad": "Árbol organizacional",
+      "caracteristica": "Nombre de cliente",
+      "campoMandatorio": false,
+      "Tipo": "Journal de Jteller",
+      "campoReferencia": "Nombre de cliente",
+      "descripcion": "QA-Automatizado descripcion 3"
+    }
+  ]
+}

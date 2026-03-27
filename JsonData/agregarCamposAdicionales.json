@@ -1,0 +1,19 @@
+{
+  "agregar": [
+    {
+      "codigosArbol": ["11", "12", "13"],
+      "camposHabilitados": [
+        { "campo": "campo1", "datoCampo": "valor1" },
+        { "campo": "campo2", "datoCampo": "valor2" },
+        { "campo": "campon", "datoCampo": "valorn" }
+      ]
+    },
+    {
+      "codigosArbol": ["11", "12"],
+      "camposHabilitados": [
+        { "campo": "campo1", "datoCampo": "valor1" },
+        { "campo": "campon", "datoCampo": "valorn" }
+      ]
+    }
+  ]
+}
