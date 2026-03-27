@@ -63,7 +63,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
 
 
                 // Llenar datos
-                ArbolOrganizacional.CamposHabilitados(item.camposHabilitados)
+                ArbolOrganizacional.CamposHabilitados(item)
 
 
                 //Intercept backend

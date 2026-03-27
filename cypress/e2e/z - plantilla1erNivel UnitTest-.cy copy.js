@@ -56,12 +56,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
                 // Llenar datos
                 ArbolOrganizacional.AgregarCamposAdicionales(item)
 
-        //         // Normalizar el tipo para comparación (opcional)
-        // const tipoNormalizado = item.tipo?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-
                 //Intercept backend
                 cy.intercept('POST', /\/transactionsByTreebranch\/(administrateAll|assignedAllTransaction)/).as('guardar');
-                // Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
                 
                 cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
