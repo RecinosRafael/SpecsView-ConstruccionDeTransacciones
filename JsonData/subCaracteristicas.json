@@ -1,0 +1,35 @@
+{
+  "agregar": [
+    {
+      "codigo": "7",
+      "correlativo": "1",
+      "subCaracteristica": "Banco",
+      "campoTotalizable": "No",
+      "TipoOperacion": "",
+      "campoMandatorio": "Si",
+      "campoVisualizable": "",
+      "campoProtegido": ""
+    },
+    {	
+      "codigo": "7",
+      "correlativo": "2",
+      "subCaracteristica": "Número de cuenta",
+      "campoTotalizable": "No",
+      "TipoOperacion": "",
+      "campoMandatorio": "Si",
+      "campoVisualizable": "",
+      "campoProtegido": ""
+
+    },
+    {	
+      "codigo": "7",
+      "correlativo": "3",
+      "subCaracteristica": "Valor",
+      "campoTotalizable": "Si",
+      "TipoOperacion": "2- Valor calculado por el sistema",
+      "campoMandatorio": "Si",
+      "campoVisualizable": "Si",
+      "campoProtegido": "No"
+    }    
+  ]
+}		

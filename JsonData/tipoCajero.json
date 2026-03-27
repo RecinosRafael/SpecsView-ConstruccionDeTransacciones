@@ -1,0 +1,11 @@
+{
+  "agregar": [
+    {
+      "codigo": "6",
+      "descripcion": "Cajero",
+      "verTotales": false,
+      "permiteTotalizar": true,
+      "permiteRepetirLlave": false
+    }
+  ]
+}

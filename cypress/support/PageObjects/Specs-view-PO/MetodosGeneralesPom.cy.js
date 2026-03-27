@@ -772,7 +772,7 @@ BuscarRegistroEnTabla(criterios) {
             .should('exist')
             .parents('button')
             .click({ force: true });
-        cy.wait(2000)
+        cy.wait(3000)
 
         // 5️⃣ Clic en el registro encontrado en la tabla
         cy.get('.mat-row .cdk-column-name', { timeout: 15000 })
@@ -4220,6 +4220,74 @@ AsignarTransacciones(transacciones, tableSelector = 'table.mat-mdc-table', pageL
         buscarRecursivo();
     });
 }
+
+    BuscarRegistroIso3Code(codigoIso3) {
+        const normalizar = (str) => {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        };
+        const textoBuscado = "iso codigo 3"; // buscar esta cadena normalizada
+
+        // 1️⃣ Clic en "Buscar por"
+        cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })
+            .should('exist')
+            .parents('button')
+            .click({ force: true });
+
+        // 2️⃣ Seleccionar el primer panel del menú
+        cy.get('.cdk-overlay-pane', { timeout: 15000 })
+            .first()
+            .should('be.visible')
+            .within(() => {
+                // Mostrar todas las opciones en consola para depuración
+                cy.get('button, li').then($opciones => {
+                    cy.log(`Opciones encontradas: ${$opciones.length}`);
+                    $opciones.each((idx, el) => {
+                        cy.log(`Opción ${idx}: "${Cypress.$(el).text().trim()}"`);
+                    });
+                });
+
+                // Buscar la opción que contenga "iso codigo 3" normalizado
+                cy.get('button, li').then($opciones => {
+                    let $opcionEncontrada = null;
+                    for (let i = 0; i < $opciones.length; i++) {
+                        const texto = $opciones.eq(i).text().trim();
+                        const textoNormalizado = normalizar(texto);
+                        if (textoNormalizado.includes(textoBuscado)) {
+                            $opcionEncontrada = $opciones.eq(i);
+                            break;
+                        }
+                    }
+                    if ($opcionEncontrada) {
+                        cy.wrap($opcionEncontrada).click({ force: true });
+                        cy.log(`Seleccionada opción: "${$opcionEncontrada.text()}"`);
+                    } else {
+                        cy.log('No se encontró opción para "ISO Código 3", usando primera opción');
+                        cy.wrap($opciones.first()).click({ force: true });
+                    }
+                });
+            });
+
+        // 3️⃣ Esperar a que el campo #iso3Code sea visible
+        cy.get('#iso3Code', { timeout: 15000 })
+            .should('exist')
+            .should('be.visible')
+            .clear()
+            .type(codigoIso3);
+
+        // 4️⃣ Clic en el botón de búsqueda (lupa)
+        cy.contains('mat-icon', 'search', { timeout: 15000 })
+            .should('exist')
+            .parents('button')
+            .click({ force: true });
+
+        cy.wait(3000);
+
+        // 5️⃣ Seleccionar el primer registro de la tabla (columna iso3Code)
+        cy.get('.mat-row .cdk-column-iso3Code', { timeout: 15000 })
+            .first()
+            .should('exist')
+            .click({ force: true });
+    }
 
 }
 

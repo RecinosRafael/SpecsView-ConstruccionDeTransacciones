@@ -1,0 +1,26 @@
+{
+  "agregar": [
+    {
+      "tipoIdentificacion": "Cedula de Identidad Personal",
+      "numeroIdentificacion": "2138 4830 90101",
+      "codigo": "1225",
+      "usuario": "rrecinos",
+      "pNombre": "Rafael",
+      "sNombre": "",
+      "pApellido": "Recinos",
+      "sApellido": "",
+      "valorPais": "Guatemala",
+      "codigoEbs": "1225",
+      "correo": "rrecinos@bytesw.com",
+      "telTrabajo": "55366823",
+      "codigoEmpleado": "1225",
+      "valorArbolRaiz": "Byte S.A.",
+      "valorRamaArbol": "Oficina Administrativa",
+      "valorDepartamento": "Departamento administrativo",
+      "valorTipoCajero": "Cajero",
+      "valorJornadaLaboral": "Jornada Unica",
+      "valorNivelCajero": "Cajero",
+      "puertoImpre": "8090"
+    }
+  ]
+}

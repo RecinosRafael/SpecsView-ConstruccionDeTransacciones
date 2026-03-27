@@ -1,0 +1,23 @@
+{
+  "agregar": [
+    {	
+      "codigo": "3",
+      "valor": "L",
+      "valorDefecto": false,
+      "descriptor": "Lempiras",
+      "descriptor2": "",
+      "descriptor3": "",
+      "descriptor4": ""
+
+    },
+    {	
+      "codigo": "3",
+      "valor": "GTQ",
+      "valorDefecto": false,
+      "descriptor": "Quetzales",
+      "descriptor2": "",
+      "descriptor3": "",
+      "descriptor4": ""
+    }
+  ]
+}		

@@ -1,0 +1,40 @@
+{
+  "Agregar": [
+    {
+      "transaccion": "",
+      "correlativo": "998",
+      "descripcion": "Enviar transacciones generico a core byte test",
+      "pagoServicio": "",
+      "requiereLogin": "No",
+      "endpointDeLogueo": "",
+      "formatoDeEnvio": "Consultar Cuenta core-Byte",
+      "progGeneraInfoDeEnvio": "",
+      "tipoDatoEnvio": "TRAMA",
+      "endpointDeEnvio": "Cambiar Responsable de Boveda",
+      "tipoDatoRecibido": "TRAMA",
+      "archivoRespuesta": "",
+      "progRecibeInfo": "",
+      "analizaRespuesta": "Si"
+
+    }
+  ],
+  "modificar": [
+    {
+      "transaccion": "",
+      "correlativo": "999",
+      "descripcion": "Enviar transacciones generico a core byte",
+      "pagoServicio": "",
+      "requiereLogin": "No",
+      "endpointDeLogueo": "",
+      "formatoDeEnvio": "Consultar Cuenta core-Byte",
+      "progGeneraInfoDeEnvio": "",
+      "tipoDatoEnvio": "TRAMA",
+      "endpointDeEnvio": "Cambiar Responsable de Boveda",
+      "tipoDatoRecibido": "TRAMA",
+      "archivoRespuesta": "",
+      "progRecibeInfo": "",
+      "analizaRespuesta": "Si"
+
+    }
+  ]
+}		

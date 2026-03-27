@@ -1,0 +1,29 @@
+{
+  "agregar": [
+    {
+      "codigoTRX": "600",
+      "paso": "Paso 1",
+      "rutina": "Secuencia No documento",
+      "estado": "Lanzado",
+      "correlativo": "1",
+      "requiereLogin": false,
+      "descripcion": "",
+      "fechaInicio": "01/01/2026",
+      "fechaFin": "",
+      "paremetros": ""
+    },
+    {
+      "codigoTRX": "600",
+      "paso": "Paso 1",
+      "rutina": "Secuencia No documento",
+      "estado": "Lanzado",
+      "correlativo": "1",
+      "requiereLogin": false,
+      "descripcion": "",
+      "fechaInicio": "01/01/2026",
+      "fechaFin": "",
+      "paremetros": ""
+    }
+
+  ]
+}

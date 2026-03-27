@@ -1,0 +1,16 @@
+{
+  "agregar": [
+    {
+      "key": "comprobante-trx-depositos",
+      "nombre": "comprobante-trx-depositos",
+      "descripcion": "comprobante-trx-depositos",
+      "archivo": "comprobante-trx-depositos.docx"
+    },
+    {
+      "key": "comprobante-drive",
+      "nombre": "comprobante-drive",
+      "descripcion": "comprobante-drive",
+      "archivo": "comprobante-drive.docx"
+    }
+  ]
+}

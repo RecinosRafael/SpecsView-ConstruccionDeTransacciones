@@ -1,0 +1,16 @@
+{
+  "agregar": [
+
+    {
+      "codigoTX": "700",
+      "tipoFormato": "Online",
+      "comprobante": "Comprobante trx de depósitos",
+      "esMandatorio": true,
+      "verComprobante": true,
+      "notificaComprobante": true,
+      "impAntesConsultarFirmas": false,
+      "copiasImprimir": "2",
+      "etiquetas": ["Bank", "Client"]
+    }
+  ]
+}

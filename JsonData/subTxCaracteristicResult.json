@@ -1,0 +1,11 @@
+{
+  "agregar": [
+
+    {
+      "codigoTX": "700",
+      "caracteristica": "Total",
+      "caracteristicaOperar": ["Cheques otros bancos", "Efectivo físico"],
+      "operacioncaracteristicaOperar": ["+", "+"]
+    }
+  ]
+}

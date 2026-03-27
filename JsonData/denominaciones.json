@@ -13,6 +13,20 @@
       "etiqueta": "2 Lempiras",
       "valorTipo": "Billete",
       "monto": 2.00
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "UNO",
+      "etiqueta": "UNO",
+      "valorTipo": "Moneda Dañada",
+      "monto": 1.00
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "UNO dañado",
+      "etiqueta": "UNO dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 1.00
     }
   ]
 }

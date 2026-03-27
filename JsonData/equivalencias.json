@@ -1,0 +1,9 @@
+{
+  "agregar": [
+    {
+      "llave": "post.rfwide",
+      "datosEquivalentes": "0",
+      "descripcion": "No de líneas a dejar en blanco o salto a media pagina; estas líneas deben saltarse si aplica y no son parte del conteo de líneas a imprimir por pagina, o sea son líneas no usadas en el conteo de líneas a imprimir por pagina."
+    }
+  ]
+}
