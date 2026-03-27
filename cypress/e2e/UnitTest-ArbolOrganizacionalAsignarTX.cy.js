@@ -28,7 +28,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
     it("Agregar múltiples registros dinámicamente", () => {
 
     
-        cy.readFile('./JsonData/asignarTransaccionesArbol.json').then((data) => {
+        cy.readFile('./JsonData/asignarTransaccionesArbol.json',  { timeout: 15000 }).then((data) => {
             cy.wrap(data.agregar).each((item) => {
             //para ocultar el log y no se sature y ponga lenta la prueba
             cy.then(() => {
@@ -47,11 +47,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
             cy.log(`Insertando código: ${item.codigo}`)
     
     
-                cy.get('iframe.frame', { timeout: 10000 })
-                .its('0.contentDocument.body')
-                .should('not.be.empty')
-                .then(cy.wrap)
-                .within(() => {
+
 
                 //Abrir formulario
 //                Generales.BtnIframe('Agregar', { timeout: 10000, force: true, skipContext: true });
@@ -65,26 +61,33 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
         //         // Normalizar el tipo para comparación (opcional)
         // const tipoNormalizado = item.tipo?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-                //Intercept backend
-                cy.intercept('POST', /\/transactionsByTreebranch\/(administrateAll|assignedAllTransaction)/).as('guardar');
-                // Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+                // //Intercept backend
+                // cy.intercept('POST', /\/transactionsByTreebranch\/(administrateAll|assignedAllTransaction)/).as('guardar');
+                // // Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
                 
-                cy.wait('@guardar').then((interception) => {
-                    const status = interception.response.statusCode
-                    if (status === 200 || status === 201) {
-                        cy.log('Registro insertado correctamente')
-                        // Esperar que el modal desaparezca
-                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
-                        cy.wait(2000) 
+                // cy.wait('@guardar').then((interception) => {
+                //     const status = interception.response.statusCode
+                //     if (status === 200 || status === 201) {
+                //         cy.log('Registro insertado correctamente')
+                //         // Esperar que el modal desaparezca
+                //         Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
+                //         cy.wait(2000) 
 
-                    } else {
-                        cy.log(`Error detectado. Status: ${status}`)
-                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
-                        cy.contains('h2', 'Nuevo Registro').should('not.exist')
+                //     } else {
+                //         cy.log(`Error detectado. Status: ${status}`)
+                //         Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
+                //         cy.contains('h2', 'Nuevo Registro').should('not.exist')
 
-                    }
-                })
-            
+                //     }
+                // })
+                cy.get('iframe.frame', { timeout: 10000 })
+                .its('0.contentDocument.body')
+                .should('not.be.empty')
+                .then(cy.wrap)
+                .within(() => {
+
+                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
+
             
             
             

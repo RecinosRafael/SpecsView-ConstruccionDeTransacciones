@@ -3062,165 +3062,167 @@ seleccionarCombo(valor, labelText, opciones = {}) {
             });
     }
 
-    IngresarFecha(fecha, nombreCampo, opciones = {}) {
-        const {
-            timeout = 10000,
-            force = true,
-            confirmarConEnter = true,
-            scrollBehavior = 'center',
-            ensureScrollable = true,
-            offsetTop = -100,
-            normalizarTildes = true,
-            ignorarMayusculas = true,
-            ignorarEspacios = true
-        } = opciones;
+IngresarFecha(fecha, nombreCampo, opciones = {}) {
+    const {
+        timeout = 10000,
+        force = true,
+        confirmarConEnter = true,
+        scrollBehavior = 'center',
+        ensureScrollable = true,
+        offsetTop = -100,
+        normalizarTildes = true,
+        ignorarMayusculas = true,
+        ignorarEspacios = true
+    } = opciones;
 
-        cy.log(`📅 Ingresando fecha "${fecha}" en campo: "${nombreCampo}"`);
+    cy.log(`📅 Ingresando fecha "${fecha}" en campo: "${nombreCampo}"`);
 
-        // Función para normalizar texto (quitar tildes)
-        const normalizarTildesFunc = (texto) => {
-            if (!texto) return texto;
-            return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        };
+    // Función para normalizar texto (quitar tildes)
+    const normalizarTildesFunc = (texto) => {
+        if (!texto) return texto;
+        return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    };
 
-        // Función para normalizar COMPLETAMENTE (tildes + minúsculas + espacios)
-        const normalizarCompleto = (texto) => {
-            if (!texto) return texto;
-            let resultado = String(texto);
+    // Función para normalizar COMPLETAMENTE (tildes + minúsculas + espacios)
+    const normalizarCompleto = (texto) => {
+        if (!texto) return texto;
+        let resultado = String(texto);
 
-            if (normalizarTildes) {
-                resultado = normalizarTildesFunc(resultado);
-            }
-
-            if (ignorarMayusculas) {
-                resultado = resultado.toLowerCase();
-            }
-
-            if (ignorarEspacios) {
-                resultado = resultado.trim().replace(/\s+/g, ' ');
-            }
-
-            return resultado;
-        };
-
-        // Validar fecha inválida
-        if (!fecha || fecha === '') {
-            cy.log(`⏭️ Fecha vacía para campo "${nombreCampo}" - omitiendo`);
-            return;
+        if (normalizarTildes) {
+            resultado = normalizarTildesFunc(resultado);
         }
 
-        // Formatear fecha si es necesario (ej: "15/3/2026" → "15/03/2026")
-        const formatearFecha = (fechaStr) => {
-            if (!fechaStr) return fechaStr;
-            const partes = fechaStr.split('/');
-            if (partes.length === 3) {
-                const dia = partes[0].padStart(2, '0');
-                const mes = partes[1].padStart(2, '0');
-                const anio = partes[2];
-                return `${dia}/${mes}/${anio}`;
-            }
-            return fechaStr;
-        };
+        if (ignorarMayusculas) {
+            resultado = resultado.toLowerCase();
+        }
 
-        const fechaFormateada = formatearFecha(fecha);
-        cy.log(`📅 Fecha original: "${fecha}" | Formateada: "${fechaFormateada}"`);
+        if (ignorarEspacios) {
+            resultado = resultado.trim().replace(/\s+/g, ' ');
+        }
 
-        // Función para buscar label normalizado
-        const buscarLabel = () => {
-            const textoBusqueda = normalizarCompleto(nombreCampo);
-            cy.log(`📋 Buscando label normalizado: "${textoBusqueda}" (original: "${nombreCampo}")`);
+        return resultado;
+    };
 
-            return cy.get('label, mat-label, span.label', { timeout })
-                .then($labels => {
-                    const $encontrados = $labels.filter((index, el) => {
-                        const textEl = Cypress.$(el).text().trim();
-                        const textNormalizado = normalizarCompleto(textEl);
+    // Validar fecha inválida
+    if (!fecha || fecha === '') {
+        cy.log(`⏭️ Fecha vacía para campo "${nombreCampo}" - omitiendo`);
+        return;
+    }
 
-                        // Coincidencia exacta o includes
-                        return textNormalizado === textoBusqueda ||
-                            textNormalizado.includes(textoBusqueda);
+    // Formatear fecha si es necesario (ej: "15/3/2026" → "15/03/2026")
+    const formatearFecha = (fechaStr) => {
+        if (!fechaStr) return fechaStr;
+        const partes = fechaStr.split('/');
+        if (partes.length === 3) {
+            const dia = partes[0].padStart(2, '0');
+            const mes = partes[1].padStart(2, '0');
+            const anio = partes[2];
+            return `${dia}/${mes}/${anio}`;
+        }
+        return fechaStr;
+    };
+
+    const fechaFormateada = formatearFecha(fecha);
+    cy.log(`📅 Fecha original: "${fecha}" | Formateada: "${fechaFormateada}"`);
+
+    // Función para buscar label normalizado y retornar el input asociado
+    const buscarLabel = () => {
+        const textoBusqueda = normalizarCompleto(nombreCampo);
+        cy.log(`📋 Buscando label normalizado: "${textoBusqueda}" (original: "${nombreCampo}")`);
+
+        return cy.get('label, mat-label, span.label', { timeout })
+            .then($labels => {
+                const $encontrados = $labels.filter((index, el) => {
+                    const textEl = Cypress.$(el).text().trim();
+                    const textNormalizado = normalizarCompleto(textEl);
+
+                    // Coincidencia exacta o includes
+                    return textNormalizado === textoBusqueda ||
+                        textNormalizado.includes(textoBusqueda);
+                });
+
+                if ($encontrados.length === 0) {
+                    cy.log(`❌ No se encontró label para: "${textoBusqueda}"`);
+                    cy.log('📋 Labels disponibles:');
+                    $labels.each((i, el) => {
+                        const texto = Cypress.$(el).text().trim();
+                        cy.log(`   ${i}: "${texto}" (normalizado: "${normalizarCompleto(texto)}")`);
                     });
 
-                    if ($encontrados.length === 0) {
-                        cy.log(`❌ No se encontró label para: "${textoBusqueda}"`);
-                        cy.log('📋 Labels disponibles:');
-                        $labels.each((i, el) => {
-                            const texto = Cypress.$(el).text().trim();
-                            cy.log(`   ${i}: "${texto}" (normalizado: "${normalizarCompleto(texto)}")`);
+                    // Intentar búsqueda por placeholder como fallback
+                    cy.log('⚠️ Intentando búsqueda por placeholder...');
+                    return cy.get(`input[data-placeholder]`, { timeout: 5000 })
+                        .filter((i, input) => {
+                            const placeholder = Cypress.$(input).attr('data-placeholder');
+                            return placeholder && normalizarCompleto(placeholder) === textoBusqueda;
+                        })
+                        .first()
+                        .then($input => {
+                            if ($input.length) {
+                                cy.log(`✅ Encontrado por placeholder: "${$input.attr('data-placeholder')}"`);
+                                return cy.wrap($input);
+                            }
+                            throw new Error(`No se encontró campo para fecha "${nombreCampo}"`);
                         });
-
-                        // Intentar búsqueda por placeholder como fallback
-                        cy.log('⚠️ Intentando búsqueda por placeholder...');
-                        return cy.get(`input[data-placeholder]`, { timeout: 5000 })
-                            .filter((i, input) => {
-                                const placeholder = Cypress.$(input).attr('data-placeholder');
-                                return placeholder && normalizarCompleto(placeholder) === textoBusqueda;
-                            })
-                            .first()
-                            .then($input => {
-                                if ($input.length) {
-                                    cy.log(`✅ Encontrado por placeholder: "${$input.attr('data-placeholder')}"`);
-                                    return cy.wrap($input);
-                                }
-                                throw new Error(`No se encontró campo para fecha "${nombreCampo}"`);
-                            });
-                    }
-
-                    cy.log(`✅ Label encontrado: "${Cypress.$($encontrados[0]).text().trim()}"`);
-                    return cy.wrap($encontrados.first());
-                });
-        };
-
-        // Buscar el label y luego obtener el input asociado
-        buscarLabel()
-            .then($label => {
-                // Si es un input directo, usarlo; si no, buscar por id o placeholder
-                let $inputPromise;
-                if ($label.is('input')) {
-                    $inputPromise = cy.wrap($label);
-                } else {
-                    const inputId = $label.attr('for');
-                    if (inputId) {
-                        $inputPromise = cy.get(`#${inputId}`);
-                    } else {
-                        // buscar por placeholder
-                        const textoBusqueda = normalizarCompleto(nombreCampo);
-                        $inputPromise = cy.get(`input[data-placeholder]`, { timeout })
-                            .filter((i, input) => {
-                                const placeholder = Cypress.$(input).attr('data-placeholder');
-                                return placeholder && normalizarCompleto(placeholder) === textoBusqueda;
-                            })
-                            .first();
-                    }
                 }
 
-                return $inputPromise;
-            })
-            .then($input => {
-                // Hacer scroll al input y esperar un poco
-                cy.wrap($input).scrollIntoView({
-                    duration: 300,
-                    easing: 'linear',
-                    offset: { top: offsetTop, left: 0 },
-                    ensureScrollable: ensureScrollable
-                });
-                cy.wait(200);
+                cy.log(`✅ Label encontrado: "${Cypress.$($encontrados[0]).text().trim()}"`);
+                const $label = $encontrados.first();
 
-                // Verificar si está deshabilitado (solo para log)
-                cy.wrap($input).then($el => {
-                    if ($el.prop('disabled')) {
-                        cy.log(`⚠️ Input "${nombreCampo}" está deshabilitado. Se intentará con force.`);
-                    }
-                });
+                // Obtener el input asociado al label
+                if ($label.is('input')) {
+                    return cy.wrap($label);
+                }
+                const inputId = $label.attr('for');
+                if (inputId) {
+                    return cy.get(`#${inputId}`);
+                }
+                // Si no hay 'for', buscar por placeholder
+                const textoBusquedaPlaceholder = normalizarCompleto(nombreCampo);
+                return cy.get(`input[data-placeholder]`, { timeout })
+                    .filter((i, input) => {
+                        const placeholder = Cypress.$(input).attr('data-placeholder');
+                        return placeholder && normalizarCompleto(placeholder) === textoBusquedaPlaceholder;
+                    })
+                    .first();
+            });
+    };
 
-                // Limpiar y escribir con force (ignora visibilidad, cobertura, etc.)
-                cy.wrap($input)
-                    .clear({ force })
-                    .type(fechaFormateada, { force });
+    // Buscar el input usando la función auxiliar
+    buscarLabel()
+        .then($input => {
+            // Hacer scroll al input y esperar un poco
+            cy.wrap($input).scrollIntoView({
+                duration: 300,
+                easing: 'linear',
+                offset: { top: offsetTop, left: 0 },
+                ensureScrollable: ensureScrollable
+            });
+            cy.wait(200);
 
+            // Verificar si está deshabilitado (solo para log)
+            cy.wrap($input).then($el => {
+                if ($el.prop('disabled')) {
+                    cy.log(`⚠️ Input "${nombreCampo}" está deshabilitado. Se intentará con force.`);
+                }
+            });
+
+            // ========== CORRECCIÓN: usar invoke en lugar de clear ==========
+            // 1. Limpiar usando invoke para evitar detach
+            cy.wrap($input).invoke('val', '');
+
+            // 2. Pequeña espera para que la UI se estabilice después de limpiar
+            cy.wait(200);
+
+            // 3. Volver a buscar el input (porque el DOM pudo haber cambiado)
+            buscarLabel().then($newInput => {
+                // 4. Escribir la fecha
+                cy.wrap($newInput).type(fechaFormateada, { force });
                 cy.log(`✅ Fecha ingresada: ${fechaFormateada} en campo "${nombreCampo}"`);
             });
-    }
+            // ===============================================================
+        });
+}
 
 
 
