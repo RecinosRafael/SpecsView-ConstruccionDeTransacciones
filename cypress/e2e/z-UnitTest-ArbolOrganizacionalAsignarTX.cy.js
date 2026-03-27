@@ -66,7 +66,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
         // const tipoNormalizado = item.tipo?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
                 //Intercept backend
-                cy.intercept('POST', '**/organizationTree').as('guardar')
+                cy.intercept('POST', /\/transactionsByTreebranch\/(administrateAll|assignedAllTransaction)/).as('guardar');
                 // Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
                 
                 cy.wait('@guardar').then((interception) => {
@@ -77,13 +77,10 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
                         Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
                         cy.wait(2000) 
 
-                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
-
                     } else {
                         cy.log(`Error detectado. Status: ${status}`)
                         Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                        Generales.BtnIframe('Sí', { timeout: 10000, force: true, skipContext: true });
 
                     }
                 })
@@ -99,5 +96,4 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
     })
 
 })
-
 

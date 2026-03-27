@@ -4,7 +4,7 @@ class MetodosGeneralesPomCy{
     //Boton para agregar registros
     BtnAgregarRegistro(){
         cy.log('Clic en botón ADD');
-        this.esperarOcultarSpinner()
+        this.esperarQueSpinnerDesaparezca()
         cy.get('button.mat-fab', { timeout: 15000 })
             .should('exist')
             .then($btn => {
@@ -62,8 +62,8 @@ class MetodosGeneralesPomCy{
                 .click({ force })
                 .then(() => {
                     cy.log(`✅ Clic en elemento con texto "${textoBoton}"`);
-                    if (this.esperarOcultarSpinner) {
-                        this.esperarOcultarSpinner({
+                    if (this.esperarQueSpinnerDesaparezca) {
+                        this.esperarQueSpinnerDesaparezca({
                             timeout: spinnerTimeout,
                             esperarAparicion: esperarAparicionSpinner,
                             skipContext: skipContext
@@ -104,8 +104,8 @@ class MetodosGeneralesPomCy{
                 .click({ force })
                 .then(() => {
                     cy.log(`✅ Clic en elemento con tooltip "${textoBoton}"`);
-                    if (this.esperarOcultarSpinner) {
-                        this.esperarOcultarSpinner({
+                    if (this.esperarQueSpinnerDesaparezca) {
+                        this.esperarQueSpinnerDesaparezca({
                             timeout: spinnerTimeout,
                             esperarAparicion: esperarAparicionSpinner,
                             skipContext: skipContext
@@ -179,8 +179,8 @@ clickTooltipButton(textoBoton, opciones = {}) {
                 .click({ force })
                 .then(() => {
                     cy.log(`✅ Clic en botón con tooltip "${textoBoton}"`);
-                    if (this.esperarOcultarSpinner) {
-                        this.esperarOcultarSpinner({
+                    if (this.esperarQueSpinnerDesaparezca) {
+                        this.esperarQueSpinnerDesaparezca({
                             timeout: spinnerTimeout,
                             esperarAparicion: esperarAparicionSpinner,
                             skipContext: skipContext
@@ -193,7 +193,7 @@ clickTooltipButton(textoBoton, opciones = {}) {
 
     // BtnAgregarRegistrosIF() {
     //         cy.log('Clic en botón ADD');
-    //         this.esperarOcultarSpinner();
+    //         this.esperarQueSpinnerDesaparezca();
 
     //         // Detectar iframe
     //         cy.get('iframe.frame', { timeout: 5000, failOnStatusCode: false }).then(($iframe) => {
@@ -275,7 +275,7 @@ clickTooltipButton(textoBoton, opciones = {}) {
 
 BtnAceptarRegistroF() {
     cy.log('Clic en botón ACEPTAR');
-    this.esperarOcultarSpinner()
+    this.esperarQueSpinnerDesaparezca()
 
     const intentarClick = () => {
         // Selectores CSS para el botón Aceptar (con icono check)
@@ -357,7 +357,7 @@ BtnAceptarRegistroF() {
 
     BtnCancelarRegistroIF() {
     cy.log('Clic en botón CANCELAR');
-    this.esperarOcultarSpinner()
+    this.esperarQueSpinnerDesaparezca()
 
     const intentarClick = () => {
         // Selectores CSS para el botón Cancelar (con icono keyboard_return)
@@ -1621,7 +1621,7 @@ BuscarRegistroEnTabla(criterios) {
                 cy.log('Ya estás logeado.');
             }
         })
-        this.esperarOcultarSpinner()
+        this.esperarQueSpinnerDesaparezca()
     }
 
 
@@ -3222,39 +3222,7 @@ seleccionarCombo(valor, labelText, opciones = {}) {
             });
     }
 
-    esperarOcultarSpinner(opciones = {}) {
-        const {
-            timeout = 30000,
-            esperarAparicion = false,
-            skipContext = false
-        } = opciones;
 
-        const ejecutar = () => {
-            cy.log('⏳ Esperando a que desaparezca el spinner...');
-            if (esperarAparicion) {
-                cy.get('mat-spinner', { timeout: 5000 }).should('be.visible');
-            }
-            cy.get('mat-spinner', { timeout }).should('not.exist');
-        };
-
-        if (skipContext) {
-            ejecutar();
-        } else {
-            cy.get('body').then($body => {
-                const $iframe = $body.find('iframe.frame');
-                if ($iframe.length > 0) {
-                    cy.wrap($iframe)
-                        .its('0.contentDocument.body')
-                        .should('not.be.empty')
-                        .then(cy.wrap)
-                        .within(ejecutar);
-                } else {
-                    ejecutar();
-                }
-            });
-        }
-
-    }
 
 
     filtrarPorCodigo(codigo) {
@@ -3543,8 +3511,6 @@ seleccionarCombo(valor, labelText, opciones = {}) {
                 });
             });
     }
-
-
 
     seleccionarRadio(valor, opciones = {}) {
         const {
