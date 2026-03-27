@@ -18,13 +18,3 @@ class CamposAdicionalesEntidadPomCy{
 }
 export default CamposAdicionalesEntidadPomCy;
 
-/**
- * 
-      "entidad": "Árbol organizacional",
-      "caracteristica": "Moneda",
-      "campoMandatorio": false,
-      "Tipo": "Journal de Jteller",
-      "campoReferencia": "Moneda",
-      "descripcion": "QA-Automatizado descripcion 1"
- * 
- */

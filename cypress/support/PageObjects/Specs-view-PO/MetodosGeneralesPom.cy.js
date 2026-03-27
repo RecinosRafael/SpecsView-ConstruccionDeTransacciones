@@ -3062,169 +3062,165 @@ seleccionarCombo(valor, labelText, opciones = {}) {
             });
     }
 
-    IngresarFecha(fecha, nombreCampo, opciones = {}) {
-        const {
-            timeout = 10000,
-            force = true,
-            confirmarConEnter = true,
-            scrollBehavior = 'center',
-            ensureScrollable = true,
-            offsetTop = -100,
-            normalizarTildes = true,
-            ignorarMayusculas = true,
-            ignorarEspacios = true
-        } = opciones;
+IngresarFecha(fecha, nombreCampo, opciones = {}) {
+    const {
+        timeout = 10000,
+        force = true,
+        confirmarConEnter = true,
+        scrollBehavior = 'center',
+        ensureScrollable = true,
+        offsetTop = -100,
+        normalizarTildes = true,
+        ignorarMayusculas = true,
+        ignorarEspacios = true
+    } = opciones;
 
-        cy.log(`📅 Ingresando fecha "${fecha}" en campo: "${nombreCampo}"`);
+    cy.log(`📅 Ingresando fecha "${fecha}" en campo: "${nombreCampo}"`);
 
-        // Función para normalizar texto (quitar tildes)
-        const normalizarTildesFunc = (texto) => {
-            if (!texto) return texto;
-            return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        };
+    // Función para normalizar texto (quitar tildes)
+    const normalizarTildesFunc = (texto) => {
+        if (!texto) return texto;
+        return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    };
 
-        // Función para normalizar COMPLETAMENTE (tildes + minúsculas + espacios)
-        const normalizarCompleto = (texto) => {
-            if (!texto) return texto;
-            let resultado = String(texto);
+    // Función para normalizar COMPLETAMENTE (tildes + minúsculas + espacios)
+    const normalizarCompleto = (texto) => {
+        if (!texto) return texto;
+        let resultado = String(texto);
 
-            if (normalizarTildes) {
-                resultado = normalizarTildesFunc(resultado);
-            }
-
-            if (ignorarMayusculas) {
-                resultado = resultado.toLowerCase();
-            }
-
-            if (ignorarEspacios) {
-                resultado = resultado.trim().replace(/\s+/g, ' ');
-            }
-
-            return resultado;
-        };
-
-        // Validar fecha inválida
-        if (!fecha || fecha === '') {
-            cy.log(`⏭️ Fecha vacía para campo "${nombreCampo}" - omitiendo`);
-            return;
+        if (normalizarTildes) {
+            resultado = normalizarTildesFunc(resultado);
         }
 
-        // Formatear fecha si es necesario (ej: "15/3/2026" → "15/03/2026")
-        const formatearFecha = (fechaStr) => {
-            if (!fechaStr) return fechaStr;
-            const partes = fechaStr.split('/');
-            if (partes.length === 3) {
-                const dia = partes[0].padStart(2, '0');
-                const mes = partes[1].padStart(2, '0');
-                const anio = partes[2];
-                return `${dia}/${mes}/${anio}`;
-            }
-            return fechaStr;
-        };
+        if (ignorarMayusculas) {
+            resultado = resultado.toLowerCase();
+        }
 
-        const fechaFormateada = formatearFecha(fecha);
-        cy.log(`📅 Fecha original: "${fecha}" | Formateada: "${fechaFormateada}"`);
+        if (ignorarEspacios) {
+            resultado = resultado.trim().replace(/\s+/g, ' ');
+        }
 
-        // Función para buscar label normalizado
-        const buscarLabel = () => {
-            const textoBusqueda = normalizarCompleto(nombreCampo);
-            cy.log(`📋 Buscando label normalizado: "${textoBusqueda}" (original: "${nombreCampo}")`);
+        return resultado;
+    };
 
-            return cy.get('label, mat-label, span.label', { timeout })
-                .then($labels => {
-                    const $encontrados = $labels.filter((index, el) => {
-                        const textEl = Cypress.$(el).text().trim();
-                        const textNormalizado = normalizarCompleto(textEl);
+    // Validar fecha inválida
+    if (!fecha || fecha === '') {
+        cy.log(`⏭️ Fecha vacía para campo "${nombreCampo}" - omitiendo`);
+        return;
+    }
 
-                        // Coincidencia exacta o includes
-                        return textNormalizado === textoBusqueda ||
-                            textNormalizado.includes(textoBusqueda);
+    // Formatear fecha si es necesario (ej: "15/3/2026" → "15/03/2026")
+    const formatearFecha = (fechaStr) => {
+        if (!fechaStr) return fechaStr;
+        const partes = fechaStr.split('/');
+        if (partes.length === 3) {
+            const dia = partes[0].padStart(2, '0');
+            const mes = partes[1].padStart(2, '0');
+            const anio = partes[2];
+            return `${dia}/${mes}/${anio}`;
+        }
+        return fechaStr;
+    };
+
+    const fechaFormateada = formatearFecha(fecha);
+    cy.log(`📅 Fecha original: "${fecha}" | Formateada: "${fechaFormateada}"`);
+
+    // Función para buscar label normalizado
+    const buscarLabel = () => {
+        const textoBusqueda = normalizarCompleto(nombreCampo);
+        cy.log(`📋 Buscando label normalizado: "${textoBusqueda}" (original: "${nombreCampo}")`);
+
+        return cy.get('label, mat-label, span.label', { timeout })
+            .then($labels => {
+                const $encontrados = $labels.filter((index, el) => {
+                    const textEl = Cypress.$(el).text().trim();
+                    const textNormalizado = normalizarCompleto(textEl);
+
+                    // Coincidencia exacta o includes
+                    return textNormalizado === textoBusqueda ||
+                        textNormalizado.includes(textoBusqueda);
+                });
+
+                if ($encontrados.length === 0) {
+                    cy.log(`❌ No se encontró label para: "${textoBusqueda}"`);
+                    cy.log('📋 Labels disponibles:');
+                    $labels.each((i, el) => {
+                        const texto = Cypress.$(el).text().trim();
+                        cy.log(`   ${i}: "${texto}" (normalizado: "${normalizarCompleto(texto)}")`);
                     });
 
-                    if ($encontrados.length === 0) {
-                        cy.log(`❌ No se encontró label para: "${textoBusqueda}"`);
-                        cy.log('📋 Labels disponibles:');
-                        $labels.each((i, el) => {
-                            const texto = Cypress.$(el).text().trim();
-                            cy.log(`   ${i}: "${texto}" (normalizado: "${normalizarCompleto(texto)}")`);
+                    // Intentar búsqueda por placeholder como fallback
+                    cy.log('⚠️ Intentando búsqueda por placeholder...');
+                    return cy.get(`input[data-placeholder]`, { timeout: 5000 })
+                        .filter((i, input) => {
+                            const placeholder = Cypress.$(input).attr('data-placeholder');
+                            return placeholder && normalizarCompleto(placeholder) === textoBusqueda;
+                        })
+                        .first()
+                        .then($input => {
+                            if ($input.length) {
+                                cy.log(`✅ Encontrado por placeholder: "${$input.attr('data-placeholder')}"`);
+                                return cy.wrap($input);
+                            }
+                            throw new Error(`No se encontró campo para fecha "${nombreCampo}"`);
                         });
-
-                        // Intentar búsqueda por placeholder como fallback
-                        cy.log('⚠️ Intentando búsqueda por placeholder...');
-                        return cy.get(`input[data-placeholder]`, { timeout: 5000 })
-                            .filter((i, input) => {
-                                const placeholder = Cypress.$(input).attr('data-placeholder');
-                                return placeholder && normalizarCompleto(placeholder) === textoBusqueda;
-                            })
-                            .first()
-                            .then($input => {
-                                if ($input.length) {
-                                    cy.log(`✅ Encontrado por placeholder: "${$input.attr('data-placeholder')}"`);
-                                    return cy.wrap($input);
-                                }
-                                throw new Error(`No se encontró campo para fecha "${nombreCampo}"`);
-                            });
-                    }
-
-                    cy.log(`✅ Label encontrado: "${Cypress.$($encontrados[0]).text().trim()}"`);
-                    return cy.wrap($encontrados.first());
-                });
-        };
-
-        // Buscar el label normalizado
-        buscarLabel()
-            .should('be.visible')
-            .then($label => {
-                // Verificar si es un input directo o necesitamos buscar el input asociado
-                if ($label.is('input')) {
-                    // Ya es un input, usarlo directamente
-                    return cy.wrap($label);
-                } else {
-                    // Es un label, buscar el input asociado
-                    const inputId = $label.attr('for');
-
-                    if (inputId) {
-                        return cy.get(`#${inputId}`);
-                    } else {
-                        // Buscar por placeholder
-                        const textoBusqueda = normalizarCompleto(nombreCampo);
-                        return cy.get(`input[data-placeholder]`, { timeout })
-                            .filter((i, input) => {
-                                const placeholder = Cypress.$(input).attr('data-placeholder');
-                                return placeholder && normalizarCompleto(placeholder) === textoBusqueda;
-                            })
-                            .first();
-                    }
                 }
-            })
-            .should('be.visible')
-            .then($input => {
-                // 👇 Hacer scroll al input
-                cy.wrap($input).scrollIntoView({
-                    duration: 300,
-                    easing: 'linear',
-                    offset: { top: offsetTop, left: 0 },
-                    ensureScrollable: ensureScrollable
-                });
 
-                cy.wait(200); // Pausa después del scroll
-
-                // Verificar si el input está habilitado
-                cy.wrap($input).then($el => {
-                    if ($el.prop('disabled') && !force) {
-                        cy.log(`⚠️ Input "${nombreCampo}" está deshabilitado y force=false`);
-                        return;
-                    }
-
-                    // Limpiar y escribir la fecha
-                    cy.wrap($input)
-                        .clear({ force })
-                        .type(fechaFormateada, { force });
-
-                    cy.log(`✅ Fecha ingresada: ${fechaFormateada} en campo "${nombreCampo}"`);
-                });
+                cy.log(`✅ Label encontrado: "${Cypress.$($encontrados[0]).text().trim()}"`);
+                return cy.wrap($encontrados.first());
             });
-    }
+    };
+
+    // Buscar el label y luego obtener el input asociado
+    buscarLabel()
+        .then($label => {
+            // Si es un input directo, usarlo; si no, buscar por id o placeholder
+            let $inputPromise;
+            if ($label.is('input')) {
+                $inputPromise = cy.wrap($label);
+            } else {
+                const inputId = $label.attr('for');
+                if (inputId) {
+                    $inputPromise = cy.get(`#${inputId}`);
+                } else {
+                    // buscar por placeholder
+                    const textoBusqueda = normalizarCompleto(nombreCampo);
+                    $inputPromise = cy.get(`input[data-placeholder]`, { timeout })
+                        .filter((i, input) => {
+                            const placeholder = Cypress.$(input).attr('data-placeholder');
+                            return placeholder && normalizarCompleto(placeholder) === textoBusqueda;
+                        })
+                        .first();
+                }
+            }
+
+            return $inputPromise;
+        })
+        .then($input => {
+            // Hacer scroll al input y esperar un poco
+            cy.wrap($input).scrollIntoView({
+                duration: 300,
+                easing: 'linear',
+                offset: { top: offsetTop, left: 0 },
+                ensureScrollable: ensureScrollable
+            });
+            cy.wait(200);
+
+            // Verificar si está deshabilitado (solo para log)
+            cy.wrap($input).then($el => {
+                if ($el.prop('disabled')) {
+                    cy.log(`⚠️ Input "${nombreCampo}" está deshabilitado. Se intentará con force.`);
+                }
+            });
+
+            // Limpiar y escribir con force (ignora visibilidad, cobertura, etc.)
+            cy.wrap($input)
+                .clear({ force })
+                .type(fechaFormateada, { force });
+
+            cy.log(`✅ Fecha ingresada: ${fechaFormateada} en campo "${nombreCampo}"`);
+        });
+}
 
     esperarOcultarSpinner(opciones = {}) {
         const {
@@ -4068,6 +4064,162 @@ seleccionarCombo(valor, labelText, opciones = {}) {
 
         cy.log(`Seleccionado "${valor}" en combo "${labelText}"`);
     }
+
+    IngresarArbol(codigosArbol, tableSelector = 'table.mat-mdc-table', transactionPanelSelector = 'app-grid-table') {
+        if (!Array.isArray(codigosArbol)) {
+            codigosArbol = [codigosArbol];
+        }
+
+        const expandirRecursivo = (indice) => {
+            if (indice >= codigosArbol.length) {
+                cy.log('✅ Todos los códigos procesados');
+                // Una vez procesados todos, esperamos a que aparezca el panel de transacciones
+                return cy.get(transactionPanelSelector, { timeout: 10000 }).should('be.visible');
+            }
+
+            const codigoActual = codigosArbol[indice];
+            const esUltimo = (indice === codigosArbol.length - 1);
+            cy.log(`🔍 Buscando código: ${codigoActual}${esUltimo ? ' (último, se hará clic en el botón "Ver")' : ''}`);
+
+            return cy.get(tableSelector, { timeout: 10000 })
+                .find('tbody tr')
+                .filter((i, el) => {
+                    const codigoCelda = Cypress.$(el).find('td.mat-column-code').text().trim();
+                    return codigoCelda === codigoActual;
+                })
+                .first()
+                .then(($fila) => {
+                    if (!$fila.length) {
+                        throw new Error(`No se encontró fila con código ${codigoActual}`);
+                    }
+
+                    if (esUltimo) {
+                        // Buscar el botón de "Ver" dentro de la columna de acciones (cdk-column-show)
+                        // Puede ser un botón con mat-icon-button y mat-icon "visibility"
+                        const $botonVer = $fila.find('td.mat-column-show button.mdc-icon-button');
+                        // También podríamos usar: $fila.find('td.cdk-column-show button')
+                        if ($botonVer.length) {
+                            cy.wrap($botonVer).click({ force: true });
+                            cy.log(`✅ Clic forzado en el botón "Ver" de la fila con código ${codigoActual}`);
+                        } else {
+                            // Fallback: clic en la fila si no se encuentra el botón
+                            cy.wrap($fila).click({ force: true });
+                            cy.log(`⚠️ Botón "Ver" no encontrado, se hizo clic en la fila con código ${codigoActual}`);
+                        }
+                        // No continuamos recursivamente; la espera se hará al final
+                    } else {
+                        const $boton = $fila.find('td.mat-column-name button.mdc-icon-button');
+                        if ($boton.length && $boton.is(':visible')) {
+                            cy.wrap($boton).click();
+                            cy.wait(1000);
+                            return expandirRecursivo(indice + 1);
+                        } else {
+                            throw new Error(`No se pudo expandir la fila con código ${codigoActual}`);
+                        }
+                    }
+                });
+        };
+
+        return expandirRecursivo(0);
+    }
+
+AsignarTransacciones(transacciones, tableSelector = 'table.mat-mdc-table', pageLoadDelay = 1000) {
+    if (!Array.isArray(transacciones)) {
+        transacciones = [transacciones];
+    }
+
+    const pendientes = [...transacciones];
+
+    const marcarEnPaginaActual = () => {
+        cy.log(`🔍 Buscando en página actual: ${pendientes.join(', ')}`);
+
+        return cy.get(tableSelector, { timeout: 10000 })
+            .find('tbody tr')
+            .then(($filas) => {
+                const checkboxesAClic = [];
+
+                $filas.each((i, fila) => {
+                    const $fila = Cypress.$(fila);
+                    const nombre = $fila.find('td.mat-column-transactionName').text().trim();
+                    const index = pendientes.indexOf(nombre);
+                    if (index !== -1) {
+                        const $checkbox = $fila.find('mat-checkbox input[type="checkbox"]');
+                        if ($checkbox.length && !$checkbox.prop('checked')) {
+                            checkboxesAClic.push($checkbox);
+                            cy.log(`✅ Encontrada para marcar: ${nombre}`);
+                        } else if ($checkbox.prop('checked')) {
+                            cy.log(`ℹ️ Ya estaba seleccionada: ${nombre}`);
+                        }
+                        pendientes.splice(index, 1);
+                    }
+                });
+
+                if (checkboxesAClic.length === 0) {
+                    return cy.wrap([...pendientes]);
+                }
+
+                let chain = cy.wrap(null);
+                checkboxesAClic.forEach(($chk) => {
+                    chain = chain.then(() => {
+                        return cy.wrap($chk).scrollIntoView().click({ force: true });
+                    });
+                });
+                return chain.then(() => cy.wrap([...pendientes]));
+            });
+    };
+
+    const irAPrimeraPagina = () => {
+        cy.log('🔄 Asegurando que estamos en la primera página...');
+        return cy.get('app-grid-table mat-paginator .mat-mdc-paginator-navigation-first', { timeout: 5000 })
+            .then(($btn) => {
+                if ($btn.length && !$btn.prop('disabled')) {
+                    cy.wrap($btn).scrollIntoView().click({ force: true });
+                    cy.wait(pageLoadDelay);
+                    return cy.wrap(true);
+                } else {
+                    return cy.wrap(false);
+                }
+            });
+    };
+
+    const avanzarPagina = () => {
+        return cy.get('app-grid-table mat-paginator .mat-mdc-paginator-navigation-next', { timeout: 5000 })
+            .then(($next) => {
+                if ($next.length && !$next.prop('disabled')) {
+                    cy.wrap($next).scrollIntoView().click({ force: true });
+                    cy.wait(pageLoadDelay);
+                    return cy.wrap(true);
+                } else {
+                    return cy.wrap(false);
+                }
+            });
+    };
+
+    irAPrimeraPagina().then(() => {
+        const buscarRecursivo = () => {
+            if (pendientes.length === 0) {
+                cy.log('✅ Todas las transacciones procesadas');
+                return;
+            }
+
+            marcarEnPaginaActual().then((restantes) => {
+                if (restantes.length === 0) {
+                    cy.log('✅ Todas las transacciones encontradas en la página actual');
+                    return;
+                }
+
+                avanzarPagina().then((avanzado) => {
+                    if (!avanzado) {
+                        throw new Error(`No se encontraron las transacciones: ${restantes.join(', ')} después de revisar todas las páginas.`);
+                    }
+                    buscarRecursivo();
+                });
+            });
+        };
+
+        buscarRecursivo();
+    });
+}
 
 }
 

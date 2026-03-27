@@ -54,71 +54,27 @@ class ArbolOrganizacionalPom{
     }
 
     AsignarTransacciones(data){
-
-        if(data.asignarTodas){
-            //asignamos todas
-
+        //ingresamos al arbol que deseamos agregar las TX
+        this.Generales.IngresarArbol(data.codigosArbol)
+        cy.wait(500)
+        this.Generales.esperarQueSpinnerDesaparezca()
+        cy.wait(500)
+        if(data.asignaTodas){
+            cy.log("Asignando todas las transacciones")
+            this.Generales.BtnIframe('Asignar todos', { timeout: 10000, force: true, skipContext: true });
+            this.Generales.IngresarFechaIframe(data.validoDesde, "Valido Desde", { timeout: 10000, skipContext: true, force: true });
+            this.Generales.IngresarFechaIframe(data.validoHasta, "Valido Hasta", { timeout: 10000, skipContext: true,  force: true});
+            this.Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
 
         }else{
-            //leeemos los que manda y asignamos las indicadas con algun arreglo
-
+            cy.log("Asignando las transacciones", data.transaccionesAsignar)
+            this.Generales.AsignarTransacciones(data.transaccionesAsignar)
+            this.Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+            this.Generales.IngresarFechaIframe(data.validoDesde, "Valido Desde", { timeout: 10000, skipContext: true,  force: true });
+            this.Generales.IngresarFechaIframe(data.validoHasta, "Valido Hasta", { timeout: 10000, skipContext: true,  force: true });
+            this.Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
         }
 
-    }
-
-    //Gestor de transacciones
-    GestorTransacciones(
-        tipo, codigo, codAlternativo, nombre, etiqueta, estado, validoDesde, validoHasta, tipoMovimientoBoveda, descripcion,
-        esconderMenu, permiteReversion, modoOffline, requiereSupervisor, requiereValidarAcceso, seEnviaHost, tiempoEspera,
-        accionPorDemora, tienePagoServicio, PagoServicio, pasoConfirmacionServicio, permiteReimpresion, diasPermitidoReimpresion,
-        presentarResumen, mensajeResumen, tipoMensaje, icono, DepartamentodeAutorizacion, textoAyuda, logo
-    ){
-            this.Generales.seleccionarComboIframe(tipo, "Tipo", { timeout: 10000, skipContext: true } );
-            this.Generales.llenarCampoIframe(codigo, "Código", { timeout: 10000, skipContext: true });
-            this.Generales.llenarCampoIframe(codAlternativo, "Código alternativo", { timeout: 10000, skipContext: true });
-            this.Generales.llenarCampoIframe(nombre, "Nombre", { timeout: 10000, skipContext: true });
-            this.Generales.llenarCampoIframe(etiqueta, "Etiqueta", { timeout: 10000, skipContext: true });
-            this.Generales.seleccionarComboIframe(estado, "Estado", { timeout: 10000, skipContext: true });
-            this.Generales.seleccionarComboIframe(tipoMovimientoBoveda, "Tipo movimiento en bóveda", { timeout: 10000, skipContext: true, force: true });
-            this.Generales.IngresarFechaIframe(validoDesde, "Valido desde", { timeout: 10000, skipContext: true });
-            this.Generales.IngresarFechaIframe(validoHasta, "Valido hasta", { timeout: 10000, skipContext: true });
-            this.Generales.llenarCampoIframe(descripcion, "Descripción", { timeout: 10000, skipContext: true });
-            this.Generales.slideToggleIframe(esconderMenu, "Esconder en menú", { timeout: 10000, skipContext: true });
-            this.Generales.slideToggleIframe(permiteReversion, "Permite reversión", { timeout: 10000, skipContext: true });
-            this.Generales.slideToggleIframe(modoOffline, "Modo offline", { timeout: 10000, skipContext: true });
-            this.Generales.slideToggleIframe(requiereSupervisor, "Requiere supervisor", { timeout: 10000, skipContext: true });
-            this.Generales.slideToggleIframe(requiereValidarAcceso, "Se requiere validar acceso", { timeout: 10000, skipContext: true });
-            if (seEnviaHost) {
-                this.Generales.slideToggleIframe(seEnviaHost, "Se envía al host", { timeout: 10000, skipContext: true });
-                this.Generales.llenarCampoIframe(tiempoEspera, "Tiempo de espera", { timeout: 10000, force: true, skipContext: true });
-                this.Generales.seleccionarComboIframe(accionPorDemora, "Acción por demora", { timeout: 10000, force: true, skipContext: true });
-            }else{
-                cy.log("Se envía al host no está activo, no se ingresan los datos relacionados a esta opción", { timeout: 10000, skipContext: true });
-            }
-            if (tienePagoServicio) {
-                this.Generales.slideToggleIframe(tienePagoServicio, "Es pago de servicio", { timeout: 10000, skipContext: true });
-                this.Generales.seleccionarComboIframe(PagoServicio, "Pago de servicio", { timeout: 10000, skipContext: true });
-                this.Generales.seleccionarComboIframe(pasoConfirmacionServicio, "Incluye paso para confirmar datos", { timeout: 10000, skipContext: true });
-            }else{
-                cy.log("Es pago de servicio no está activo, no se ingresan los datos relacionados a esta opción");
-            }
-            if (permiteReimpresion) {
-                this.Generales.slideToggleIframe(permiteReimpresion, "Permite reimpresión", { timeout: 10000, skipContext: true });
-                this.Generales.llenarCampoIframe(diasPermitidoReimpresion, "Dias permitidos para reimprimir", { timeout: 10000, force: true, skipContext: true });
-            }else{
-                cy.log("Permite reimpresión no está activo, no se ingresan los datos relacionados a esta opción");
-            }
-            if (presentarResumen) {
-                this.Generales.slideToggleIframe(presentarResumen, "Presentar resumen de transaccion", { timeout: 10000, skipContext: true });
-                this.Generales.llenarCampoIframe(mensajeResumen, "Mensaje despues del proceso", { timeout: 10000, force: true, skipContext: true });
-                this.Generales.seleccionarComboIframe(tipoMensaje, "Tipo de mensaje", { timeout: 10000, skipContext: true });
-            } else {
-                cy.log("Presentar resumen no está activo, no se ingresan los datos relacionados a esta opción");
-            }
-            this.Generales.llenarCampoIframe(icono, "Ícono", { timeout: 10000, skipContext: true });
-            this.Generales.seleccionarComboIframe(DepartamentodeAutorizacion, "Departamento de autorización", { timeout: 10000, force: true, skipContext: true });
-            this.Generales.llenarCampoIframe(textoAyuda, "Texto de ayuda", { timeout: 10000, skipContext: true });
-                // Carga de logo this.Generales.cargarArchivo(logo, "Logo"); pendiente
     }
 
 
