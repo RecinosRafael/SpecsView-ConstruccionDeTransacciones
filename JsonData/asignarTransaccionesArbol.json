@@ -1,6 +1,7 @@
 {
   "agregar": [
     {
+      "comentario": "si no seelccionan transacciones que no se encuentran asignadas el programaba fallara",
       "codigosArbol": ["11", "12", "13"],
       "asignaTodas": false,
       "transaccionesAsignar": ["INICIO DE JORNADA", "DELEGAR AUTORIZACION TEMPORAL", "REPORTE LIBRO DE BOVEDA", "CONSULTAR TIRA ELECTRONICA", "Cambiar Sucursal del Usuario"],
