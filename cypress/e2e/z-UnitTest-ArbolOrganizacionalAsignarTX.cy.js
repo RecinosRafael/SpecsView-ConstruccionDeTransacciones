@@ -67,7 +67,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
 
                 //Intercept backend
                 cy.intercept('POST', '**/organizationTree').as('guardar')
-                Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+                // Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
                 
                 cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
