@@ -1,0 +1,19 @@
+{
+  "agregar": [
+    {
+      "codigosArbol": ["11", "12", "13"],
+      "desasignaTodas": false,
+      "transaccionesADesasignar": ["DELEGAR AUTORIZACION TEMPORAL", "REPORTE LIBRO DE BOVEDA", "CONSULTAR TIRA ELECTRONICA", "Cambiar Sucursal del Usuario"]
+    },
+    {
+      "codigosArbol": ["11", "12", "13"],
+      "desasignaTodas": false,
+      "transaccionesADesasignar": ["DELEGAR AUTORIZACION TEMPORAL", "REPORTE LIBRO DE BOVEDA", "CONSULTAR TIRA ELECTRONICA", "Cambiar Sucursal del Usuario"]
+    },
+    {
+      "codigosArbol": ["11", "12"],
+      "desasignaTodas": true,
+      "transaccionesADesasignar": []
+    }
+  ]
+}

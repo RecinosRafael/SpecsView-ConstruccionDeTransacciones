@@ -4303,6 +4303,105 @@ IngresarFecha(fecha, nombreCampo, opciones = {}) {
             ejecutar();
         }
     }
+
+    DesasignarTransacciones(transacciones, tableSelector = 'table.mat-mdc-table', pageLoadDelay = 1000) {
+        if (!Array.isArray(transacciones)) {
+            transacciones = [transacciones];
+        }
+
+        const pendientes = [...transacciones];
+
+        const desmarcarEnPaginaActual = () => {
+            cy.log(`🔍 Buscando en página actual: ${pendientes.join(', ')}`);
+
+            return cy.get(tableSelector, { timeout: 10000 })
+                .find('tbody tr')
+                .then(($filas) => {
+                    const checkboxesAClic = [];
+
+                    $filas.each((i, fila) => {
+                        const $fila = Cypress.$(fila);
+                        const nombre = $fila.find('td.mat-column-transactionName').text().trim();
+                        const index = pendientes.indexOf(nombre);
+                        if (index !== -1) {
+                            const $checkbox = $fila.find('mat-checkbox input[type="checkbox"]');
+                            if ($checkbox.length && $checkbox.prop('checked')) {
+                                // Solo desmarcar si está seleccionado
+                                checkboxesAClic.push($checkbox);
+                                cy.log(`✅ Encontrada para desmarcar: ${nombre}`);
+                            } else if ($checkbox.length && !$checkbox.prop('checked')) {
+                                cy.log(`ℹ️ Ya estaba desasignada: ${nombre}`);
+                            }
+                            pendientes.splice(index, 1);
+                        }
+                    });
+
+                    if (checkboxesAClic.length === 0) {
+                        return cy.wrap([...pendientes]);
+                    }
+
+                    let chain = cy.wrap(null);
+                    checkboxesAClic.forEach(($chk) => {
+                        chain = chain.then(() => {
+                            return cy.wrap($chk).scrollIntoView().click({ force: true });
+                        });
+                    });
+                    return chain.then(() => cy.wrap([...pendientes]));
+                });
+        };
+
+        const irAPrimeraPagina = () => {
+            cy.log('🔄 Asegurando que estamos en la primera página...');
+            return cy.get('app-grid-table mat-paginator .mat-mdc-paginator-navigation-first', { timeout: 5000 })
+                .then(($btn) => {
+                    if ($btn.length && !$btn.prop('disabled')) {
+                        cy.wrap($btn).scrollIntoView().click({ force: true });
+                        cy.wait(pageLoadDelay);
+                        return cy.wrap(true);
+                    } else {
+                        return cy.wrap(false);
+                    }
+                });
+        };
+
+        const avanzarPagina = () => {
+            return cy.get('app-grid-table mat-paginator .mat-mdc-paginator-navigation-next', { timeout: 5000 })
+                .then(($next) => {
+                    if ($next.length && !$next.prop('disabled')) {
+                        cy.wrap($next).scrollIntoView().click({ force: true });
+                        cy.wait(pageLoadDelay);
+                        return cy.wrap(true);
+                    } else {
+                        return cy.wrap(false);
+                    }
+                });
+        };
+
+        irAPrimeraPagina().then(() => {
+            const buscarRecursivo = () => {
+                if (pendientes.length === 0) {
+                    cy.log('✅ Todas las transacciones procesadas');
+                    return;
+                }
+
+                desmarcarEnPaginaActual().then((restantes) => {
+                    if (restantes.length === 0) {
+                        cy.log('✅ Todas las transacciones desmarcadas en la página actual');
+                        return;
+                    }
+
+                    avanzarPagina().then((avanzado) => {
+                        if (!avanzado) {
+                            throw new Error(`No se encontraron las transacciones: ${restantes.join(', ')} después de revisar todas las páginas.`);
+                        }
+                        buscarRecursivo();
+                    });
+                });
+            };
+
+            buscarRecursivo();
+        });
+    }
 }
 
 export default MetodosGeneralesPomCy;

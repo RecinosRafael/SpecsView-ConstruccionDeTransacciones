@@ -28,7 +28,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
     it("Agregar múltiples registros dinámicamente", () => {
 
     
-        cy.readFile('./JsonData/asignarTransaccionesArbol.json',  { timeout: 15000 }).then((data) => {
+        cy.readFile('./JsonData/desasignarTransaccionesArbol.json',  { timeout: 15000 }).then((data) => {
             cy.wrap(data.agregar).each((item) => {
             //para ocultar el log y no se sature y ponga lenta la prueba
             cy.then(() => {
@@ -56,7 +56,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
                 //     .should('be.visible')
 
                 // Llenar datos
-                ArbolOrganizacional.AsignarTransacciones(item)
+                ArbolOrganizacional.DesasignarTransacciones(item)
 
         //         // Normalizar el tipo para comparación (opcional)
         // const tipoNormalizado = item.tipo?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();

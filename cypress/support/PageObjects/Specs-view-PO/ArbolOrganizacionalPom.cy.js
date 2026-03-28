@@ -53,99 +53,57 @@ class ArbolOrganizacionalPom{
     }
     }
 
-//     AsignarTransacciones(data){
-//         //ingresamos al arbol que deseamos agregar las TX
-//         this.Generales.IngresarArbol(data.codigosArbol)
-//         cy.wait(500)
-//         this.Generales.esperarQueSpinnerDesaparezca()
-//         cy.wait(500)
-//         if(data.asignaTodas){
-//             cy.log("Asignando todas las transacciones")
-//             this.Generales.BtnIframe('Asignar todos', { timeout: 10000, force: true, skipContext: true });
-//             this.Generales.IngresarFechaIframe(data.validoDesde, "Valido Desde", { timeout: 10000, skipContext: true, force: true });
-//             this.Generales.IngresarFechaIframe(data.validoHasta, "Valido Hasta", { timeout: 10000, skipContext: true,  force: true});
-//             this.Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
 
-//         }else{
-//             cy.log("Asignando las transacciones", data.transaccionesAsignar)
-//             this.Generales.AsignarTransacciones(data.transaccionesAsignar)
-//             this.Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+    AsignarTransacciones(data) {
+        // 1. Acceder al documento del iframe
+        return cy.get('iframe.frame', { timeout: 10000 })
+            .its('0.contentDocument')
+            .should('exist')
+            .then(doc => {
+                // 2. Navegación por el árbol y asignación de transacciones
+                return cy.wrap(doc.body).within(() => {
+                    this.Generales.IngresarArbol(data.codigosArbol);
+                    cy.wait(500);
+                    this.Generales.esperarQueSpinnerDesaparezca({ skipContext: true });
+                    cy.wait(500);
 
-//             //esperamos 1.5 segundo para que aparezca el dialogo
-//             cy.wait(5000)
-
-//             // cy.document().then((doc) => {
-//             // const hayDialogo = doc.body.innerText.includes('Definición de Fechas');
-//             // if (hayDialogo) {
-//             //acciones   aveces funciona aveces no 
-//             // }else{
-//             // cy.log("no aparecio") }
-
-//         cy.get('body').then($body => {
-//             if ($body.text().includes('Definición de Fechas')) {
-//             cy.log('Diálogo detectado. Ingresando fechas...');
-//             this.Generales.IngresarFechaIframe(data.validoDesde, "Valido Desde", { timeout: 10000, skipContext: true,  force: true });
-//             this.Generales.IngresarFechaIframe(data.validoHasta, "Valido Hasta", { timeout: 10000, skipContext: true,  force: true });          
-//             this.Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
-//             } else {
-
-//                 cy.log('No apareció diálogo, transacciones ya asignadas.');
-//             }
-        
-
-//     })
-// }}
-
-AsignarTransacciones(data) {
-    // 1. Acceder al documento del iframe
-    return cy.get('iframe.frame', { timeout: 10000 })
-        .its('0.contentDocument')
-        .should('exist')
-        .then(doc => {
-            // 2. Navegación por el árbol y asignación de transacciones
-            return cy.wrap(doc.body).within(() => {
-                this.Generales.IngresarArbol(data.codigosArbol);
-                cy.wait(500);
-                this.Generales.esperarQueSpinnerDesaparezca({ skipContext: true });
-                cy.wait(500);
-
-                if (data.asignaTodas) {
-                    cy.log("Asignando todas las transacciones");
-                    this.Generales.BtnIframe('Asignar todos', { force: true, skipContext: true });
-                    this.Generales.IngresarFechaIframe(data.validoDesde, "Valido Desde", { force: true, skipContext: true });
-                    this.Generales.IngresarFechaIframe(data.validoHasta, "Valido Hasta", { force: true, skipContext: true });
-                    cy.wait(1500)
-                    this.Generales.BtnIframe('Aceptar', { force: true, skipContext: true });
-                    cy.wait(1500)
-
-                    return true;
-                } else {
-                    cy.log("Asignando transacciones específicas", data.transaccionesAsignar);
-                    this.Generales.AsignarTransacciones(data.transaccionesAsignar);
-                    this.Generales.BtnIframe('Guardar', { force: true, skipContext: true });
-                    // Esperar a que el diálogo pueda aparecer
-                    cy.wait(2000);
-                    // Salir del within (se retorna el resultado más abajo)
-                    return null; // marcador para continuar fuera del within
-                }
-            }).then(result => {
-                // 3. Si la asignación no requirió el diálogo (asignaTodas), ya retornamos true
-                if (result === true) return true;
-
-                // 4. Verificar si el diálogo apareció usando el documento original (doc)
-                if (doc.body.textContent.includes('Definición de Fechas')) {
-                    cy.log('Diálogo detectado. Ingresando fechas...');
-                    // 5. Volver a entrar al iframe para llenar fechas y aceptar
-                    return cy.wrap(doc.body).within(() => {
+                    if (data.asignaTodas) {
+                        cy.log("Asignando todas las transacciones");
+                        this.Generales.BtnIframe('Asignar todos', { force: true, skipContext: true });
                         this.Generales.IngresarFechaIframe(data.validoDesde, "Valido Desde", { force: true, skipContext: true });
                         this.Generales.IngresarFechaIframe(data.validoHasta, "Valido Hasta", { force: true, skipContext: true });
+                        cy.wait(1500)
                         this.Generales.BtnIframe('Aceptar', { force: true, skipContext: true });
+                        cy.wait(1500)
+
                         return true;
-                    });
-                } else {
-                    cy.log('No apareció diálogo, transacciones ya asignadas.');
-                    return false;
-                }
+                    } else {
+                        cy.log("Asignando transacciones específicas", data.transaccionesAsignar);
+                        this.Generales.AsignarTransacciones(data.transaccionesAsignar);
+                        this.Generales.BtnIframe('Guardar', { force: true, skipContext: true });
+                        // Esperar a que el diálogo pueda aparecer
+                        cy.wait(2000);
+                        // Salir del within (se retorna el resultado más abajo)
+                        return null; // marcador para continuar fuera del within
+                    }
+                }).then(result => {
+                    // 3. Si la asignación no requirió el diálogo (asignaTodas), ya retornamos true
+                    if (result === true) return true;
+
+                    // 4. Verificar si el diálogo apareció usando el documento original (doc)
+                    if (doc.body.textContent.includes('Definición de Fechas')) {
+                        cy.log('Diálogo detectado. Ingresando fechas...');
+                        // 5. Volver a entrar al iframe para llenar fechas y aceptar
+                        return cy.wrap(doc.body).within(() => {
+                            this.Generales.IngresarFechaIframe(data.validoDesde, "Valido Desde", { force: true, skipContext: true });
+                            this.Generales.IngresarFechaIframe(data.validoHasta, "Valido Hasta", { force: true, skipContext: true });
+                            this.Generales.BtnIframe('Aceptar', { force: true, skipContext: true });
+                            return true;
+                        });
+                    } else {
+                        cy.log('No apareció diálogo, transacciones ya asignadas.');
+                        return false;
+                    }
 
             });
             
@@ -153,60 +111,73 @@ AsignarTransacciones(data) {
         });
         
     }
-    // AgregarCamposAdicionales(data){
-    //     //ingresamos al arbol que deseamos agregar las TX
-    //     this.Generales.IngresarArbol(data.codigosArbol)
-    //     cy.wait(500)
-    //     this.Generales.esperarQueSpinnerDesaparezca()
-    //     cy.wait(500)
 
 
-    //     //desasignar especificas o desasignar todas  /* validar si se puede ver tema del body en el inicio del grame y mandar el body como parametro y ver si permite consultas  */
+    DesasignarTransacciones(data) {
+        // 1. Acceder al documento del iframe
+        return cy.get('iframe.frame', { timeout: 10000 })
+            .its('0.contentDocument')
+            .should('exist')
+            .then(doc => {
+                // 2. Navegación por el árbol y Desasignación de transacciones
+                return cy.wrap(doc.body).within(() => {
+                    this.Generales.IngresarArbol(data.codigosArbol);
+                    cy.wait(500);
+                    this.Generales.esperarQueSpinnerDesaparezca({ skipContext: true });
+                    cy.wait(500);
 
-    //     if(data.asignaTodas){
-    //         cy.log("Asignando todas las transacciones")
-    //         this.Generales.BtnIframe('Asignar todos', { timeout: 10000, force: true, skipContext: true });
-    //         this.Generales.IngresarFechaIframe(data.validoDesde, "Valido Desde", { timeout: 10000, skipContext: true, force: true });
-    //         this.Generales.IngresarFechaIframe(data.validoHasta, "Valido Hasta", { timeout: 10000, skipContext: true,  force: true});
-    //         this.Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+                    if (data.desasignaTodas) {
+                        cy.log("Desasignar todas las transacciones");
+                        this.Generales.BtnIframe('Desasignar todos', { force: true, skipContext: true });
+                        cy.wait(1500)
+                        this.Generales.BtnIframe('Sí', { force: true, skipContext: true });
+                        cy.wait(1500)
 
-    //     }else{
-    //         cy.log("Asignando las transacciones", data.transaccionesAsignar)
-    //         this.Generales.AsignarTransacciones(data.transaccionesAsignar)
-    //         this.Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+                        return true;
+                    } else {
+                        cy.log("Desasignando transacciones específicas", data.transaccionesADesasignar);
+                        this.Generales.DesasignarTransacciones(data.transaccionesADesasignar);
+                        this.Generales.BtnIframe('Guardar', { force: true, skipContext: true });
+                        // Esperar a que el diálogo pueda aparecer
+                        cy.wait(2000);
+                        // Salir del within (se retorna el resultado más abajo)
+                        return null; // marcador para continuar fuera del within
+                    }
+                }).then(result => {
+                    // 3. Si la asignación no requirió el diálogo (asignaTodas), ya retornamos true
+                    if (result === true) return true;
 
-    //         this.Generales.IngresarFechaIframe(data.validoDesde, "Valido Desde", { timeout: 10000, skipContext: true,  force: true });
-    //         this.Generales.IngresarFechaIframe(data.validoHasta, "Valido Hasta", { timeout: 10000, skipContext: true,  force: true });
-    //         this.Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+                    // 4. Verificar si el diálogo apareció usando el documento original (doc)
+                    if (doc.body.textContent.includes('Confirmar')) {
+                        cy.log('Diálogo detectado. Confirmar...');
+                        // 5. Volver a entrar al iframe para llenar fechas y aceptar
+                        return cy.wrap(doc.body).within(() => {
+                            this.Generales.BtnIframe('Sí', { force: true, skipContext: true });
+                            return true;
+                        });
+                    } else {
+                        cy.log('No apareció diálogo, transacciones ya desasignadas.');
+                        return false;
+                    }
 
-    //     }
+            });
+            
 
-    // }
-    
-    
+        });
+        
+    }
+
     CamposHabilitados(data) {
         if (!data.camposHabilitados|| !Array.isArray(data.camposHabilitados)) return;
         data.camposHabilitados.forEach(dato => {
             this.Generales.seleccionarComboIframe(dato.campo, "Campos habilitados a Entidad", { timeout: 10000, force: true, skipContext: true })
             this.Generales.seleccionarComboIframe(dato.datoCampo, "Dato del campo", { timeout: 10000, force: true, skipContext: true })               
             this.Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true })
-
-            /**
-             * 
-             * datos para llenar el metodo de captura 
-             * descripcion
-             * nombre crud
-             * 
-             */
-
-
-            //metodo intercepcion rafa 
-
-            //aqui ira el metodo reporte rafa alias y parametros para el metodo
-
         });
 
     }
+
+
 }
 export default ArbolOrganizacionalPom;
 
