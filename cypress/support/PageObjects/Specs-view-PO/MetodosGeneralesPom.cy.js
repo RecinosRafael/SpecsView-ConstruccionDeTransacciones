@@ -4303,6 +4303,68 @@ IngresarFecha(fecha, nombreCampo, opciones = {}) {
             ejecutar();
         }
     }
+
+    interceptar(aliasBase, numero, method, url) {
+        const alias = `${aliasBase}-${numero}`;
+        cy.intercept(method, url).as(alias);
+        cy.log(`Interceptando ${method} ${url} (alias: ${alias})`);
+        return alias;
+    }
+
+    tomarCaptura(numero, nombre, estado) {
+        const nombreCaptura = `Captura-${numero}-${nombre.replace(/\s/g, '')}-${estado}`;
+        cy.screenshot(nombreCaptura, { capture: 'viewport' });
+        cy.log(`Captura tomada: ${nombreCaptura}.png`);
+        return nombreCaptura;
+    }
+
+    procesarRespuestaYReportar(alias, options) {
+        const {
+            numero,
+            describe,
+            crud,
+            descripcion
+        } = options;
+
+        cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+            const status = interception.response.statusCode;
+            let estado = 'fallida';
+            let mensaje = '';
+
+            // Capturar snackbar
+            cy.wait(500);
+            cy.get('body').then(($body) => {
+                const $snack = $body.find('span.message-snack, .snackbar, .mat-mdc-snack-bar-label');
+                if ($snack.length) mensaje = $snack.text().trim();
+                else cy.log('No se encontró snackbar');
+            }).then(() => {
+                if (status >= 200 && status < 300) {
+                    estado = 'exitosa';
+                    cy.log(`Operación exitosa (status ${status})`);
+                } else {
+                    estado = 'fallida';
+                    cy.log(`Error. Status: ${status}`);
+                }
+            }).then(() => {
+                // Tomar captura usando el nombre base = crud (o "Reporte" si no viene)
+                const nombre = crud || 'Reporte';
+                const nombreCaptura = this.tomarCaptura(numero, nombre, estado);
+
+                // Guardar resultado en el reporte
+                cy.task('guardarResultado', {
+                    describe,
+                    crud,
+                    descripcion,
+                    estado,
+                    numero,
+                    mensaje,
+                    evidencia: `${nombreCaptura}.png`
+                });
+            });
+        });
+    }
+
+
 }
 
 export default MetodosGeneralesPomCy;
