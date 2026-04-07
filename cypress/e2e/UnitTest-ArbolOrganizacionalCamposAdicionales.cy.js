@@ -25,7 +25,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
         Generales.IrAPantalla('organizationTree')
     })
 
-    it("Agregar múltiples registros dinámicamente", () => {
+    /*it("Agregar múltiples registros dinámicamente", () => {
 
     
         cy.readFile('./JsonData/agregarCamposAdicionales.json').then((data) => {
@@ -67,7 +67,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
 
 
                 //Intercept backend
-                // cy.intercept('POST', '**/additionalEntityFields').as('guardar');
+                // cy.intercept('POST', '**!/additionalEntityFields').as('guardar');
                 // Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
                 
                 // cy.wait('@guardar').then((interception) => {
@@ -96,7 +96,49 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
 
             })
         })
-    })
+    })*/
+
+    it("Agregar múltiples registros dinámicamente", () => {
+        let contadorGlobal = { valor: 0 };   // contador compartido para todos los campos
+
+        cy.readFile('./JsonData/agregarCamposAdicionales.json').then((data) => {
+            cy.wrap(data.agregar).each((item) => {
+                // Limpieza opcional de logs
+                cy.then(() => {
+                    const doc = window.top.document;
+                    const logContainer = doc.querySelector('.reporter .commands') ||
+                        doc.querySelector('.command-list') ||
+                        doc.querySelector('.runnable-commands-region');
+                    if (logContainer) logContainer.innerHTML = '';
+                });
+
+                cy.log(`Insertando código: ${item.codigo}`);
+
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        // Ingresar al árbol
+                        Generales.IngresarArbol(item.codigosArbol);
+                        cy.wait(1500);
+
+                        // Posicionarse en el panel "Agregar Campos Adicionales"
+                        Generales.clickTab('Agregar Campos Adicionales', { timeout: 10000, force: true, skipContext: true });
+                        cy.wait(500);
+
+                        // Abrir el formulario de agregar campo
+                        Generales.BtnIframe('Agregar', { timeout: 10000, force: true, skipContext: true });
+
+                        // Procesar todos los campos (con reporte interno)
+                        ArbolOrganizacional.CamposHabilitados(item, contadorGlobal, 'Campos habilitados', 'Campo habilitado');
+
+                        // Cerrar el modal después de agregar todos los campos (misma lógica original)
+                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                    });
+            });
+        });
+    });
 
 })
 

@@ -54,7 +54,7 @@ class ArbolOrganizacionalPom{
     }
 
 
-    AsignarTransacciones(data) {
+    /*AsignarTransacciones(data) {
         // 1. Acceder al documento del iframe
         return cy.get('iframe.frame', { timeout: 10000 })
             .its('0.contentDocument')
@@ -110,10 +110,111 @@ class ArbolOrganizacionalPom{
 
         });
         
+    }*/
+
+    AsignarTransacciones(data, reportOptions = {}) {
+        const {
+            contadorObj,
+            describeBase = 'Asignar Transacciones',
+            crudBase = 'Asignación'
+        } = reportOptions;
+
+        let numero;
+        if (contadorObj) {
+            contadorObj.valor++;
+            numero = contadorObj.valor;
+        } else {
+            numero = 0;
+        }
+
+        return cy.get('iframe.frame', { timeout: 10000 })
+            .its('0.contentDocument')
+            .should('exist')
+            .then(doc => {
+                return cy.wrap(doc.body).within(() => {
+                    this.Generales.IngresarArbol(data.codigosArbol);
+                    cy.wait(500);
+                    this.Generales.esperarQueSpinnerDesaparezca({ skipContext: true });
+                    cy.wait(500);
+
+                    if (data.asignaTodas) {
+                        cy.log("Asignando todas las transacciones");
+                        this.Generales.BtnIframe('Asignar todos', { force: true, skipContext: true });
+                        this.Generales.IngresarFechaIframe(data.validoDesde, "Valido Desde", { force: true, skipContext: true });
+                        this.Generales.IngresarFechaIframe(data.validoHasta, "Valido Hasta", { force: true, skipContext: true });
+                        cy.wait(1500);
+
+                        let alias = null;
+                        if (contadorObj) {
+                            alias = this.Generales.interceptar('asignarTransaccion', numero, 'POST', '**/transactionsByTreebranch/assignedAllTransaction');
+                        }
+                        this.Generales.BtnIframe('Aceptar', { force: true, skipContext: true });
+                        cy.wait(1500);
+
+                        if (alias) {
+                            this.Generales.procesarRespuestaYReportarConFrame(alias, {
+                                numero,
+                                describe: `${describeBase} - Asignar todas - ${data.codigosArbol?.join('-')}`,
+                                crud: crudBase,
+                                descripcion: `Asignar todas las transacciones al nodo ${data.codigosArbol?.slice(-1)[0]}`
+                            });
+                        }
+                        return true;
+                    } else {
+                        cy.log("Asignando transacciones específicas", data.transaccionesAsignar);
+                        this.Generales.AsignarTransacciones(data.transaccionesAsignar);
+
+                        let alias = null;
+                        let peticionEnviada = false;
+
+                        if (contadorObj) {
+                            alias = this.Generales.interceptar('asignarTransaccion', numero, 'POST', '**/transactionsByTreebranch/administrateAll');
+                        }
+                        this.Generales.BtnIframe('Guardar', { force: true, skipContext: true });
+                        cy.wait(2000);
+
+                        // Verificar si apareció el diálogo de fechas (indica que se guardó)
+                        const hayDialogo = doc.body.textContent.includes('Definición de Fechas');
+                        if (hayDialogo) {
+                            peticionEnviada = true;
+                            cy.log('Diálogo detectado. Ingresando fechas...');
+                            return cy.wrap(doc.body).within(() => {
+                                this.Generales.IngresarFechaIframe(data.validoDesde, "Valido Desde", { force: true, skipContext: true });
+                                this.Generales.IngresarFechaIframe(data.validoHasta, "Valido Hasta", { force: true, skipContext: true });
+                                this.Generales.BtnIframe('Aceptar', { force: true, skipContext: true });
+                                if (alias) {
+                                    this.Generales.procesarRespuestaYReportarConFrame(alias, {
+                                        numero,
+                                        describe: `${describeBase} - Asignar específicas`,
+                                        crud: crudBase,
+                                        descripcion: `Asignar ${data.transaccionesAsignar?.length || 0} transacciones al nodo ${data.codigosArbol?.slice(-1)[0]}`
+                                    });
+                                }
+                                return true;
+                            });
+                        } else {
+                            cy.log('No apareció diálogo, transacciones ya asignadas o sin cambios.');
+                            // Si no hay diálogo, probablemente no hubo petición. Aun así, registramos como éxito sin esperar respuesta.
+                            if (alias) {
+                                cy.task('guardarResultado', {
+                                    numero,
+                                    describe: `${describeBase} - Asignar específicas`,
+                                    crud: crudBase,
+                                    descripcion: `Asignar ${data.transaccionesAsignar?.length || 0} transacciones al nodo ${data.codigosArbol?.slice(-1)[0]} (sin cambios)`,
+                                    estado: 'exitosa',
+                                    mensaje: 'No se requirieron cambios, las transacciones ya estaban asignadas.',
+                                    evidencia: ''
+                                });
+                            }
+                            return false;
+                        }
+                    }
+                });
+            });
     }
 
 
-    DesasignarTransacciones(data) {
+    /*DesasignarTransacciones(data) {
         // 1. Acceder al documento del iframe
         return cy.get('iframe.frame', { timeout: 10000 })
             .its('0.contentDocument')
@@ -165,9 +266,101 @@ class ArbolOrganizacionalPom{
 
         });
         
+    }*/
+
+    DesasignarTransacciones(data, reportOptions = {}) {
+        const {
+            contadorObj,
+            describeBase = 'Desasignar Transacciones',
+            crudBase = 'Desasignación'
+        } = reportOptions;
+
+        let numero;
+        if (contadorObj) {
+            contadorObj.valor++;
+            numero = contadorObj.valor;
+        } else {
+            numero = 0;
+        }
+
+        return cy.get('iframe.frame', { timeout: 10000 })
+            .its('0.contentDocument')
+            .should('exist')
+            .then(doc => {
+                return cy.wrap(doc.body).within(() => {
+                    this.Generales.IngresarArbol(data.codigosArbol);
+                    cy.wait(500);
+                    this.Generales.esperarQueSpinnerDesaparezca({ skipContext: true });
+                    cy.wait(500);
+
+                    if (data.desasignaTodas) {
+                        cy.log("Desasignar todas las transacciones");
+                        let alias = null;
+                        if (contadorObj) {
+                            alias = this.Generales.interceptar('desasignarTransaccion', numero, 'DELETE', '**/transactionsByTreebranch/deleteTransactionsByTreeBranch/*');
+                        }
+                        this.Generales.BtnIframe('Desasignar todos', { force: true, skipContext: true });
+                        cy.wait(1500);
+                        this.Generales.BtnIframe('Sí', { force: true, skipContext: true });
+                        cy.wait(1500);
+
+                        if (alias) {
+                            this.Generales.procesarRespuestaYReportarConFrame(alias, {
+                                numero,
+                                describe: `${describeBase} - Desasignar todas - ${data.codigosArbol?.join('-')}`,
+                                crud: crudBase,
+                                descripcion: `Desasignar todas las transacciones al nodo ${data.codigosArbol?.slice(-1)[0]}`
+                            });
+                        }
+                        return true;
+                    } else {
+                        cy.log("Desasignando transacciones específicas", data.transaccionesADesasignar);
+                        this.Generales.DesasignarTransacciones(data.transaccionesADesasignar);
+                        let alias = null;
+                        if (contadorObj) {
+                            alias = this.Generales.interceptar('desasignarTransaccion', numero, 'POST', '**/transactionsByTreebranch/administrateAll');
+                        }
+                        this.Generales.BtnIframe('Guardar', { force: true, skipContext: true });
+                        cy.wait(2000);
+
+                        const hayDialogo = doc.body.textContent.includes('Confirmar');
+                        if (hayDialogo) {
+                            cy.log('Diálogo detectado. Confirmar...');
+                            return cy.wrap(doc.body).within(() => {
+                                if (alias) {
+                                    this.Generales.BtnIframe('Sí', { force: true, skipContext: true });
+                                    this.Generales.procesarRespuestaYReportarConFrame(alias, {
+                                        numero,
+                                        describe: `${describeBase} - Desasignar específicas`,
+                                        crud: crudBase,
+                                        descripcion: `Desasignar ${data.transaccionesADesasignar?.length || 0} transacciones al nodo ${data.codigosArbol?.slice(-1)[0]}`
+                                    });
+                                } else {
+                                    this.Generales.BtnIframe('Sí', { force: true, skipContext: true });
+                                }
+                                return true;
+                            });
+                        } else {
+                            cy.log('No apareció diálogo, transacciones ya desasignadas o sin cambios.');
+                            if (alias) {
+                                cy.task('guardarResultado', {
+                                    numero,
+                                    describe: `${describeBase} - Desasignar específicas`,
+                                    crud: crudBase,
+                                    descripcion: `Desasignar ${data.transaccionesADesasignar?.length || 0} transacciones al nodo ${data.codigosArbol?.slice(-1)[0]} (sin cambios)`,
+                                    estado: 'exitosa',
+                                    mensaje: 'No se requirieron cambios, las transacciones ya estaban desasignadas.',
+                                    evidencia: ''
+                                });
+                            }
+                            return false;
+                        }
+                    }
+                });
+            });
     }
 
-    CamposHabilitados(data) {
+    /*CamposHabilitados(data) {
         if (!data.camposHabilitados|| !Array.isArray(data.camposHabilitados)) return;
         data.camposHabilitados.forEach(dato => {
             this.Generales.seleccionarComboIframe(dato.campo, "Campos habilitados a Entidad", { timeout: 10000, force: true, skipContext: true })
@@ -175,6 +368,41 @@ class ArbolOrganizacionalPom{
             this.Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true })
         });
 
+    }*/
+
+    CamposHabilitados(data, contadorObj, describeBase = 'Campos Adicionales', crudBase = 'Campos Adicionales') {
+        if (!data.camposHabilitados || !Array.isArray(data.camposHabilitados)) return;
+
+        data.camposHabilitados.forEach(dato => {
+            contadorObj.valor++;
+            const numero = contadorObj.valor;
+
+            // 1. Llenar los combos del formulario
+            this.Generales.seleccionarComboIframe(dato.campo, "Campos habilitados a Entidad", { timeout: 10000, force: true, skipContext: true });
+            this.Generales.seleccionarComboIframe(dato.datoCampo, "Dato del campo", { timeout: 10000, force: true, skipContext: true });
+
+            // 2. Interceptar la petición (ajusta la URL real de tu backend)
+            const alias = this.Generales.interceptar('guardarCampo', numero, 'POST', '**/additionalEntityFields');
+
+            // 3. Hacer clic en Guardar (dispara la petición)
+            this.Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+
+            // 4. Procesar respuesta y generar reporte (sin cerrar el modal)
+            this.Generales.procesarRespuestaYReportarConFrame(alias, {
+                numero,
+                describe: `${describeBase} - ${data.codigo || data.nombre}`,
+                crud: crudBase,
+                descripcion: `Campos habilitados a Entidad: ${dato.campo} - Dato del Campo: ${dato.datoCampo}`,
+                onSuccess: () => {
+                    // Éxito: solo registrar log, no cerrar el modal
+                    cy.log(`Campo ${dato.campo} guardado correctamente`);
+                },
+                onError: () => {
+                    // Error: solo registrar log, no cerrar el modal (el usuario podría corregir o continuar)
+                    cy.log(`Error al guardar campo ${dato.campo}`);
+                }
+            });
+        });
     }
 
 

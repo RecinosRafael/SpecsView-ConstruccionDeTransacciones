@@ -4364,6 +4364,54 @@ IngresarFecha(fecha, nombreCampo, opciones = {}) {
         });
     }
 
+    procesarRespuestaYReportarConFrame(alias, options) {
+        const {
+            numero,
+            describe,
+            crud,
+            descripcion,
+            onSuccess = () => {},
+            onError = () => {}
+        } = options;
+
+        cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+            const status = interception.response.statusCode;
+            let estado = 'fallida';
+            let mensaje = '';
+
+            // Capturar snackbar usando el documento principal (robusto)
+            cy.wait(500);
+            cy.document().then((doc) => {
+                const $body = Cypress.$(doc.body);
+                const $snack = $body.find('span.message-snack, .snackbar, .mat-mdc-snack-bar-label');
+                if ($snack.length) mensaje = $snack.text().trim();
+                else cy.log('No se encontró snackbar');
+            }).then(() => {
+                if (status >= 200 && status < 300) {
+                    estado = 'exitosa';
+                    cy.log(`Operación exitosa (status ${status})`);
+                    onSuccess();
+                } else {
+                    estado = 'fallida';
+                    cy.log(`Error. Status: ${status}`);
+                    onError();
+                }
+            }).then(() => {
+                const nombre = crud || 'Reporte';
+                const nombreCaptura = this.tomarCaptura(numero, nombre, estado);
+                cy.task('guardarResultado', {
+                    describe,
+                    crud,
+                    descripcion,
+                    estado,
+                    numero,
+                    mensaje,
+                    evidencia: `${nombreCaptura}.png`
+                });
+            });
+        });
+    }
+
 
 
     DesasignarTransacciones(transacciones, tableSelector = 'table.mat-mdc-table', pageLoadDelay = 1000) {

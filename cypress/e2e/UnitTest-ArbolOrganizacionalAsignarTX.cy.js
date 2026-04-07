@@ -25,7 +25,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
         Generales.IrAPantalla('organizationTree')
     })
 
-    it("Agregar múltiples registros dinámicamente", () => {
+    /*it("Agregar múltiples registros dinámicamente", () => {
 
     
         cy.readFile('./JsonData/asignarTransaccionesArbol.json',  { timeout: 15000 }).then((data) => {
@@ -92,7 +92,39 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
 
             })
         })
-    })
+    })*/
+
+    it("Agregar múltiples registros dinámicamente", () => {
+        let contadorGlobal = { valor: 0 };
+
+        cy.readFile('./JsonData/asignarTransaccionesArbol.json', { timeout: 15000 }).then((data) => {
+            cy.wrap(data.agregar).each((item) => {
+                cy.then(() => {
+                    const doc = window.top.document;
+                    const logContainer = doc.querySelector('.reporter .commands') ||
+                        doc.querySelector('.command-list') ||
+                        doc.querySelector('.runnable-commands-region');
+                    if (logContainer) logContainer.innerHTML = '';
+                });
+
+                cy.log(`Insertando código: ${item.codigo}`);
+
+                ArbolOrganizacional.AsignarTransacciones(item, {
+                    contadorObj: contadorGlobal,
+                    describeBase: 'Asignar Transacciones a Árbol',
+                    crudBase: 'Asignación'
+                });
+
+                cy.get('iframe.frame', { timeout: 10000 })
+                    .its('0.contentDocument.body')
+                    .should('not.be.empty')
+                    .then(cy.wrap)
+                    .within(() => {
+                        Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                    });
+            });
+        });
+    });
 
 })
 

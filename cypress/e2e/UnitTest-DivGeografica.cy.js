@@ -25,8 +25,9 @@ describe("Prueba unitaria del Crud Division Geografica...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('divGeografica').then((data) => {
-            cy.wrap(data.agregar).each((item) => {
+        cy.readFile('./JsonData/divGeografica.json').then((data) => {
+            cy.wrap(data.agregar).each((item, index) => {
+                const numero = index + 1;
                 cy.log(`Insertando código: ${item.codigo}`)
 
                 //Asegurar estado limpio antes de comenzar
@@ -53,12 +54,33 @@ describe("Prueba unitaria del Crud Division Geografica...", () =>{
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/geographicLevel1').as('guardar')
+                //cy.intercept('POST', '**/geographicLevel1').as('guardar')
+
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/geographicLevel1');
+
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "División geográfica"
 
-                cy.wait('@guardar').then((interception) => {
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `002 -: ${nombre} `,
+                    crud: `${nombre} `,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                });
+
+                cy.get('body').then(($body) => {
+                    const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                    if (modalAbierto) {
+                        cy.log('Modal sigue abierto → cerrando manualmente');
+                        Generales.BtnCancelarRegistro();
+                        cy.wait(500);
+                    }
+                });
+
+
+               /* cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
                     if (status === 200 || status === 201) {
                         cy.log('Registro insertado correctamente')
@@ -69,7 +91,7 @@ describe("Prueba unitaria del Crud Division Geografica...", () =>{
                         Generales.BtnCancelarRegistro()
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
                     }
-                })
+                })*/
             })
         })
     })

@@ -465,8 +465,6 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     describe("002 -  Tipo de Dato...", () =>{
 
-        let contador = 0;
-
         beforeEach(() => {
             Generales.IrAPantalla('dataType')
         })
