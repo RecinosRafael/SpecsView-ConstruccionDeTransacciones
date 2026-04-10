@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+
+    "AllParametrosInicialesQA-R&D": "",
+
+    "AllParametrosInicialesImplementacion": " erte",
+
+
+
+
     "test": "echo \"Error: no test specified\" && exit 1",
     "AllParametrosIniciales": "cypress run --spec cypress/e2e/ConstruccionDeTransaccionesInicial.cy.js --browser chrome --env reportName=ReportAlltest-Constructor",
     "BDMysqlPrimerosPasos": "cypress run --spec cypress/e2e/BDMysqlPrimerosPasos.cy.js --browser chrome --env reportName=Report-BDMysqlPrimerosPasos",

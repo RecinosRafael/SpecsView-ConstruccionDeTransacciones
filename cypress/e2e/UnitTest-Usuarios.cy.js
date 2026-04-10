@@ -23,7 +23,7 @@ describe("Suite de pruebas Opción Usuario", () => {
         Generales.IrAPantalla('user');
     });
 
-    it("Buscar persona y agregar múltiples usuarios dinámicamente", () => {
+    /*it("Buscar persona y agregar múltiples usuarios dinámicamente", () => {
         cy.fixture('usuarios').then((dataUsuarios) => {
             cy.log(`📋 Total de registros a procesar: ${dataUsuarios.agregar.length}`);
             let registrosExitosos = 0;
@@ -133,7 +133,7 @@ describe("Suite de pruebas Opción Usuario", () => {
                 });
 
                 // Interceptar petición
-                cy.intercept('POST', '**/user').as('guardar');
+                cy.intercept('POST', '**!/user').as('guardar');
 
                 // Hacer clic en Aceptar
                 Generales.BtnAceptarRegistro();
@@ -189,5 +189,175 @@ describe("Suite de pruebas Opción Usuario", () => {
                 cy.log(`📊 ===========================`);
             });
         });
+    });*/
+
+    it("Buscar persona y agregar múltiples registros en crud Usuarios", () => {
+        cy.readFile('./JsonData/usuarios.json').then((dataUsuarios) => {
+            cy.wrap(dataUsuarios.agregar).each((item, index) => {
+                const numero = index + 1;
+                cy.log(`\n🔵 Procesando registro ${numero}: ${item.usuario}`);
+
+                // Asegurar estado limpio
+                cy.get('body').then(($body) => {
+                    if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                        cy.log('Cerrando formulario abierto...');
+                        Generales.BtnCancelarRegistro();
+                    }
+                });
+
+                // 1. Buscar persona (modal de búsqueda)
+                cy.log('🔍 Buscando persona...');
+                Generales.BtnAgregarRegistroSubnivel();
+                cy.contains('h2', 'Buscar persona', { timeout: 10000 }).should('be.visible');
+
+                Usuarios.BuscarPersona(
+                    item.tipoIdentificacion,
+                    item.numeroIdentificacion
+                );
+
+                // Verificar si la búsqueda falló
+                let busquedaExitosa = true;
+                cy.get('body', { timeout: 5000 }).then(($body) => {
+                    const hayErrorBusqueda =
+                        $body.text().includes('no encontrado') ||
+                        $body.text().includes('no existe') ||
+                        $body.text().includes('invalid') ||
+                        $body.find('.error-message, .alert-danger, .toast-error, .mat-error').length > 0;
+
+                    if (hayErrorBusqueda) {
+                        busquedaExitosa = false;
+                        cy.log('❌ Error en búsqueda de persona');
+                        cy.get('button').contains('Cancelar').click();
+                        cy.contains('h2', 'Buscar persona').should('not.exist');
+                    } else {
+                        cy.log('✅ Búsqueda exitosa');
+                    }
+                }).then(() => {
+                    if (!busquedaExitosa) {
+                        // Fallo en búsqueda → guardar resultado
+                        const nombreCaptura = `Captura-${numero}-Usuarios-fallida`;
+                        cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                            cy.task('guardarResultado', {
+                                describe: '012 - Usuario',
+                                crud: "Usuario",
+                                descripcion: `Usuario: ${item.usuario} - Identificación: ${item.numeroIdentificacion}`,
+                                estado: 'fallida',
+                                numero: numero,
+                                mensaje: 'Error en búsqueda de persona: no encontrada',
+                                evidencia: `${nombreCaptura}.png`
+                            });
+                        });
+                        return;
+                    }
+
+                    // 2. Llenar datos de usuario (modal ahora es "Nuevo Registro")
+                    cy.log('✍️ Agregando usuario...');
+                    cy.contains('h2', 'Nuevo Registro', { timeout: 10000 }).should('be.visible');
+
+                    Usuarios.Usuario(
+                        item.codigo,
+                        item.usuario,
+                        item.pNombre,
+                        item.sNombre,
+                        item.pApellido,
+                        item.sApellido,
+                        item.valorPais,
+                        item.codigoEbs,
+                        item.correo,
+                        item.telTrabajo,
+                        item.codigoEmpleado,
+                        item.valorArbolRaiz,
+                        item.valorRamaArbol,
+                        item.valorDepartamento,
+                        item.valorTipoCajero,
+                        item.valorJornadaLaboral,
+                        item.valorNivelCajero,
+                        item.puertoImpre
+                    );
+
+                    // Verificar errores en combos
+                    let comboError = false;
+                    cy.get('body', { timeout: 5000 }).then(($body) => {
+                        const hayErrorCombos =
+                            $body.find('.error-message, .alert-danger, .toast-error, .mat-error').length > 0 ||
+                            $body.text().includes('requerido') ||
+                            $body.text().includes('obligatorio');
+
+                        if (hayErrorCombos) {
+                            comboError = true;
+                            cy.log('❌ Error en combos detectado');
+                        }
+                    }).then(() => {
+                        if (comboError) {
+                            const nombreCaptura = `Captura-${numero}-Usuarios-fallida`;
+                            cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                cy.task('guardarResultado', {
+                                    describe: '012 - Usuario',
+                                    crud: "Usuario",
+                                    descripcion: `Usuario: ${item.usuario} - Identificación: ${item.numeroIdentificacion}`,
+                                    estado: 'fallida',
+                                    numero: numero,
+                                    mensaje: 'Error en combos: algún campo requerido no seleccionado',
+                                    evidencia: `${nombreCaptura}.png`
+                                });
+                            }).then(() => {
+                                Generales.BtnCancelarRegistro();
+                                cy.contains('h2', 'Nuevo Registro').should('not.exist');
+                            });
+                            return;
+                        }
+
+                        // 3. Enviar y capturar respuesta
+                        const alias = `guardar-${numero}`;
+                        cy.intercept('POST', '**/user').as(alias);
+                        Generales.BtnAceptarRegistro();
+
+                        cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                            const status = interception.response.statusCode;
+                            let estado = 'fallida';
+                            let mensaje = '';
+
+                            cy.wait(500);
+                            cy.get('body').then(($body) => {
+                                const $snack = $body.find('span.message-snack');
+                                if ($snack.length) mensaje = $snack.text().trim();
+                            }).then(() => {
+                                if (status === 200 || status === 201) {
+                                    estado = 'exitosa';
+                                    cy.log('✅ Usuario insertado correctamente');
+                                } else {
+                                    estado = 'fallida';
+                                    cy.log(`❌ Error detectado. Status: ${status}`);
+                                }
+                            }).then(() => {
+                                const nombreCaptura = `Captura-${numero}-Usuarios-${estado}`;
+                                cy.screenshot(nombreCaptura, { capture: 'viewport' }).then(() => {
+                                    cy.task('guardarResultado', {
+                                        describe: '012 - Usuario',
+                                        crud: "Usuario",
+                                        descripcion: `Usuario: ${item.usuario} - Identificación: ${item.numeroIdentificacion}`,
+                                        estado: estado,
+                                        numero: numero,
+                                        mensaje: mensaje,
+                                        evidencia: `${nombreCaptura}.png`
+                                    });
+                                });
+                            }).then(() => {
+                                // Cerrar modal si aún está abierto
+                                cy.get('body').then(($body) => {
+                                    if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                                        cy.log('Modal sigue abierto → cerrando manualmente');
+                                        Generales.BtnCancelarRegistro();
+                                        cy.wait(2000);
+                                    }
+                                });
+                            });
+                        });
+                    });
+                });
+                cy.wait(1000);
+            });
+        });
     });
+
 });

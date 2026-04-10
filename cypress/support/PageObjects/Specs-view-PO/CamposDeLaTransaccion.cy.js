@@ -9,7 +9,7 @@ class CamposDeLaTransaccionCy{
     CamposTransaccion(codigo, nombre, etiqueta, descripcion,  tieneDatosSensibles, Tipo, longitudMin, longitudMax, longitudEnvio, 
         digitoVerificador, mascara, listaValores, rangoValores, limiteInferior, limiteSuperior, llenadoAutomatico, etiquetaJson, 
         valorDefecto, ayuda, moneda, rutina, implListaVista, implServicio, endpointAyuda, estado, validoDesde, validoHasta, usaSumadora, 
-        idCampoEscuchar, requiereDetalleEfectivo, archivoYML, datosTachados, caracterVisualizar, esControlEfectivo ) {
+        idCampoEscuchar, requiereDetalleEfectivo, archivoYML, datosTachados, caracterVisualizar, esControlEfectivo, formatoFecha, fechaValida) {
 
         cy.log("Entrando a la creacion de campos de transaccion");
         this.Generales.llenarCampo(codigo, "Código")
@@ -18,6 +18,13 @@ class CamposDeLaTransaccionCy{
         this.Generales.llenarCampo(descripcion, "Descripción")
         this.Generales.checkbox(tieneDatosSensibles, "Datos sensibles")
         this.Generales.seleccionarCombo(Tipo, "Tipo")
+
+        if (Tipo === "Fecha"){
+
+            this.Generales.seleccionarCombo(formatoFecha, "Formato Fecha")
+            this.Generales.seleccionarCombo(fechaValida, "Fecha Válida")
+        }
+
         this.Generales.llenarCampo(longitudMin, "Longitud Mínima")
         this.Generales.llenarCampo(longitudMax, "Longitud máxima")
         this.Generales.llenarCampo(longitudEnvio, "Longitud envío")

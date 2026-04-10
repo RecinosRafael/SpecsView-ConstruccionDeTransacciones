@@ -2626,7 +2626,7 @@ cargarImagen(file, labelText, opciones = {}) {
         this._ejecutarEnContexto(ejecutar, skipContext);
     }
 
-seleccionarCombo(valor, labelText, opciones = {}) {
+/*seleccionarCombo(valor, labelText, opciones = {}) {
     const {
         ignorarTildes = true,
         ignorarMayusculas = true,
@@ -2690,7 +2690,7 @@ seleccionarCombo(valor, labelText, opciones = {}) {
 
                     let puntaje = 0;
                     if (textoLabelNorm === labelNormalizado) puntaje = 100;
-                    else if (textoLabelNorm.replace(/\s*\*\s*/g, '') === labelNormalizado) puntaje = 90;
+                    else if (textoLabelNorm.replace(/\s*\*\s*!/g, '') === labelNormalizado) puntaje = 90;
                     else if (textoLabelNorm.startsWith(labelNormalizado + ' ')) puntaje = 80;
                     else if (new RegExp(`\\b${labelNormalizado}\\b`).test(textoLabelNorm)) puntaje = 70;
                     else if (textoLabelNorm.includes(labelNormalizado)) puntaje = 50;
@@ -2784,8 +2784,166 @@ seleccionarCombo(valor, labelText, opciones = {}) {
                 cy.log(`✅ Seleccionado "${valor}" en combo "${labelText}"`);
             });
         });
-}
+}*/
 
+    seleccionarCombo(valor, labelText, opciones = {}) {
+        const {
+            ignorarTildes = true,
+            ignorarMayusculas = true,
+            ignorarEspacios = true,
+            timeout = 10000
+        } = opciones;
+
+        if (!valor || valor === "") {
+            cy.log(`⏭️ Valor vacío para combo "${labelText}" - se omite la selección`);
+            return;
+        }
+
+        cy.log(`🔍 Seleccionando "${valor}" en combo "${labelText}"`);
+
+        const normalizarTexto = (texto) => {
+            if (!texto) return texto;
+            let resultado = String(texto);
+            if (ignorarTildes) {
+                resultado = resultado.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            }
+            if (ignorarMayusculas) {
+                resultado = resultado.toLowerCase();
+            }
+            if (ignorarEspacios) {
+                resultado = resultado.trim().replace(/\s+/g, ' ');
+            }
+            return resultado;
+        };
+
+        const valorNormalizado = normalizarTexto(valor);
+        const labelNormalizado = normalizarTexto(labelText);
+
+        // Cerrar overlays previos
+        cy.get('body').then($body => {
+            if ($body.find('.cdk-overlay-pane').length) {
+                cy.log('⚠️ Cerrando overlay existente antes de abrir nuevo combo');
+                const $backdrop = $body.find('.cdk-overlay-backdrop');
+                if ($backdrop.length) {
+                    cy.wrap($backdrop).click({ force: true });
+                } else {
+                    cy.get('body').type('{esc}', { force: true });
+                }
+                cy.wait(300);
+            }
+        });
+
+        // Localizar el mat-form-field por su label
+        cy.get('mat-form-field', { timeout })
+            .filter(':has(mat-select)')
+            .then($campos => {
+                let $mejorCampo = null;
+                let mejorPuntaje = -1;
+                let textoMejorCoincidencia = '';
+
+                $campos.each((index, campo) => {
+                    const $campo = Cypress.$(campo);
+                    const $label = $campo.find('mat-label, label, .mat-label');
+                    if ($label.length) {
+                        const textoLabel = $label.first().text().trim();
+                        const textoLabelNorm = normalizarTexto(textoLabel);
+
+                        let puntaje = 0;
+                        if (textoLabelNorm === labelNormalizado) puntaje = 100;
+                        else if (textoLabelNorm.replace(/\s*\*\s*/g, '') === labelNormalizado) puntaje = 90;
+                        else if (textoLabelNorm.startsWith(labelNormalizado + ' ')) puntaje = 80;
+                        else if (new RegExp(`\\b${labelNormalizado}\\b`).test(textoLabelNorm)) puntaje = 70;
+                        else if (textoLabelNorm.includes(labelNormalizado)) puntaje = 50;
+                        else if (labelNormalizado.includes(textoLabelNorm)) puntaje = 30;
+
+                        cy.log(`📝 "${textoLabel}" → puntaje: ${puntaje}`);
+                        if (puntaje > mejorPuntaje) {
+                            mejorPuntaje = puntaje;
+                            $mejorCampo = $campo;
+                            textoMejorCoincidencia = textoLabel;
+                        }
+                    }
+                });
+
+                expect($mejorCampo, `No se encontró campo para label "${labelText}"`).to.not.be.null;
+                cy.log(`✅ Mejor coincidencia: "${textoMejorCoincidencia}" (puntaje: ${mejorPuntaje})`);
+
+                const $select = $mejorCampo.find('mat-select');
+                cy.wrap($select).as('targetSelect');
+
+                // Verificar valor actual
+                cy.get('@targetSelect').then($el => {
+                    const valorActual = $el.find('.mat-select-value-text, .mat-select-min-line')
+                        .first()
+                        .text()
+                        .trim();
+                    const valorActualNorm = normalizarTexto(valorActual);
+
+                    cy.log(`📌 Valor actual: "${valorActual}" | Normalizado: "${valorActualNorm}"`);
+
+                    if (valorActualNorm === valorNormalizado) {
+                        cy.log(`⏭️ Ya tiene el valor "${valor}", no se requiere cambio`);
+                        return;
+                    }
+
+                    // Abrir el combo
+                    cy.get('@targetSelect')
+                        .should('not.be.disabled')
+                        .click();
+
+                    // Esperar y filtrar el panel correcto
+                    cy.get('.cdk-overlay-pane', { timeout })
+                        .should('have.length.at.least', 1)
+                        .then($paneles => {
+                            // Filtrar paneles que tengan al menos un mat-option
+                            const $panelesConOpciones = $paneles.filter((idx, pane) => {
+                                return Cypress.$(pane).find('mat-option').length > 0;
+                            });
+
+                            let $panelCorrecto;
+                            if ($panelesConOpciones.length > 0) {
+                                $panelCorrecto = $panelesConOpciones.first();
+                                cy.log(`✅ Usando panel que contiene opciones (${$panelesConOpciones.length} paneles con opciones)`);
+                            } else {
+                                $panelCorrecto = $paneles.first();
+                                cy.log(`⚠️ Ningún panel tiene mat-option, usando el primero`);
+                            }
+
+                            cy.wrap($panelCorrecto).within(() => {
+                                // Listar todas las opciones para depurar
+                                cy.get('mat-option').then($opciones => {
+                                    const textos = $opciones.map((i, opt) => Cypress.$(opt).text().trim()).get();
+                                    cy.log(`📋 Opciones disponibles: ${JSON.stringify(textos)}`);
+                                });
+
+                                // Buscar la opción exacta y hacer scroll + clic forzado
+                                cy.get('mat-option')
+                                    .filter((i, opt) => {
+                                        const textoOpt = Cypress.$(opt).text().trim();
+                                        const textoOptNorm = normalizarTexto(textoOpt);
+                                        return textoOptNorm === valorNormalizado;
+                                    })
+                                    .first()
+                                    .scrollIntoView()          // Asegura que el elemento esté visible
+                                    .click({ force: true });   // Hace clic aunque no sea visible (por si acaso)
+                            });
+                        });
+
+                    // Verificar que el valor se actualizó
+                    cy.get('@targetSelect').then($el => {
+                        const nuevoValor = $el.find('.mat-select-value-text, .mat-select-min-line')
+                            .first()
+                            .text()
+                            .trim();
+                        const nuevoValorNorm = normalizarTexto(nuevoValor);
+                        cy.log(`🔍 Después de seleccionar: "${nuevoValor}" | Normalizado: "${nuevoValorNorm}"`);
+                        expect(nuevoValorNorm).to.equal(valorNormalizado);
+                    });
+
+                    cy.log(`✅ Seleccionado "${valor}" en combo "${labelText}"`);
+                });
+            });
+    }
 
     seleccionarComboEspecial(valor, labelText, opciones = {}) {
         const {
@@ -3396,7 +3554,7 @@ IngresarFecha(fecha, nombreCampo, opciones = {}) {
 
 
 
-    arrastrarCaracteristicaC(nombre, opciones = {}) {
+    /*arrastrarCaracteristicaC(nombre, opciones = {}) {
         const {
             contenedorDestino = '#step',
             timeout = 10000,
@@ -3512,7 +3670,261 @@ IngresarFecha(fecha, nombreCampo, opciones = {}) {
                     this.esperarQueSpinnerDesaparezca({ timeout });
                 });
             });
+    }*/
+
+    /*arrastrarCaracteristicaC(nombre, opciones = {}) {
+        const {
+            contenedorDestino = '#step',
+            timeout = 10000,
+            maxElementosAntesDePosicionFija = 3   // NUEVO: a partir de cuántos elementos usar posición fija
+        } = opciones;
+
+        // Contenedor activo (Paso 1 o Paso 2)
+        const getContenedorActivo = () => {
+            return cy.get('mat-expansion-panel.mat-expanded')
+                .find(contenedorDestino)
+                .should('be.visible');
+        };
+
+        cy.contains("mat-card-title", nombre)
+            .scrollIntoView()
+            .should("exist")
+            .parents(".cdk-drag")
+            .then($origen => {
+                const $handle = $origen.find('.cdk-drag-handle').length > 0
+                    ? $origen.find('.cdk-drag-handle')
+                    : $origen;
+
+                const rectOrigen = $handle[0].getBoundingClientRect();
+
+                // Inicio del drag
+                cy.wrap($handle).realMouseDown({ position: "center" });
+                cy.root().realMouseMove(rectOrigen.x + 5, rectOrigen.y + 5).wait(200);
+
+                // Contenedor destino
+                getContenedorActivo().then($container => {
+                    const elementosExistentes = $container.find('.cdk-drag');
+                    const rectContainer = $container[0].getBoundingClientRect();
+                    let puntoX, puntoY;
+
+                    // ====================================================
+                    // 1. Calcular punto X (centro del contenedor)
+                    // ====================================================
+                    puntoX = rectContainer.x + rectContainer.width / 2;
+
+                    // ====================================================
+                    // 2. Calcular punto Y según la cantidad de elementos
+                    // ====================================================
+                    if (elementosExistentes.length === 0) {
+                        // Contenedor vacío: colocar arriba, a 40px del borde superior
+                        puntoY = rectContainer.y + 40;
+                    }
+                    else if (elementosExistentes.length <= maxElementosAntesDePosicionFija) {
+                        // Pocos elementos: colocar debajo del último
+                        const ultimo = elementosExistentes.last();
+                        const rectUltimo = ultimo[0].getBoundingClientRect();
+                        puntoY = rectUltimo.y + rectUltimo.height + 30;
+                    }
+                    else {
+                        // Muchos elementos: colocar debajo del elemento en posición (maxElementosAntesDePosicionFija - 1)
+                        // Por defecto, debajo del 3er elemento (índice 2)
+                        const elementoReferencia = elementosExistentes.eq(maxElementosAntesDePosicionFija - 1);
+                        if (elementoReferencia.length) {
+                            const rectRef = elementoReferencia[0].getBoundingClientRect();
+                            puntoY = rectRef.y + rectRef.height + 30;
+                        } else {
+                            // Fallback: usar el último elemento
+                            const ultimo = elementosExistentes.last();
+                            const rectUltimo = ultimo[0].getBoundingClientRect();
+                            puntoY = rectUltimo.y + rectUltimo.height + 30;
+                        }
+                    }
+
+                    // ====================================================
+                    // 3. Asegurar que puntoY no se salga del contenedor
+                    //    (evitar desbordamiento)
+                    // ====================================================
+                    const limiteInferior = rectContainer.y + rectContainer.height - 20; // margen inferior
+                    if (puntoY > limiteInferior) {
+                        puntoY = limiteInferior;
+                        cy.log(`⚠️ Ajustando puntoY a ${puntoY} para que no supere el contenedor`);
+                    }
+
+                    // Guardar coordenadas
+                    cy.wrap({ puntoX, puntoY }).as('coords');
+                });
+
+                // Ejecutar drag con movimientos progresivos
+                cy.get('@coords').then(({ puntoX, puntoY }) => {
+                    cy.root().realMouseMove(puntoX, puntoY - 80).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY - 40).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY).wait(200);
+
+                    // Verificar estado del drop (no bloqueante)
+                    getContenedorActivo().then($el => {
+                        const dragging = $el.hasClass('cdk-drop-list-dragging');
+                        const receiving = $el.hasClass('cdk-drop-list-receiving');
+                        if (!(dragging || receiving)) {
+                            cy.log('⚠️ Angular CDK no detectó drag (continuando igual)');
+                        }
+                    });
+
+                    // Ajustes finales
+                    cy.root().realMouseMove(puntoX + 2, puntoY + 2).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY).wait(100);
+
+                    // Soltar
+                    cy.root().realMouseUp();
+                    cy.root().realClick();
+
+                    cy.wait(1200);
+
+                    // Hacer clic en el nuevo elemento (opcional)
+                    getContenedorActivo()
+                        .find('.cdk-drag')
+                        .should('have.length.greaterThan', 0)
+                        .should('be.visible')
+                        .then($list => {
+                            cy.wrap($list.last())
+                                .scrollIntoView({ block: 'center' })
+                                .should('exist')
+                                .click({ force: true });
+                        });
+
+                    cy.wait(500);
+                    cy.log(`✅ Arrastre completado: "${nombre}"`);
+                    this.esperarQueSpinnerDesaparezca({ timeout });
+                });
+            });
+    }*/
+
+
+    arrastrarCaracteristicaC(nombre, opciones = {}) {
+        const {
+            contenedorDestino = '#step',
+            timeout = 10000,
+            maxElementosAntesDePosicionFija = 3,
+            ignorarTildes = true,
+            ignorarMayusculas = true,
+            ignorarEspacios = true
+        } = opciones;
+
+        const normalizarTexto = (texto) => {
+            if (!texto) return texto;
+            let resultado = String(texto);
+            if (ignorarTildes) resultado = resultado.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            if (ignorarMayusculas) resultado = resultado.toLowerCase();
+            if (ignorarEspacios) resultado = resultado.trim().replace(/\s+/g, ' ');
+            return resultado;
+        };
+        const nombreNormalizado = normalizarTexto(nombre);
+
+        const getContenedorActivo = () => {
+            return cy.get('mat-expansion-panel.mat-expanded')
+                .find(contenedorDestino)
+                .should('be.visible');
+        };
+
+        // Búsqueda directa dentro del iframe actual
+        cy.log(`🔍 Buscando característica: "${nombre}" (normalizado: "${nombreNormalizado}")`);
+        cy.get('mat-card-title', { timeout })
+            .should('have.length.at.least', 1)
+            .then($titles => {
+                let $encontrado = null;
+                for (let i = 0; i < $titles.length; i++) {
+                    const texto = $titles.eq(i).text().trim();
+                    if (normalizarTexto(texto) === nombreNormalizado) {
+                        $encontrado = $titles.eq(i);
+                        break;
+                    }
+                }
+                if (!$encontrado) {
+                    // Fallback: búsqueda con contains (sin normalizar)
+                    cy.log(`No se encontró coincidencia exacta, usando contains...`);
+                    return cy.contains('mat-card-title', nombre, { timeout });
+                }
+                return cy.wrap($encontrado);
+            })
+            .scrollIntoView()
+            .should('be.visible')
+            .parents(".cdk-drag")
+            .then($origen => {
+                // ========== LÓGICA DE ARRASTRE (SIN CAMBIOS) ==========
+                const $handle = $origen.find('.cdk-drag-handle').length > 0
+                    ? $origen.find('.cdk-drag-handle')
+                    : $origen;
+                const rectOrigen = $handle[0].getBoundingClientRect();
+
+                cy.wrap($handle).realMouseDown({ position: "center" });
+                cy.root().realMouseMove(rectOrigen.x + 5, rectOrigen.y + 5).wait(200);
+
+                getContenedorActivo().then($container => {
+                    const elementosExistentes = $container.find('.cdk-drag');
+                    const rectContainer = $container[0].getBoundingClientRect();
+                    let puntoX = rectContainer.x + rectContainer.width / 2;
+                    let puntoY;
+
+                    if (elementosExistentes.length === 0) {
+                        puntoY = rectContainer.y + 40;
+                    } else if (elementosExistentes.length <= maxElementosAntesDePosicionFija) {
+                        const ultimo = elementosExistentes.last();
+                        const rectUltimo = ultimo[0].getBoundingClientRect();
+                        puntoY = rectUltimo.y + rectUltimo.height + 30;
+                    } else {
+                        const elementoReferencia = elementosExistentes.eq(maxElementosAntesDePosicionFija - 1);
+                        if (elementoReferencia.length) {
+                            const rectRef = elementoReferencia[0].getBoundingClientRect();
+                            puntoY = rectRef.y + rectRef.height + 30;
+                        } else {
+                            const ultimo = elementosExistentes.last();
+                            const rectUltimo = ultimo[0].getBoundingClientRect();
+                            puntoY = rectUltimo.y + rectUltimo.height + 30;
+                        }
+                    }
+
+                    const limiteInferior = rectContainer.y + rectContainer.height - 20;
+                    if (puntoY > limiteInferior) puntoY = limiteInferior;
+
+                    cy.wrap({ puntoX, puntoY }).as('coords');
+                });
+
+                cy.get('@coords').then(({ puntoX, puntoY }) => {
+                    cy.root().realMouseMove(puntoX, puntoY - 80).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY - 40).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY).wait(200);
+
+                    getContenedorActivo().then($el => {
+                        const dragging = $el.hasClass('cdk-drop-list-dragging');
+                        const receiving = $el.hasClass('cdk-drop-list-receiving');
+                        if (!(dragging || receiving)) cy.log('Angular CDK no detectó drag');
+                    });
+
+                    cy.root().realMouseMove(puntoX + 2, puntoY + 2).wait(100);
+                    cy.root().realMouseMove(puntoX, puntoY).wait(100);
+                    cy.root().realMouseUp();
+                    cy.root().realClick();
+                    cy.wait(1200);
+
+                    getContenedorActivo()
+                        .find('.cdk-drag')
+                        .should('have.length.greaterThan', 0)
+                        .should('be.visible')
+                        .then($list => {
+                            cy.wrap($list.last())
+                                .scrollIntoView({ block: 'center' })
+                                .should('exist')
+                                .click({ force: true });
+                        });
+
+                    cy.wait(500);
+                    cy.log(`✅ Arrastre completado: "${nombre}"`);
+                    this.esperarQueSpinnerDesaparezca({ timeout });
+                });
+            });
     }
+
+
+
 
     seleccionarRadio(valor, opciones = {}) {
         const {

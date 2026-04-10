@@ -1,16 +1,52 @@
 {
   "agregar": [
     {
-      "codigoTRX": "700",
-      "nombrePaso": "Cuenta",
+      "codigoTRX": "1700",
+      "nombrePaso": "Paso 1: Campos",
       "typeReglaParaCondicionarPaso": "",
-      "descripcionPasoTrx": "ingreso de cuenta"
+      "descripcionPasoTrx": "Paso 1: Campos"
     },
     {
-      "codigoTRX": "700",
-      "nombrePaso": "Confirmación",
+      "codigoTRX": "1700",
+      "nombrePaso": "Paso 2: Campos",
       "typeReglaParaCondicionarPaso": "",
-      "descripcionPasoTrx": "Confirmación de transacción deposito monetario"
+      "descripcionPasoTrx": "Paso 2: Campos"
+    },
+    {
+      "codigoTRX": "1700",
+      "nombrePaso": "Paso 3: Campos",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso 3: Campos"
+    },
+    {
+      "codigoTRX": "1700",
+      "nombrePaso": "Paso No. 4: Campos (Confirmación de la transacción)",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso No. 4: Campos (Confirmación de la transacción)"
+    },
+    {
+      "codigoTRX": "1600",
+      "nombrePaso": "Paso 1: Campos",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso 1: Campos"
+    },
+    {
+      "codigoTRX": "1600",
+      "nombrePaso": "Paso 2: Campos",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso 2: Campos"
+    },
+    {
+      "codigoTRX": "1600",
+      "nombrePaso": "Paso No. 3: Campos",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso No. 3: Campos"
+    },
+    {
+      "codigoTRX": "1600",
+      "nombrePaso": "Paso No. 4: Campos (Confirmación de la transacción)",
+      "typeReglaParaCondicionarPaso": "",
+      "descripcionPasoTrx": "Paso No. 4: Campos (Confirmación de la transacción)"
     }
   ]
 }

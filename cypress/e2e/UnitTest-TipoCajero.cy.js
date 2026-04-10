@@ -25,8 +25,9 @@ describe("Prueba unitaria del Crud TipoCajero...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('tipoCajero').then((data) => {
-            cy.wrap(data.agregar).each((item) => {
+        cy.readFile('./JsonData/tipoCajero.json').then((data) => {
+            cy.wrap(data.agregar).each((item, index) => {
+                const numero = index + 1;
                 cy.log(`Insertando código: ${item.codigo}`)
 
                 //Asegurar estado limpio antes de comenzar
@@ -55,23 +56,29 @@ describe("Prueba unitaria del Crud TipoCajero...", () =>{
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/typeCashier').as('guardar')
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/typeCashier');
+
 
                 Generales.BtnAceptarRegistro()
 
 
-                cy.wait('@guardar').then((interception) => {
-                    const status = interception.response.statusCode
-                    if (status === 200 || status === 201) {
-                        cy.log('Registro insertado correctamente')
-                        // Esperar que el modal desaparezca
-                        cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                    } else {
-                        cy.log(`Error detectado. Status: ${status}`)
-                        Generales.BtnCancelarRegistro()
-                        cy.contains('h2', 'Nuevo Registro').should('not.exist')
+                let nombre = "Tipos de cajero"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `002 -: ${nombre} `,
+                    crud: `${nombre} `,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                });
+
+                cy.get('body').then(($body) => {
+                    const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                    if (modalAbierto) {
+                        cy.log('Modal sigue abierto cerrando manualmente');
+                        Generales.BtnCancelarRegistro();
+                        cy.wait(500);
                     }
-                })
+                });
             })
         })
     })

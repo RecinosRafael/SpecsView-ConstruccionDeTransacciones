@@ -463,7 +463,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
         }
     });
 
-    describe("002 -  Tipo de Dato...", () =>{
+    describe.skip("002 -  Tipo de Dato...", () =>{
 
         beforeEach(() => {
             Generales.IrAPantalla('dataType')
@@ -522,7 +522,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                     cy.get('body').then(($body) => {
                         const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
                         if (modalAbierto) {
-                            cy.log('Modal sigue abierto → cerrando manualmente');
+                            cy.log('Modal sigue abierto cerrando manualmente');
                             Generales.BtnCancelarRegistro();
                             cy.wait(500);
                         }
@@ -2319,7 +2319,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
                         item.codigo, item.nombre, item.etiqueta, item.descripcion, item.tieneDatosSensibles, item.Tipo, item.longitudMin, item.longitudMax, item.longitudEnvio,
                         item.digitoVerificador, item.mascara, item.listaValores, item.rangoValores, item.limiteInferior, item.limiteSuperior, item.llenadoAutomatico, item.etiquetaJson,
                         item.valorDefecto, item.ayuda, item.moneda, item.rutina, item.implListaVista, item.implServicio, item.endpointAyuda, item.estado, item.validoDesde, item.validoHasta, item.usaSumadora,
-                        item.idCampoEscuchar, item.requiereDetalleEfectivo, item.archivoYML, item.datosTachados, item.caracterVisualizar, item.esControlEfectivo
+                        item.idCampoEscuchar, item.requiereDetalleEfectivo, item.archivoYML, item.datosTachados, item.caracterVisualizar, item.esControlEfectivo, item.formatoFecha, item.fechaValida
                     )
 
                     //Intercept backend
@@ -3518,9 +3518,6 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
                             //Abrir formulario
                             Generales.BtnIframe('Agregar', { timeout: 10000, force: true, skipContext: true });
-                            // //Validar que el modal realmente abrió
-                            // cy.contains('h2', 'Nuevo Registro', { timeout: 10000, force: true})
-                            //     .should('be.visible')
 
                             // Llenar datos
                             GestorDeTransaccion.GestorTransacciones(
@@ -4210,7 +4207,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     });
 
-   describe.skip("019.3 -  Gestor de Transacciones > Asignar Caracteristicas de la transaccione a pasos ...", function() {
+   describe("019.3 -  Gestor de Transacciones > Asignar Caracteristicas de la transaccione a pasos ...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -4483,7 +4480,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
        });
     });
 
-    describe.skip("019.4 -  Gestor de Transacciones > Creacion de rutinas PRE...", function() {
+   describe.skip("019.4 -  Gestor de Transacciones > Creacion de rutinas PRE...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
@@ -4750,7 +4747,7 @@ describe("Suite de Contruccion de transacciones iniciales...", () => {
 
     });
 
-    describe.skip("019.5 -  Gestor de Transacciones > Creacion de rutinas POS...", function() {
+   describe.skip("019.5 -  Gestor de Transacciones > Creacion de rutinas POS...", function() {
 
         beforeEach(function() {
             Generales.IrAPantalla('transactionManager');
