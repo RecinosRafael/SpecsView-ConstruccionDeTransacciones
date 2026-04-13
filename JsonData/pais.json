@@ -1,22 +1,18 @@
 {
   "agregar": [
     {
-      "nombre": "Honduras TR",
-      "iso2Code": "HN",
-      "iso3Code": "HND",
+      "nombre": "Guatemala",
+      "iso2Code": "GT",
+      "iso3Code": "GTM",
       "tipo": "COUNTRY"
-    }
-  ],
-  "modificar": [
+    },
     {
-      "": "HND",
       "nombre": "Honduras",
       "iso2Code": "HN",
       "iso3Code": "HND",
       "tipo": "COUNTRY"
     },
     {
-      "iso3Codellave": "USA",
       "nombre": "Estados Unidos",
       "iso2Code": "US",
       "iso3Code": "USA",

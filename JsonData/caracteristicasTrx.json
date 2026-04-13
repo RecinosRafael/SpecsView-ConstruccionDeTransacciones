@@ -1,57 +1,20 @@
 {
   "agregar": [
     {
-      "codigoTRX": "1700",
+      "codigoTRX": "700",
       "caracteristicasTrx": [
-        "Cuenta",
-        "Numero de Tarjeta",
-        "Tipo de ID",
-        "N° Identificación",
-        "Nombre del titular",
+        "Cheques del exterior",
+        "Cheques otros bancos",
+        "efectivo electrónico",
+        "efectivo físico",
         "Moneda",
-        "Tipo de producto",
-        "Tipo de referencia",
-        "Referencia estado/cuenta",
-        "Nombre",
-        "Estatus de cuenta",
-        "Efectivo",
-        "Cheques",
-        "Efectivo Electrónico",
-        "Monto Total",
-        "Posee libreta",
-        "Rubro",
-        "Requiere llenar AML",
-        "Numero de linea",
-        "Numero de libreta",
-        "Tipo de libreta",
-        "Posteos Pendiente"
-      ]
-    },
-    {
-      "codigoTRX": "1600",
-      "caracteristicasTrx": [
-        "Cuenta",
-        "Numero de Tarjeta",
-        "Monto",
-        "Tipo de ID",
-        "N° Identificación",
-        "Nombre del titular",
-        "Moneda",
-        "Tipo de producto",
-        "Referencia estado/cuenta",
-        "Nombre",
-        "Monto Cobro TSP",
-        "Monto Total",
-        "Posee libreta",
-        "Efectivo",
-        "Efectivo electrónico",
-        "Rubro",
-        "Requiere llenar AML",
-        "Numero de linea",
-        "Numero de libreta",
-        "Tipo de libreta",
-        "Posteos Pendiente"
-      ]
+        "Nombre de cliente",
+        "Número de cuenta",
+        "Número de documento",
+        "Producto",
+        "total",
+        "Valor"]
     }
+
   ]
 }

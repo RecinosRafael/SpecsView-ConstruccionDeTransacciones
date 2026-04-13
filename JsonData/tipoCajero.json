@@ -1,11 +1,39 @@
 {
   "agregar": [
     {
+      "codigo": "1",
+      "descripcion": "Administrador",
+      "verTotales": true,
+      "permiteTotalizar": true,
+      "permiteRepetirLlave": false
+    },
+    {	
+      "codigo": "2",
+      "descripcion": "Supervisor",
+      "verTotales": true,
+      "permiteTotalizar": true,
+      "permiteRepetirLlave": true
+    },
+    {
+      "codigo": "3",
+      "descripcion": "Jefe de agencia",
+      "verTotales": true,
+      "permiteTotalizar": true,
+      "permiteRepetirLlave": true    
+    },
+    {
+      "codigo": "4",
+      "descripcion": "Sub jefe de agencia",
+      "verTotales": false,
+      "permiteTotalizar": true,
+      "permiteRepetirLlave": false    
+    },
+    {
       "codigo": "6",
       "descripcion": "Cajero",
       "verTotales": false,
       "permiteTotalizar": true,
-      "permiteRepetirLlave": false
+      "permiteRepetirLlave": false    
     }
   ]
 }

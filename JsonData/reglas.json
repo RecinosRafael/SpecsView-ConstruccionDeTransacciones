@@ -10,8 +10,8 @@
     },
     {
       "codigo": "2",
-      "nombre": "Afectación efectivo trx pagadas",
-      "descripcion": "Afectacion efectivo fisico y electrónico tt_fa(2)",
+      "nombre": "Afectación efectivo trx recibidas",
+      "descripcion": "Afectacion efectivo fisico y electrónico tt_fa(1)",
       "valorCicloVida": "Lanzado",
       "desde": "9/2/2026",
       "hasta": ""

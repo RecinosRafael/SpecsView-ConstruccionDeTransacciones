@@ -1,5 +1,14 @@
 {
   "agregar": [
+    {
+      "codigo": "3",
+      "valor": "EUR",
+      "valorDefecto": false,
+      "descriptor": "Euros",
+      "descriptor2": "",
+      "descriptor3": "",
+      "descriptor4": ""
+    },
     {	
       "codigo": "3",
       "valor": "L",
@@ -15,6 +24,79 @@
       "valor": "GTQ",
       "valorDefecto": false,
       "descriptor": "Quetzales",
+      "descriptor2": "",
+      "descriptor3": "",
+      "descriptor4": ""
+    },
+    {	
+      "codigo": "3",
+      "valor": "US$",
+      "valorDefecto": false,
+      "descriptor": "Dolares",
+      "descriptor2": "",
+      "descriptor3": "",
+      "descriptor4": ""
+    },
+    {	
+      "codigo": "4",
+      "valor": "01",
+      "valorDefecto": false,
+      "descriptor": "Monetarios",
+      "descriptor2": "",
+      "descriptor3": "",
+      "descriptor4": ""
+
+    },
+    {	
+      "codigo": "4",
+      "valor": "02",
+      "valorDefecto": false,
+      "descriptor": "Ahorros",
+      "descriptor2": "",
+      "descriptor3": "",
+      "descriptor4": ""
+    },
+    {	
+      "codigo": "4",
+      "valor": "03",
+      "valorDefecto": false,
+      "descriptor": "Plazo fijo",
+      "descriptor2": "",
+      "descriptor3": "",
+      "descriptor4": ""
+    },
+    {	
+      "codigo": "11",
+      "valor": "1",
+      "valorDefecto": true,
+      "descriptor": "DPI",
+      "descriptor2": "",
+      "descriptor3": "",
+      "descriptor4": ""
+    },
+    {	
+      "codigo": "11",
+      "valor": "2",
+      "valorDefecto": false,
+      "descriptor": "Pasaporte",
+      "descriptor2": "",
+      "descriptor3": "",
+      "descriptor4": ""
+    },
+    {	
+      "codigo": "19",
+      "valor": "1",
+      "valorDefecto": false,
+      "descriptor": "Banco Agromercantil",
+      "descriptor2": "",
+      "descriptor3": "",
+      "descriptor4": ""
+    },
+    {	
+      "codigo": "19",
+      "valor": "2",
+      "valorDefecto": false,
+      "descriptor": "Banco Occidente",
       "descriptor2": "",
       "descriptor3": "",
       "descriptor4": ""

@@ -6,14 +6,14 @@
       "cuadraEfectivo": true
     },
     {
-      "codigoTotCaj": "1",
+      "codigoTotCaj": "40",
       "tipoCajero": "Cajero",
       "cuadraEfectivo": true
     },
     {
-      "codigoTotCaj": "102",
-      "tipoCajero": "Cajero",
-      "cuadraEfectivo": true
+      "codigoTotCaj": "40",
+      "tipoCajero": "dministrador",
+      "cuadraEfectivo": false
     }
   ]
 }

@@ -1,0 +1,47 @@
+{
+  "oracle": {
+    "jteller": {
+      "user": "jtellerv7",
+      "password": "jtellerv7",
+      "connectString": "172.16.10.139:51521/xe"
+    },
+    "jsigcommon": {
+      "user": "jsigcommon",
+      "password": "jsigcommon",
+      "connectString": "172.16.10.139:51521/xe"
+    },
+    "jsigperson_data": {
+      "user": "jsigperson_data",
+      "password": "jsigperson_data",
+      "connectString": "172.16.10.139:51521/xe"
+    },
+    "logdat": {
+      "user": "logdat",
+      "password": "logdat",
+      "connectString": "172.16.10.139:51521/xe"
+    },
+    "security": {
+      "user": "security",
+      "password": "security",
+      "connectString": "172.16.10.139:51521/xe"
+    },
+    "distributor": {
+      "user": "distributor",
+      "password": "distributor",
+      "connectString": "172.16.10.139:51521/xe"
+    },
+    "jsignature": {
+      "user": "jsignature",
+      "password": "jsignature",
+      "connectString": "172.16.10.139:51521/xe"
+    },
+    "jsigperson_conf": {
+      "user": "jsigperson_conf",
+      "password": "jsigperson_conf",
+      "connectString": "172.16.10.139:51521/xe"
+    }
+  }
+}
+
+
+
