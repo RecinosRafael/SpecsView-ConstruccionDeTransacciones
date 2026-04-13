@@ -9,10 +9,11 @@
       "totalCajero": "Efectivo en caja",
       "operador": "-",
       "afectar": "Totales"
+    
     },
     {
       "nombreReglaAC": "Afectación efectivo trx pagadas",
-      "transaccionAC": "",
+      "transaccionAC": "",     
       "correlativo": "5",
       "caracteristica": "Efectivo físico",
       "arbolRaiz": "Byte S.A.",
@@ -22,17 +23,18 @@
     },
     {
       "nombreReglaAC": "Afectación efectivo trx pagadas",
-      "transaccionAC": "",
+      "transaccionAC": "",     
       "correlativo": "10",
       "caracteristica": "Efectivo físico",
       "arbolRaiz": "Byte S.A.",
       "totalCajero": "Entregado al público",
       "operador": "+",
       "afectar": "Totales"
+    
     },
     {
       "nombreReglaAC": "Afectación efectivo trx pagadas",
-      "transaccionAC": "",
+      "transaccionAC": "",     
       "correlativo": "15",
       "caracteristica": "Efectivo electrónico",
       "arbolRaiz": "Byte S.A.",
@@ -42,28 +44,28 @@
     },
     {
       "nombreReglaAC": "Afectación efectivo trx pagadas",
-      "transaccionAC": "",
+      "transaccionAC": "",     
       "correlativo": "20",
       "caracteristica": "Efectivo electrónico",
       "arbolRaiz": "Byte S.A.",
       "totalCajero": "Efectivo electrónico pagado",
       "operador": "+",
-      "afectar": "Totales"
+      "afectar": "Totales"    
     },
-    {
+        {
       "nombreReglaAC": "Afectación efectivo trx recibidas",
-      "transaccionAC": "",
+      "transaccionAC": "",     
       "correlativo": "1",
       "caracteristica": "Efectivo físico",
       "arbolRaiz": "Byte S.A.",
       "totalCajero": "Efectivo en caja",
       "operador": "-",
       "afectar": "Totales"
-
+    
     },
     {
       "nombreReglaAC": "Afectación efectivo trx recibidas",
-      "transaccionAC": "",
+      "transaccionAC": "",     
       "correlativo": "5",
       "caracteristica": "Efectivo físico",
       "arbolRaiz": "Byte S.A.",
@@ -73,18 +75,18 @@
     },
     {
       "nombreReglaAC": "Afectación efectivo trx recibidas",
-      "transaccionAC": "",
+      "transaccionAC": "",     
       "correlativo": "10",
       "caracteristica": "Efectivo físico",
       "arbolRaiz": "Byte S.A.",
       "totalCajero": "Recibido del público",
       "operador": "+",
       "afectar": "Totales"
-
+    
     },
     {
       "nombreReglaAC": "Afectación efectivo trx recibidas",
-      "transaccionAC": "",
+      "transaccionAC": "",     
       "correlativo": "15",
       "caracteristica": "Efectivo electrónico",
       "arbolRaiz": "Byte S.A.",
@@ -94,13 +96,13 @@
     },
     {
       "nombreReglaAC": "Afectación efectivo trx recibidas",
-      "transaccionAC": "",
+      "transaccionAC": "",     
       "correlativo": "20",
       "caracteristica": "Efectivo electrónico",
       "arbolRaiz": "Byte S.A.",
       "totalCajero": "Efectivo electrónico recibido",
       "operador": "+",
-      "afectar": "Totales"
+      "afectar": "Totales"    
     }
   ]
 }

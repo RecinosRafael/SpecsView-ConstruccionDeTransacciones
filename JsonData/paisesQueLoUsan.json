@@ -7,7 +7,11 @@
     },
     {
       "codigoMoneda": "L",
-      "valorPais": "Honduras TR"
+      "nombre": "Honduras"
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "Estados Unidos"
     }
   ]
 }

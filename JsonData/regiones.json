@@ -1,14 +1,24 @@
 {
   "agregar": [
     {
-    "codigo":"2",
-    "nombre":"Region central",
-    "descripcion":"Region central"
+      "codigo": "1",
+      "nombre": "Region defecto",
+      "descripcion": "descripcion de region"
     },
-    {
-    "codigo":"3",
-    "nombre":"Region Este",
-    "descripcion":"Region Este"
+    {	
+      "codigo": "2",
+      "nombre": "Centro",
+      "descripcion": "Centro"
+    },
+    {	
+      "codigo": "3",
+      "nombre": "Sur",
+      "descripcion": "Sur"
+    },
+    {	
+      "codigo": "4",
+      "nombre": "Norte",
+      "descripcion": "Norte"
     }
   ]
 }

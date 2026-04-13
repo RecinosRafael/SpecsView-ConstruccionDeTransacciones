@@ -1,36 +1,14 @@
 {
   "agregar": [
+
     {
-      "codigo": "2",
-      "nombre": "Secuencia No documento",
-      "nombreRecurso": "rDOC",
-      "endpointRutinaRutaComponenteAngular": "/api/transaction-engine-service/v1/processTransaction/sequence",
-      "tipoRutina": "APIs DEL FLUJO DE TRANSACCION",
-      "capaEjecucion": "FrontEnd - EndPoint",
-      "descripcion": "",
-      "parametros": "",
-      "tipoOperacion": "GET",
-      "esLogin": "No",
-      "formatoEnvio": "",
-      "formatoRecibido": "",
-      "expresion1": "",
-      "operacion": "",
-      "expresion2": "",
-      "tipoExpresion": "",
-      "endpointRutinaSecundario": "",
-      "enviarListaRecursos": "false",
-      "ofline": "false",
-      "online": "false",
-      "noGuardarLOG": "false"
-    },
-    {
-      "codigo": "28",
-      "nombre": "Consultar cuenta core Byte",
-      "nombreRecurso": "rCuenta",
-      "endpointRutinaRutaComponenteAngular": "http://integrador-jteller:8080/processTransaction/",
-      "tipoRutina": "APIs DEL FLUJO DE TRANSACCION",
+      "codigo": "7766",
+      "nombre": "QAR-Rutinas con cypress",
+      "nombreRecurso": "",
+      "endpointRutinaRutaComponenteAngular": "https://jtellerqa-108.bytesw.cloud:30000/aml-fe/dynamic-flow",
+      "tipoRutina": "DE CAMPO",
       "capaEjecucion": "BackEnd",
-      "descripcion": "",
+      "descripcion": "QAR-Pruebas de rutinas con cypress",
       "parametros": "",
       "tipoOperacion": "GET",
       "esLogin": "No",
@@ -41,10 +19,10 @@
       "expresion2": "",
       "tipoExpresion": "",
       "endpointRutinaSecundario": "",
-      "enviarListaRecursos": "false",
+      "enviarListaRecursos": "true",
       "ofline": "true",
-      "online": "true",
-      "noGuardarLOG": "false"
+      "online": "",
+      "noGuardarLOG": "true"
     }
   ]
 }

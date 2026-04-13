@@ -13,7 +13,7 @@
     {	
       "codigo": "7",
       "correlativo": "2",
-      "subCaracteristica": "Número de cuenta",
+      "subCaracteristica": "Número de cheque",
       "campoTotalizable": "No",
       "TipoOperacion": "",
       "campoMandatorio": "Si",

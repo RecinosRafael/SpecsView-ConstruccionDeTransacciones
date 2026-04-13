@@ -4,24 +4,14 @@
       "codigoTotCaj": "1",
       "tipoRama": "Agencia",
       "tipoCajero": "Cajero",
-      "moneda": "Lempiras",
-      "minimoCajero": "10",
-      "maximoCajero": "5000",
-      "minimoTipoRama": "79657",
-      "maximoTipoRama": "475500"
+      "moneda": "Dólares",
+      "minimoCajero": "500",
+      "maximoCajero": "3000",
+      "minimoTipoRama": "3006",
+      "maximoTipoRama": "17945"
     },
     {
       "codigoTotCaj": "1",
-      "tipoRama": "Agencia",
-      "tipoCajero": "Cajero",
-      "moneda": "Lempiras",
-      "minimoCajero": "10",
-      "maximoCajero": "5000",
-      "minimoTipoRama": "79657",
-      "maximoTipoRama": "475500"
-    },
-    {
-      "codigoTotCaj": "102",
       "tipoRama": "Agencia",
       "tipoCajero": "Cajero",
       "moneda": "Lempiras",

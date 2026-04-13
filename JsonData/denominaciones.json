@@ -1,6 +1,111 @@
 {
   "agregar": [
     {
+      "codigoMoneda": "GTQ",
+      "nombre": "DOSCIENTOS",
+      "etiqueta": "DOSCIENTOS",
+      "valorTipo": "Billete",
+      "monto": 200.00
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "CIEN",
+      "etiqueta": "CIEN",
+      "valorTipo": "Billete",
+      "monto": 100.00
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "CINCUENTA",
+      "etiqueta": "CINCUENTA",
+      "valorTipo": "Billete",
+      "monto": 50.00
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "VEINTE",
+      "etiqueta": "VEINTE",
+      "valorTipo": "Billete",
+      "monto": 20.00
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "DIEZ",
+      "etiqueta": "DIEZ",
+      "valorTipo": "Billete",
+      "monto": 10.00
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "CINCO",
+      "etiqueta": "CINCO",
+      "valorTipo": "Billete",
+      "monto": 5.00
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "UNO",
+      "etiqueta": "UNO",
+      "valorTipo": "Billete",
+      "monto": 1.00
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "UN",
+      "etiqueta": "UN",
+      "valorTipo": "Moneda",
+      "monto": 1.00
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "CINCUENTA",
+      "etiqueta": "CINCUENTA",
+      "valorTipo": "Moneda",
+      "monto": 0.50
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "VEINTE Y CINCO",
+      "etiqueta": "VEINTE Y CINCO",
+      "valorTipo": "Moneda",
+      "monto": 0.25
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "DIEZ",
+      "etiqueta": "DIEZ",
+      "valorTipo": "Moneda",
+      "monto": 0.10
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "CINCO",
+      "etiqueta": "CINCO",
+      "valorTipo": "Moneda",
+      "monto": 0.05
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "UNO",
+      "etiqueta": "UNO",
+      "valorTipo": "Moneda",
+      "monto": 0.01
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "UNO dañado",
+      "etiqueta": "UNO dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 1.00
+    },
+    {
+      "codigoMoneda": "GTQ",
+      "nombre": "UNO",
+      "etiqueta": "UNO",
+      "valorTipo": "Moneda Dañada",
+      "monto": 1.00
+    },
+    {
       "codigoMoneda": "L",
       "nombre": "1 Lempira",
       "etiqueta": "1 Lempira",
@@ -15,17 +120,367 @@
       "monto": 2.00
     },
     {
-      "codigoMoneda": "GTQ",
-      "nombre": "UNO",
-      "etiqueta": "UNO",
+      "codigoMoneda": "L",
+      "nombre": "5 Lempiras",
+      "etiqueta": "5 Lempiras",
+      "valorTipo": "Billete",
+      "monto": 5.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "10 Lempiras",
+      "etiqueta": "10 Lempiras",
+      "valorTipo": "Billete",
+      "monto": 10.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "20 Lempiras",
+      "etiqueta": "20 Lempiras",
+      "valorTipo": "Billete",
+      "monto": 20.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "50 Lempiras",
+      "etiqueta": "50 Lempiras",
+      "valorTipo": "Billete",
+      "monto": 50.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "100 Lempiras",
+      "etiqueta": "100 Lempiras",
+      "valorTipo": "Billete",
+      "monto": 100.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "200 Lempiras",
+      "etiqueta": "200 Lempiras",
+      "valorTipo": "Billete",
+      "monto": 200.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "500 Lempiras",
+      "etiqueta": "500 Lempiras",
+      "valorTipo": "Billete",
+      "monto": 500.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "0.05 Lempiras",
+      "etiqueta": "0.05 Lempiras",
+      "valorTipo": "Moneda",
+      "monto": 0.05
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "0.10 Lempiras",
+      "etiqueta": "0.10 Lempiras",
+      "valorTipo": "Moneda",
+      "monto": 0.10
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "0.20 Lempiras",
+      "etiqueta": "0.20 Lempiras",
+      "valorTipo": "Moneda",
+      "monto": 0.20
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "0.50 Lempiras",
+      "etiqueta": "0.50 Lempiras",
+      "valorTipo": "Moneda",
+      "monto": 0.50
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "1 Lempira mon",
+      "etiqueta": "1 Lempira mon",
+      "valorTipo": "Moneda",
+      "monto": 1.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "1 Lempira dañado",
+      "etiqueta": "1 Lempira dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 1.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "2 Lempiras dañado",
+      "etiqueta": "2 Lempiras dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 2.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "5 Lempiras dañado",
+      "etiqueta": "5 Lempiras dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 5.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "10 Lempiras dañado",
+      "etiqueta": "10 Lempiras dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 10.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "20 Lempiras dañado",
+      "etiqueta": "20 Lempiras dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 20.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "50 Lempiras dañado",
+      "etiqueta": "50 Lempiras dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 50.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "100 Lempiras dañado",
+      "etiqueta": "100 Lempiras dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 100.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "200 Lempiras dañado",
+      "etiqueta": "200 Lempiras dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 200.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "500 Lempiras dañado",
+      "etiqueta": "500 Lempiras dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 500.00
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "0.05 Lempiras dañado",
+      "etiqueta": "0.05 Lempiras dañado",
+      "valorTipo": "Moneda Dañada",
+      "monto": 0.05
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "0.10 Lempiras dañado",
+      "etiqueta": "0.10 Lempiras dañado",
+      "valorTipo": "Moneda Dañada",
+      "monto": 0.10
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "0.20 Lempiras dañado",
+      "etiqueta": "0.20 Lempiras dañado",
+      "valorTipo": "Moneda Dañada",
+      "monto": 0.20
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "0.50 Lempiras dañado",
+      "etiqueta": "0.50 Lempiras dañado",
+      "valorTipo": "Moneda Dañada",
+      "monto": 0.50
+    },
+    {
+      "codigoMoneda": "L",
+      "nombre": "1 Lempira mon dañada",
+      "etiqueta": "1 Lempira mon dañada",
       "valorTipo": "Moneda Dañada",
       "monto": 1.00
     },
     {
-      "codigoMoneda": "GTQ",
-      "nombre": "UNO dañado",
-      "etiqueta": "UNO dañado",
+      "codigoMoneda": "US$",
+      "nombre": "1 dólar",
+      "etiqueta": "1 dólar",
+      "valorTipo": "Billete",
+      "monto": 1.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "2 dólares",
+      "etiqueta": "2 dólares",
+      "valorTipo": "Billete",
+      "monto": 2.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "5 dólares",
+      "etiqueta": "5 dólares",
+      "valorTipo": "Billete",
+      "monto": 5.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "10 dólares",
+      "etiqueta": "10 dólares",
+      "valorTipo": "Billete",
+      "monto": 10.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "20 dólares",
+      "etiqueta": "20 dólares",
+      "valorTipo": "Billete",
+      "monto": 20.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "50 dólares",
+      "etiqueta": "50 dólares",
+      "valorTipo": "Billete",
+      "monto": 50.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "100 dólares",
+      "etiqueta": "100 dólares",
+      "valorTipo": "Billete",
+      "monto": 100.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "0.01 de dólar",
+      "etiqueta": "0.01 de dólar",
+      "valorTipo": "Moneda",
+      "monto": 0.01
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "0.05 de dólar",
+      "etiqueta": "0.05 de dólar",
+      "valorTipo": "Moneda",
+      "monto": 0.05
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "0.10 de dólar",
+      "etiqueta": "0.10 de dólar",
+      "valorTipo": "Moneda",
+      "monto": 0.10
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "0.25 de dólar",
+      "etiqueta": "0.25 de dólar",
+      "valorTipo": "Moneda",
+      "monto": 0.25
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "0.50 de dólar",
+      "etiqueta": "0.50 de dólar",
+      "valorTipo": "Moneda",
+      "monto": 0.50
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "1 dólar mon",
+      "etiqueta": "1 dólar mon",
+      "valorTipo": "Moneda",
+      "monto": 1.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "1 dólar dañado",
+      "etiqueta": "1 dólar dañado",
       "valorTipo": "Billete Dañado",
+      "monto": 1.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "2 dólares dañado",
+      "etiqueta": "2 dólares dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 2.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "5 dólares dañado",
+      "etiqueta": "5 dólares dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 5.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "10 dólares dañado",
+      "etiqueta": "10 dólares dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 10.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "20 dólares dañado",
+      "etiqueta": "20 dólares dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 20.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "50 dólares dañado",
+      "etiqueta": "50 dólares dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 50.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "100 dólares dañado",
+      "etiqueta": "100 dólares dañado",
+      "valorTipo": "Billete Dañado",
+      "monto": 100.00
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "0.01 de dólar dañada",
+      "etiqueta": "0.01 de dólar dañada",
+      "valorTipo": "Moneda Dañada",
+      "monto": 0.01
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "0.05 de dólar dañada",
+      "etiqueta": "0.05 de dólar dañada",
+      "valorTipo": "Moneda Dañada",
+      "monto": 0.05
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "0.10 de dólar dañada",
+      "etiqueta": "0.10 de dólar dañada",
+      "valorTipo": "Moneda Dañada",
+      "monto": 0.10
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "0.25 de dólar dañada",
+      "etiqueta": "0.25 de dólar dañada",
+      "valorTipo": "Moneda Dañada",
+      "monto": 0.25
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "0.50 de dólar dañada",
+      "etiqueta": "0.50 de dólar dañada",
+      "valorTipo": "Moneda Dañada",
+      "monto": 0.50
+    },
+    {
+      "codigoMoneda": "US$",
+      "nombre": "1 dólar mon dañada",
+      "etiqueta": "1 dólar mon dañada",
+      "valorTipo": "Moneda Dañada",
       "monto": 1.00
     }
   ]
