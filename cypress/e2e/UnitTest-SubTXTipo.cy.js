@@ -20,7 +20,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('subTxTipoCajero').as('data');
+        cy.readFile('./JsonData/subTxTipoCajero').as('data');
     });
 
     it("Agregar múltiples registros dinámicamente", function() {
@@ -51,13 +51,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     Generales.filtrarPorCodigo(item.codigoTX); // o item.codigoTX - 777 para pruebas 
                     Generales.abrirPanel("Opciones");
                     Generales.BtnIframe("Tipos de cajero", { timeout: 10000, force: true, skipContext: true });
-                    GestorDeTransacciones.TiposCajero(
-                        item.administrador,
-                        item.supervisor,
-                        item.jefeAgencia,
-                        item.subJefeAgencia,
-                        item.cajero
-                    );
+                    GestorDeTransacciones.TiposCajero(item);
                     // Hacemos clic en Guardar sin interceptar
                     Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
                 }); // Salimos del iframe
