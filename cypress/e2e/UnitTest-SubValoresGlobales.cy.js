@@ -20,8 +20,8 @@ describe("Prueba unitaria del Sub Crud Valores Globales...", () =>{
             Cypress.env('PASS')
         )
 
-        const folderPath = 'capturas';
-        cy.task('deleteAllFiles', folderPath);
+        //const folderPath = 'capturas';
+        //cy.task('deleteAllFiles', folderPath);
 
     })
 
@@ -35,7 +35,6 @@ describe("Prueba unitaria del Sub Crud Valores Globales...", () =>{
 
         const datos = this.data.agregar
 
-
         const agrupadas = datos.reduce((acc, item) => {
             if (!acc[item.codigoValorG]) {
                 acc[item.codigoValorG] = []
@@ -48,7 +47,6 @@ describe("Prueba unitaria del Sub Crud Valores Globales...", () =>{
 
         cy.wrap(Object.keys(agrupadas)).each((codigoValorG) => {
             cy.log('Procesando Moneda con código: ' + codigoValorG)
-
 
         //Buscar Registro
         Generales.BuscarRegistroCodigo(codigoValorG)
@@ -75,12 +73,32 @@ describe("Prueba unitaria del Sub Crud Valores Globales...", () =>{
             // Llenar datos
             ValorGlobal.SubValoresGlobales(item)
 
-            const alias = `guardar-${numero}`;
-            cy.intercept('POST', '**/globalValuesByOrganizationTree').as(alias);
+            //const alias = `guardar-${numero}`;
+            //cy.intercept('POST', '**/globalValuesByOrganizationTree').as(alias);
+            const alias = Generales.interceptar('guardar', numero, 'POST', '**/globalValuesByOrganizationTree')
 
             Generales.BtnAceptarRegistro()
 
-                    cy.wait(`@${alias}`).then((interception) => {
+            let nombre = "Valores Globales por Árbol Organizacional"
+
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `000 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Árbol raíz: ${item.arbolRaiz} - Valor: ${item.valor}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
+                    /*cy.wait(`@${alias}`).then((interception) => {
                         const status = interception.response.statusCode
                         let estado = 'fallida'
                         let mensaje = ''
@@ -130,7 +148,7 @@ describe("Prueba unitaria del Sub Crud Valores Globales...", () =>{
                                 }
                             })
                         })
-                    })
+                    })*/
 
                     // Opcional: Verificar que el modal de denominación se cerró completamente
                     cy.get('mat-dialog-container', { timeout: 10000 }).should('not.exist')

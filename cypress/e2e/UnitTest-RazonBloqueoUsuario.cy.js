@@ -25,9 +25,11 @@ describe("Prueba unitaria del Crud Razones de Bloqueo de Usuario...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('razonesBloqueoUsuario').then((data) => {
-            cy.wrap(data.agregar).each((item) => {
+        cy.readFile('./JsonData/razonesBloqueoUsuario.json').then((data) => {
+            cy.wrap(data.agregar).each((item, index) => {
                 cy.log(`Insertando código: ${item.codigo}`)
+                const numero = index + 1;
+                cy.log(`Insertando registro #${numero}: ${item.codigo}`);
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
@@ -53,12 +55,32 @@ describe("Prueba unitaria del Crud Razones de Bloqueo de Usuario...", () =>{
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/reasonsUserBlock').as('guardar')
+                //cy.intercept('POST', '**/reasonsUserBlock').as('guardar')
+
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/reasonsUserBlock')
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Razones de Bloqueo de Usuarios"
 
-                cy.wait('@guardar').then((interception) => {
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `013 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Razón: ${item.razon}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
+                /*cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
                     if (status === 200 || status === 201) {
                         cy.log('Registro insertado correctamente')
@@ -69,7 +91,7 @@ describe("Prueba unitaria del Crud Razones de Bloqueo de Usuario...", () =>{
                         Generales.BtnCancelarRegistro()
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
                     }
-                })
+                })*/
             })
         })
     })

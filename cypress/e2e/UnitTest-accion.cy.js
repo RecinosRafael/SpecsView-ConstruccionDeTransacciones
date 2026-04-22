@@ -25,9 +25,11 @@ describe("Prueba unitaria del Crud Acciones ...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('acciones').then((data) => {
-            cy.wrap(data.agregar).each((item) => {
+        cy.readFile('./JsonData/acciones.json').then((data) => {
+            cy.wrap(data.agregar).each((item, index) => {
                 cy.log(`Insertando código: ${item.codigo}`)
+                const numero = index + 1
+                cy.log(`Insertando registro #${numero}: ${item.codigo}`)
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
@@ -54,11 +56,30 @@ describe("Prueba unitaria del Crud Acciones ...", () =>{
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/action').as('guardar')
+                //cy.intercept('POST', '**/action').as('guardar')
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/action')
 
                 Generales.BtnAceptarRegistro()
 
-                cy.wait(1500)
+                let nombre = "Acciones"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `000 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
+                /*cy.wait(1500)
                 return cy.get('body').then(($body) => {
                     // Buscar específicamente el snackbar de error
                     const snackBarError = $body.find('.snack-container__error');
@@ -79,10 +100,10 @@ describe("Prueba unitaria del Crud Acciones ...", () =>{
                     
                     return cy.get('mat-dialog-container', { timeout: 10000 })
                         .should('not.exist');
-                });
+                });*/
 
 
-                cy.wait('@guardar').then((interception) => {
+                /*cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
                     if (status === 200 || status === 201) {
                         cy.log('Registro insertado correctamente')
@@ -93,7 +114,7 @@ describe("Prueba unitaria del Crud Acciones ...", () =>{
                         Generales.BtnCancelarRegistro()
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
                     }
-                })
+                })*/
             })
         })
     })

@@ -79,6 +79,8 @@ describe("Prueba unitaria del Crud Razones de reversion ...", () =>{
             cy.wrap(data.agregar).each((item,index) => {
                 cy.log(`Insertando código: ${item.codigo}`)
                 const numero = index + 1;
+                cy.log(`Insertando registro #${numero}: ${item.codigo}`);
+
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
                     if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
@@ -102,14 +104,33 @@ describe("Prueba unitaria del Crud Razones de reversion ...", () =>{
                 )
 
                 //Intercept backend
-                const alias = `guardar-${numero}`;
-                cy.intercept('POST', '**/reasonsReverse').as(alias);
+                //const alias = `guardar-${numero}`;
+                //cy.intercept('POST', '**/reasonsReverse').as(alias);
 
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/reasonsReverse')
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Razones de Reversión"
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `006 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
                 // Esperar respuesta y decidir estado
-                cy.wait(`@${alias}`).then((interception) => {
+                /*cy.wait(`@${alias}`).then((interception) => {
                     const status = interception.response.statusCode;
                     let estado = 'fallida';
                     let mensaje = '';
@@ -158,7 +179,7 @@ describe("Prueba unitaria del Crud Razones de reversion ...", () =>{
                             }
                         });
                     });
-                });
+                });*/
 
 
 

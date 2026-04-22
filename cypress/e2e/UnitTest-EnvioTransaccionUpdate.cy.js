@@ -25,9 +25,10 @@ describe("Prueba unitaria del Crud envio de transacción ...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('envioTransaccionesUpdate').then((data) => {
-            cy.wrap(data.modificar).each((item) => {
+        cy.readFile('./JsonData/envioTransaccionesUpdate.json').then((data) => {
+            cy.wrap(data.modificar).each((item, index) => {
                 cy.log(`Insertando código: ${item.correlativo}`)
+                const numero = index + 1;
 
                 //Asegurar estado limpio antes de comenzar
                 // cy.get('body').then(($body) => {
@@ -68,10 +69,20 @@ describe("Prueba unitaria del Crud envio de transacción ...", () =>{
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/transactionSendSpec').as('guardar')
+                //cy.intercept('POST', '**/transactionSendSpec').as('guardar')
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/transactionSendSpec');
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Envio de Transacción Update"
+
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `000 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Correlativo: ${item.correlativo} - Descripción: ${item.descripcion}`
+                })
 
                 /*cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode

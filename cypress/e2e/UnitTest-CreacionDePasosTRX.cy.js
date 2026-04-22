@@ -20,9 +20,9 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('creacionDePasosTRX').as('data')
+        //cy.fixture('creacionDePasosTRX').as('data')
         //cy.fixture('asignacionDeCaracteristicas').as('dataAsignar');
-
+        cy.readFile('./JsonData/creacionDePasosTRX.json').as('data')
     });
 
 
@@ -38,6 +38,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
             acc[item.codigoTRX].push(item);
             return acc;
         }, {});
+
+        let numero = 0
 
         // Procesar cada transacción y TODOS sus pasos
         Object.entries(transacciones).forEach(([codigoTRX, pasos]) => {
@@ -66,9 +68,17 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     Generales.filtrarPorCodigo(codigoTRX);
                     Generales.abrirPanel("Opciones");
 
+                    /*cy.xpath(
+                        "//div[@role='tab' and @aria-selected='true']//button[contains(@class,'add-button')]"
+                    ).click({force: true});
+                    cy.wait(1500);*/
+
                     // Procesar TODOS los pasos de esta transacción SIN SALIR
                     pasos.forEach((paso, index) => {
                         cy.log(`📝 Paso ${index + 1}/${pasos.length}: ${paso.nombrePaso}`);
+
+                        numero++
+                        const alias = Generales.interceptar('guardar', numero, 'POST', '**/transactionFlow')
 
                         GestorDeTransacciones.definirPaso(
                             paso.nombrePaso,
@@ -77,12 +87,21 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                             paso.descripcionPasoTrx
                         );
 
-                        Generales.BtnIframe("Cuenta", { timeout: 10000, force: true, skipContext: true });
+                        let nombre = "Pasos de la Transacción"
+
+                        Generales.procesarRespuestaYReportarConFrame(alias, {
+                            numero,
+                            describe: `019.2 -: ${nombre}`,
+                            crud: `${nombre}`,
+                            descripcion: `Transacción: ${codigoTRX} - Paso: ${paso.nombrePaso}`
+                        })
+
+                        //Generales.BtnIframe(paso.nombrePaso, { timeout: 10000, force: true, skipContext: true });
                         cy.wait(2000)
 
                     });
 
-                    cy.get('iframe.frame', { timeout: 10000 })
+                    /*cy.get('iframe.frame', { timeout: 10000 })
                         .its('0.contentDocument.body')
                         .should('not.be.empty')
                         .then(cy.wrap)
@@ -108,7 +127,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                         // Pequeña pausa entre pasos si es necesario
                         cy.wait(1500);
                         cy.wait(1500);
-                    });
+                    });*/
 
                     cy.log(`✅ Todos los ${pasos.length} pasos de ${codigoTRX} han sido creados`);
                 }); // Salimos del iframe SOLO después de crear TODOS los pasos

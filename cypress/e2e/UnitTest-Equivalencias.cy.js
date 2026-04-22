@@ -25,9 +25,11 @@ describe("Prueba unitaria del Crud Equivalencias ...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('equivalencias').then((data) => {
-            cy.wrap(data.agregar).each((item) => {
+        cy.readFile('./JsonData/equivalencias.json').then((data) => {
+            cy.wrap(data.agregar).each((item, index) => {
                 cy.log(`Insertando código: ${item.codigo}`)
+                const numero = index + 1;
+                cy.log(`Insertando registro #${numero}: ${item.codigo}`);
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
@@ -53,11 +55,31 @@ describe("Prueba unitaria del Crud Equivalencias ...", () =>{
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/equivalencies').as('guardar')
+                //cy.intercept('POST', '**/equivalencies').as('guardar')
+
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/equivalencies')
 
                 Generales.BtnAceptarRegistro()
 
-                cy.wait(1500)
+                let nombre = "Equivalencias"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `008 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Llave: ${item.llave} - Dato Equivalente: ${item.datosEquivalentes}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                })
+                
+                /*cy.wait(1500)
                 return cy.get('body').then(($body) => {
                     // Buscar específicamente el snackbar de error
                     const snackBarError = $body.find('.snack-container__error');
@@ -92,7 +114,7 @@ describe("Prueba unitaria del Crud Equivalencias ...", () =>{
                         Generales.BtnCancelarRegistro()
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
                     }
-                })
+                })*/
             })
         })
     })

@@ -23,9 +23,11 @@ describe("Prueba unitaria del CRUD Mensajes de Error", () => {
     });
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('mensajesDeError').then((dataMensajesDeError) => {
-            cy.wrap(dataMensajesDeError.agregar).each((item) => {
+        cy.readFile('./JsonData/mensajesDeError.json').then((dataMensajesDeError) => {
+            cy.wrap(dataMensajesDeError.agregar).each((item, index) => {
                 cy.log(`Insertando código: ${item.codigo}`)
+                const numero = index + 1
+                cy.log(`Insertando registro #${numero}: ${item.codigo}`)
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
@@ -52,12 +54,30 @@ describe("Prueba unitaria del CRUD Mensajes de Error", () => {
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/errorMessage').as('guardar')
+                //cy.intercept('POST', '**/errorMessage').as('guardar')
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/errorMessages')
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Mensaje de Error"
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `007 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.mensajeError}`
+                })
 
-                cy.wait('@guardar').then((interception) => {
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
+                /*cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
                     if (status === 200 || status === 201) {
                         cy.log('Registro insertado correctamente')
@@ -68,7 +88,7 @@ describe("Prueba unitaria del CRUD Mensajes de Error", () => {
                         Generales.BtnCancelarRegistro()
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
                     }
-                })
+                })*/
             })
         })
     })

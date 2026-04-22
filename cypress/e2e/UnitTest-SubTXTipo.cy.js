@@ -20,11 +20,14 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('subTxTipoCajero').as('data');
+        //cy.fixture('subTxTipoCajero').as('data');
+        cy.readFile('./JsonData/subTxTipoCajero.json').as('data');
     });
 
     it("Agregar múltiples registros dinámicamente", function() {
         cy.log('Datos cargados:', JSON.stringify(this.data));
+
+        let numero = 0
         
         cy.wrap(this.data.agregar).each((item) => {
             cy.then(() => {
@@ -51,15 +54,26 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     Generales.filtrarPorCodigo(item.codigoTX); // o item.codigoTX - 777 para pruebas 
                     Generales.abrirPanel("Opciones");
                     Generales.BtnIframe("Tipos de cajero", { timeout: 10000, force: true, skipContext: true });
+
+                    numero++
+
+                    
                     GestorDeTransacciones.TiposCajero(
-                        item.administrador,
-                        item.supervisor,
-                        item.jefeAgencia,
-                        item.subJefeAgencia,
-                        item.cajero
+                        item.roles
                     );
                     // Hacemos clic en Guardar sin interceptar
                     Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+
+                    const alias = Generales.interceptar('guardar', numero, 'POST', '**')
+
+                    let nombre = "Tipos de Cajero"
+
+                        Generales.procesarRespuestaYReportarConFrame(alias, {
+                            numero,
+                            describe: `019.9 -: ${nombre}`,
+                            crud: `${nombre}`,
+                            descripcion: `Transacción: ${item.codigoTX} - Tipos: ${JSON.stringify(item.roles)}`
+                        })
                 }); // Salimos del iframe
 
             // Esperamos un tiempo para que la operación se complete (ajusta según sea necesario)

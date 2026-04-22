@@ -26,9 +26,11 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('plantillasDeComprobante').then((dataPlantillasDeComprobante) => {
-            cy.wrap(dataPlantillasDeComprobante.agregar).each((item) => {
+        cy.readFile('./JsonData/plantillasDeComprobante.json').then((dataPlantillasDeComprobante) => {
+            cy.wrap(dataPlantillasDeComprobante.agregar).each((item, index) => {
                 cy.log(`Insertando código: ${item.key}`)
+                const numero = index + 1
+                cy.log(`Insertando registro #${numero}: ${item.key}`)
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
@@ -54,12 +56,30 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/voucherTemplate').as('guardar')
+                //cy.intercept('POST', '**/voucherTemplate').as('guardar')
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/report');
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Plantilla de Comprobante"
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `018 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.key} - Nombre: ${item.nombre}`
+                })
 
-                cy.wait('@guardar').then((interception) => {
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
+                /*cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
                     if (status === 200 || status === 201) {
                         cy.log('Registro insertado correctamente')
@@ -70,7 +90,7 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                         Generales.BtnCancelarRegistro()
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
                     }
-                })
+                })*/
             })
         })
     })

@@ -20,11 +20,14 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('subTxTipoComprobantesImpresiopn').as('data');
+        //cy.fixture('subTxTipoComprobantesImpresiopn').as('data');
+        cy.readFile('./JsonData/subTxTipoComprobantesImpresiopn.json').as('data');
     });
 
     it("Agregar múltiples registros dinámicamente", function() {
         cy.log('Datos cargados:', JSON.stringify(this.data));
+
+        let numero = 0
         
         cy.wrap(this.data.agregar).each((item) => {
             cy.then(() => {
@@ -52,6 +55,11 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     Generales.abrirPanel("Opciones");
                     Generales.BtnIframe("Comprobantes", { timeout: 10000, force: true, skipContext: true });
                     Generales.BtnIframe("Agregar", { timeout: 10000, force: true, skipContext: true }, 'add-button');                    
+
+                    numero++
+
+                    const alias = Generales.interceptar('guardar', numero, 'POST', '**/formatsPrintTransaction')
+                    
                     GestorDeTransacciones.ComprobantesImpresion(
                     //item.tipoFormato, item.comprobante, item.esMandatorio, item.verComprobante, item.notificaComprobante, 
                     // item.impAntesConsultarFirmas, item.copiasImprimir, item.etiqueta, item.etiqueta2
@@ -63,6 +71,15 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                 );
 
                     Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+
+                    let nombre = "Comprobantes de Impresión"
+
+                        Generales.procesarRespuestaYReportarConFrame(alias, {
+                            numero,
+                            describe: `019.10 -: ${nombre}`,
+                            crud: `${nombre}`,
+                            descripcion: `Transacción: ${item.codigoTX} - Comprobante: ${item.comprobante}`
+                        })
                 }); // Salimos del iframe
 
             // Esperamos un tiempo para que la operación se complete (ajusta según sea necesario)

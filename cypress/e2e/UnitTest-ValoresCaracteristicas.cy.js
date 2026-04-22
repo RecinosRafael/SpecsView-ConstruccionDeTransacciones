@@ -19,12 +19,13 @@ describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
             Cypress.env('PASS')
         )
         
-        cy.fixture('valoresCaracteristicas').as('valoresCaracteristicas')
+        //cy.fixture('valoresCaracteristicas').as('valoresCaracteristicas')
 
     })
 
     beforeEach(() => {
         Generales.IrAPantalla('characteristicSpec')
+        cy.readFile('./JsonData/valoresCaracteristicas.json').as('valoresCaracteristicas')
     })
 
     it("Agregar registros a sub nivel", function () {
@@ -39,6 +40,8 @@ describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
             return acc
         }, {})
 
+        let numero = 0
+
         cy.wrap(Object.keys(agrupadas)).each((codigo) => {
             cy.log('Procesando Regla con nombre: ' + codigo)
 
@@ -47,7 +50,20 @@ describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
             Generales.NavegacionSubMenu('Valores de Característica')
 
             return cy.wrap(agrupadas[codigo]).each((registro) => {
+                numero++
+
+                cy.get('body').then(($body) => {
+                if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                    cy.log('Formulario abierto detectado, cerrando...')
+                    Generales.BtnCancelarRegistro()
+                    }
+                })
+
                 Generales.BtnAgregarRegistroSubnivel()
+
+                cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
+                .should('be.visible')
+
                 CamposDeLaTransaccion.ValoresDeCaracteristica(
                     //valor, valorDefecto, descriptor, descriptor2, descriptor3, descriptor4
                     registro.valor, 
@@ -58,7 +74,28 @@ describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
                     registro.descriptor4
                 )
 
-            Generales.BtnAceptarRegistro();
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/characteristicSpecValue')
+
+                Generales.BtnAceptarRegistro();
+
+                let nombre = "Valor de Especificación de Característica"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `014.1 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Valor: ${registro.valor} - Descriptor: ${registro.descriptor}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
             cy.wait(2000)
             return cy.get('body').then(($body) => {
                 // Buscar específicamente el snackbar de error

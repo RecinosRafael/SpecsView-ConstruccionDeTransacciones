@@ -25,9 +25,11 @@ describe("Prueba unitaria del Crud Campos de la transacción ...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('camposTransaccion').then((data) => {
-            cy.wrap(data.agregar).each((item) => {
+        cy.readFile('./JsonData/camposTransaccion.json').then((data) => {
+            cy.wrap(data.agregar).each((item, index) => {
                 cy.log(`Insertando código: ${item.codigo}`)
+                const numero = index + 1
+                cy.log(`Insertando registro #${numero}: ${item.codigo}`)
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
@@ -57,12 +59,31 @@ describe("Prueba unitaria del Crud Campos de la transacción ...", () =>{
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/characteristicSpec').as('guardar')
+                //cy.intercept('POST', '**/characteristicSpec').as('guardar')
+
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/characteristicSpec')
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Campos de transacción"
 
-                cy.wait('@guardar').then((interception) => {
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `014 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
+                /*cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
                     if (status === 200 || status === 201) {
                         cy.log('Registro insertado correctamente')
@@ -73,7 +94,8 @@ describe("Prueba unitaria del Crud Campos de la transacción ...", () =>{
                         Generales.BtnCancelarRegistro()
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
                     }
-                })
+                })*/
+
             })
         })
     })

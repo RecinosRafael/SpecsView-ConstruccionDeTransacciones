@@ -66,7 +66,7 @@ describe("Prueba unitaria del Crud de Productos...", () =>{
 
                 Generales.procesarRespuestaYReportar(alias, {
                     numero,
-                    describe: `002 -: ${nombre} `,
+                    describe: `010 -: ${nombre} `,
                     crud: `${nombre} `,
                     descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
                 });

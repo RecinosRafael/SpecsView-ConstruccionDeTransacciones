@@ -19,7 +19,7 @@ describe("Prueba unitaria del submenu del Crud DivGeografica...", () =>{
             Cypress.env('PASS')
         )
         
-        cy.fixture('divGeografica3').as('divGeografica3')
+        cy.readFile('./JsonData/divGeografica3').as('divGeografica3')
 
     })
 
@@ -66,7 +66,18 @@ describe("Prueba unitaria del submenu del Crud DivGeografica...", () =>{
                             item.codigo,
                             item.nombre
                         );
+
+                        const alias = Generales.interceptar('guardarSubnivel', numero, 'POST', '**/geographicLevel3');
+
                         Generales.BtnAceptarRegistro();
+
+                        let nombre = "División Geográfica 3";
+                        Generales.procesarRespuestaYReportar(alias, {
+                            numero,
+                            describe: `División Geográfica 3 - ${codigoDiv}`,
+                            crud: nombre,
+                            descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                        });
                         cy.wait(2000)
                         return cy.get('body').then(($body) => {
                             // Buscar específicamente el snackbar de error

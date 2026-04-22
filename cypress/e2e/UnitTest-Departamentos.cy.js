@@ -36,11 +36,8 @@ describe("Prueba unitaria del Crud Departamentos...", () =>{
         cy.readFile('./JsonData/departamentos.json').then((data) => {
             cy.wrap(data.agregar).each((item, index) => {
                 cy.log(`Insertando registro con codigo: ${item.codigo}`)
-
-
-                    const numero = index + 1;
-                    cy.log(`Insertando registro #${numero}: ${item.codigo}`);
-
+                const numero = index + 1
+                cy.log(`Insertando registro #${numero}: ${item.codigo}`)
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
@@ -60,14 +57,33 @@ describe("Prueba unitaria del Crud Departamentos...", () =>{
                 // Llenar datos
                 Departamentos.Departamentos(item)
 
-                const alias = `guardar-${numero}`;
-                cy.intercept('POST', '**/departament').as(alias);
+                //const alias = `guardar-${numero}`;
+                //cy.intercept('POST', '**/departament').as(alias);
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/departament')
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Departamentos"
+
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `000 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
 
                     // Esperar respuesta y decidir estado
-                    cy.wait(`@${alias}`).then((interception) => {
+                    /*cy.wait(`@${alias}`).then((interception) => {
                         const status = interception.response.statusCode;
                         let estado = 'fallida';
                         let mensaje = '';
@@ -116,7 +132,7 @@ describe("Prueba unitaria del Crud Departamentos...", () =>{
                                 }
                             });
                         });
-                    });
+                    });*/
 
                 })
             })

@@ -19,12 +19,11 @@ describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
             Cypress.env('PASS')
         )
 
-        cy.fixture('denominaciones').as('dataDenominaciones')
-
     })
 
     beforeEach(() => {
         Generales.IrAPantalla('money')
+        cy.readFile('./JsonData/denominaciones.json').as('dataDenominaciones')
     })
 
     it("Agregar registros a sub nivel", function () {
@@ -39,6 +38,8 @@ describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
             return acc
         }, {})
 
+        let numero = 0
+
         cy.wrap(Object.keys(agrupadas)).each((codigoMoneda) => {
             cy.log('Procesando Regla con nombre: ' + codigoMoneda)
 
@@ -46,20 +47,53 @@ describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
             Generales.BuscarRegistroCodigo(codigoMoneda)
             Generales.NavegacionSubMenu('Denominación de Moneda')
 
-            return cy.wrap(agrupadas[codigoMoneda]).each((registro) => {
+            return cy.wrap(agrupadas[codigoMoneda]).each((item) => {
+                numero++
+
+                cy.get('body').then(($body) => {
+                if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                    cy.log('Formulario abierto detectado, cerrando...')
+                    Generales.BtnCancelarRegistro()
+                    }
+                })
+
                 Generales.BtnAgregarRegistroSubnivel()
-                cy.log("y el agregar que pedo")
+
+                cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
+                .should('be.visible')
+
                 //  const pais = registro.valorPais || registro.nombre
                 Denominaciones.DenominacionMoneda(
                     //nombre, etiqueta, valorTipo, monto
-                    registro.nombre,
-                    registro.etiqueta,
-                    registro.valorTipo,
-                    registro.monto
-            )
+                    item.nombre,
+                    item.etiqueta,
+                    item.valorTipo,
+                    item.monto
+                )
+
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/denominationSpec')
 
                 Generales.BtnAceptarRegistro();
-                cy.wait(2000)
+
+                let nombre = "Denominaciones"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `004.1 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Codigo Moneda: ${item.codigoMoneda} - Nombre: ${item.nombre}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+                
+                /*cy.wait(2000)
                 return cy.get('body').then(($body) => {
                     // Buscar específicamente el snackbar de error
                     const snackBarError = $body.find('.snack-container__error');
@@ -80,7 +114,7 @@ describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
 
                     return cy.get('mat-dialog-container', { timeout: 10000 })
                         .should('not.exist');
-                });
+                });*/
 
 
             }).then(() => {

@@ -18,11 +18,13 @@ describe("Prueba unitaria del submenu del Crud AccionesCondicionadas...", () =>{
             Cypress.env('PASS')
         )
         
-        cy.fixture('transaccionesAsociadasCondicionadas').as('transaccionesAsociadasCondicionadas')
+        //cy.fixture('transaccionesAsociadasCondicionadas').as('transaccionesAsociadasCondicionadas')
     })
 
     beforeEach(() => {
         Generales.IrAPantalla('conditionedActions')
+                cy.readFile('./JsonData/transaccionesAsociadasCondicionadas.json').as('transaccionesAsociadasCondicionadas')
+
     })
 
     it("Agregar registros a sub nivel", function () {
@@ -57,6 +59,8 @@ describe("Prueba unitaria del submenu del Crud AccionesCondicionadas...", () =>{
             return acc
         }, {})
 
+        let numero = 0
+
         // Iterar sobre las claves del objeto agrupado
         cy.wrap(Object.keys(agrupadas)).each((key) => {
             const grupo = agrupadas[key]
@@ -74,9 +78,21 @@ describe("Prueba unitaria del submenu del Crud AccionesCondicionadas...", () =>{
             
             // Agregar cada registro del grupo
             return cy.wrap(grupo.registros).each((registro) => {
+                numero++
+
+                cy.get('body').then(($body) => {
+                if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                    cy.log('Formulario abierto detectado, cerrando...')
+                    Generales.BtnCancelarRegistro()
+                    }
+                })
+
                 Generales.BtnAgregarRegistroSubnivel()
                 cy.log(`📝 Agregando registro - Correlativo: ${registro.correlativo}, Caracteristica: ${registro.caracteristica}`)
                 
+                cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
+                .should('be.visible')
+
                 AccionCondicionada.ACTxAsociadasCondicionadas(
                     //txAsociada, correlativo, tipoAsociacion, tipoAccion, descripcion, acumular, permiteRechazo, modoInverso, permiteCanacelacion
                     registro.txAsociada, 
@@ -90,7 +106,19 @@ describe("Prueba unitaria del submenu del Crud AccionesCondicionadas...", () =>{
                     registro.permiteCanacelacion 
                 )
 
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/associateTransactions')
+
                 Generales.BtnAceptarRegistro()
+
+                let nombre = "Transacciones Asociadas Condicionadas"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `022.2 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Transacción Asociada: ${registro.txAsociada} - Correlativo: ${registro.correlativo}`
+                })
+
                 cy.wait(2000)
                 
                 return cy.get('body').then(($body) => {
@@ -127,6 +155,8 @@ describe("Prueba unitaria del submenu del Crud AccionesCondicionadas...", () =>{
                 }).then(() => {
                     // Segundo regreso - SALIR DEL DETALLE
                     cy.wait(3000)
+                    Generales.Regresar()
+                    // SALIR AL LISTADO PRINCIPAL
                     Generales.Regresar()
                     // Verificar que estamos en el listado principal
                     return cy.contains('span.mat-button-wrapper', 'Buscar por', { timeout: 15000 })

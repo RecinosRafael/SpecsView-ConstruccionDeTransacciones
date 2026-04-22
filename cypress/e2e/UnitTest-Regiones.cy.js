@@ -104,13 +104,24 @@ describe("Prueba unitaria del Crud Regiones ...", () =>{
                 )
 
                 //Intercept backend
-                const alias = `guardar-${numero}`;
-                cy.intercept('POST', '**/region').as(alias);
+                //const alias = `guardar-${numero}`;
+                //cy.intercept('POST', '**/region').as(alias);
+
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/region')
 
                 Generales.BtnAceptarRegistro()
 
-// Esperar respuesta y decidir estado
-                cy.wait(`@${alias}`).then((interception) => {
+                let nombre = "Regiones"
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `009 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                })
+
+                // Esperar respuesta y decidir estado
+                /*cy.wait(`@${alias}`).then((interception) => {
                     const status = interception.response.statusCode;
                     let estado = 'fallida';
                     let mensaje = '';
@@ -159,7 +170,7 @@ describe("Prueba unitaria del Crud Regiones ...", () =>{
                             }
                         });
                     });
-                });
+                });*/
 
 
 

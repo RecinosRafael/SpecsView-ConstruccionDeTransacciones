@@ -28,21 +28,24 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
     it("Agregar múltiples registros dinámicamente", () => {
 
     
-        cy.fixture('gestorTransaccion').then((data) => {
-            cy.wrap(data.agregar).each((item) => {
+        cy.readFile('./JsonData/gestorTransaccion.json').then((data) => {
+            cy.wrap(data.agregar).each((item, index) => {
+                const numero = index + 1;
+                cy.log(`Insertando código: ${item.codigo}`);
+
                 cy.then(() => {
-        const doc = window.top.document;
-        // Intentamos con varios selectores que usa Cypress para su log
-        const logContainer = doc.querySelector('.reporter .commands') || 
-                             doc.querySelector('.command-list') ||
-                             doc.querySelector('.runnable-commands-region');
-                             
-        if (logContainer) {
-            logContainer.innerHTML = ''; 
-        }
-    });
+                    const doc = window.top.document;
+                    // Intentamos con varios selectores que usa Cypress para su log
+                    const logContainer = doc.querySelector('.reporter .commands') || 
+                                        doc.querySelector('.command-list') ||
+                                        doc.querySelector('.runnable-commands-region');
+                                        
+                    if (logContainer) {
+                        logContainer.innerHTML = ''; 
+                    }
+                });
+
                 cy.log(`Insertando código: ${item.codigo}`)
-    
     
                 cy.get('iframe.frame', { timeout: 10000 })
                 .its('0.contentDocument.body')
@@ -74,10 +77,33 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
         const tipoNormalizado = item.tipo?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
                 //Intercept backend
-                cy.intercept('POST', '**/transactionSpec').as('guardar')
+                //cy.intercept('POST', '**/transactionSpec').as('guardar')
+                
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/transactionSpec');
                 Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
                 
-                cy.wait('@guardar').then((interception) => {
+                let nombre = 'Gestor de transacciones' 
+
+                Generales.procesarRespuestaYReportarConFrame(alias, {
+                            numero,
+                            describe: nombre,
+                            crud: nombre,
+                            descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`,
+                            onSuccess: () => {
+                                // Acciones en caso de éxito
+                                Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                                cy.wait(2000);
+                                Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                            },
+                            onError: () => {
+                                // Acciones en caso de error
+                                Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true });
+                                cy.contains('h2', 'Nuevo Registro').should('not.exist');
+                                Generales.BtnIframe('Sí', { timeout: 10000, force: true, skipContext: true });
+                            }
+                        });
+
+                /*cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
                     if (status === 200 || status === 201) {
                         cy.log('Registro insertado correctamente')
@@ -97,7 +123,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
                         Generales.BtnIframe('Atrás', { timeout: 10000, force: true, skipContext: true })
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
                     }
-                })
+                })*/
             
             
             

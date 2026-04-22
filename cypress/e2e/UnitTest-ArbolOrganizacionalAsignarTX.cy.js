@@ -98,7 +98,9 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
         let contadorGlobal = { valor: 0 };
 
         cy.readFile('./JsonData/asignarTransaccionesArbol.json', { timeout: 15000 }).then((data) => {
-            cy.wrap(data.agregar).each((item) => {
+            cy.wrap(data.agregar).each((item, index) => {
+                const numero = index + 1;
+                
                 cy.then(() => {
                     const doc = window.top.document;
                     const logContainer = doc.querySelector('.reporter .commands') ||

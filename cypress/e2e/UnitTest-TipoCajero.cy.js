@@ -66,7 +66,7 @@ describe("Prueba unitaria del Crud TipoCajero...", () =>{
 
                 Generales.procesarRespuestaYReportar(alias, {
                     numero,
-                    describe: `002 -: ${nombre} `,
+                    describe: `011 -: ${nombre} `,
                     crud: `${nombre} `,
                     descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
                 });

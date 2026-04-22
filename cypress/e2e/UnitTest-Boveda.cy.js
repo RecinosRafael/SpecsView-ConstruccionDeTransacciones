@@ -64,13 +64,31 @@ describe("Prueba unitaria del Crud Bóvedas...", () =>{
                 //Intercept backend
                 //cy.intercept('POST', '**/dataType').as('guardar')
 
-                const alias = `guardar-${numero}`;
-                cy.intercept('POST', '**/vaultSpec').as(alias);
+                //const alias = `guardar-${numero}`;
+                //cy.intercept('POST', '**/vaultSpec').as(alias);
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/vaultSpec')
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Bóvedas"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `000 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Nombre: ${item.nombre} - Descripcion: ${item.descripcion}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
                 // Esperar respuesta y decidir estado
-                cy.wait(`@${alias}`).then((interception) => {
+                /*cy.wait(`@${alias}`).then((interception) => {
                     const status = interception.response.statusCode;
                     let estado = 'fallida';
                     let mensaje = '';
@@ -119,7 +137,7 @@ describe("Prueba unitaria del Crud Bóvedas...", () =>{
                             }
                         });
                     });
-                });
+                });*/
 
 
 

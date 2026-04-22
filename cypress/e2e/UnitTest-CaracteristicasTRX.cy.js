@@ -20,13 +20,14 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
             Cypress.env('PASS')
         )
 
-        cy.fixture('caracteristicasTrx').as('dataCaracteristicasTrx')
+        //cy.fixture('caracteristicasTrx').as('dataCaracteristicasTrx')
     })
 
 
 
     beforeEach(() => {
         Generales.IrAPantalla('transactionManager')
+        cy.readFile('./JsonData/caracteristicasTrx.json').as('dataCaracteristicasTrx')
     })
 
     it("Agregar registros a sub nivel", function () {
@@ -43,6 +44,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
             }
             agrupadas[item.codigoTRX].push(item);
         });
+
+        let numero = 0
 
         cy.get('iframe.frame', { timeout: 10000 })
             .its('0.contentDocument.body')
@@ -74,8 +77,22 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", () =>{
 
                     // PASO 4: Procesar características
                     return cy.wrap(agrupadas[codigoTRX]).each((registro, index) => {
+                        numero++
                         cy.log(`\n📌 Procesando lote de características ${index + 1}/${agrupadas[codigoTRX].length}`);
+                        
+                        const alias = Generales.interceptar('guardar', numero, 'POST', '**/transactionCharacteristicSpec')
+                        
                         GestorDeTransacciones.CaracteristicasTrx(registro.caracteristicasTrx);
+                        
+                        let nombre = "Características de la Transacción"
+
+                        Generales.procesarRespuestaYReportarConFrame(alias, {
+                            numero,
+                            describe: `019.1 -: ${nombre}`,
+                            crud: `${nombre}`,
+                            descripcion: `Transacción: ${codigoTRX} - Característica: ${registro.caracteristicasTrx}`
+                        })
+
                         cy.log(`✅ Lote ${index + 1} completado`);
                     }).then(() => {
                         cy.log(`\n🔙 Regresando al nivel principal para código ${codigoTRX}`);

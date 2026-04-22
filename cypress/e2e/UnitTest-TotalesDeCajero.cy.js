@@ -26,9 +26,11 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('totalesDeCajero').then((dataTotalesDeCajero) => {
-            cy.wrap(dataTotalesDeCajero.agregar).each((item) => {
+        cy.readFile('./JsonData/totalesDeCajero.json').then((dataTotalesDeCajero) => {
+            cy.wrap(dataTotalesDeCajero.agregar).each((item, index) => {
                 cy.log(`Insertando código: ${item.codigo}`)
+                const numero = index + 1
+                cy.log(`Insertando registro #${numero}: ${item.codigo}`)
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
@@ -66,12 +68,22 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/totalCashier').as('guardar')
+                //cy.intercept('POST', '**/totalCashier').as('guardar')
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/totalCashier');
+
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Totales de Cajero"
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `017 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Árbol raiz: ${item.arbolRaiz} - Nombre: ${item.nombre}`
+                })
 
-                cy.wait('@guardar').then((interception) => {
+                /*cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
                     if (status === 200 || status === 201) {
                         cy.log('Registro insertado correctamente')
@@ -82,7 +94,7 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                         Generales.BtnCancelarRegistro()
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
                     }
-                })
+                })*/
             })
         })
     })

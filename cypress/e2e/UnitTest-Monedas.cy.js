@@ -131,7 +131,25 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
 
                 Generales.BtnAceptarRegistro();
 
-                cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                let nombre = "Monedas"
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `004 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
+                /*cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
                     const status = interception.response.statusCode;
                     const method = interception.request.method;
                     let estado = 'fallida';
@@ -179,7 +197,7 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                         cy.get('mat-dialog-container', { timeout: 5000 }).should('not.exist');
                         cy.wait(1000);
                     });
-                });
+                });*/
             };
 
             // Procesar en el orden de las propiedades del JSON (primero agregar, luego modificar según orden)

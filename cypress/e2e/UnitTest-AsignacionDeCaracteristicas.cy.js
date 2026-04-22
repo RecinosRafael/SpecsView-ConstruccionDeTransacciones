@@ -23,7 +23,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('asignacionDeCaracteristicas').as('data');
+        //cy.fixture('asignacionDeCaracteristicas').as('data');
+        cy.readFile('./JsonData/asignacionDeCaracteristicas.json').as('data');
     });
 
     /*it("Agregar múltiples registros dinámicamente", function() {
@@ -150,6 +151,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
             return acc;
         }, {});
 
+        let numero = 0
+
         cy.wrap(Object.keys(agrupadas)).each((codigoTX) => {
             cy.log('Procesando Tx: ' + codigoTX);
 
@@ -178,7 +181,9 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
                     return cy.wrap(agrupadas[codigoTX]).each((item) => {
                         Generales.abrirPanel("Opciones", { timeout: 20000, force: true });
-                        cy.wait(500);
+                        cy.wait(500)
+
+                        numero++
 
                         // Verificar si necesitamos cambiar de paso
                         const pasoRequerido = item.paso ? item.paso.toString().trim() : null;
@@ -194,6 +199,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                             cy.log(`Paso "${pasoRequerido}" ya está seleccionado, se omite clic.`);
                         }
 
+                        const alias = Generales.interceptar('guardar', numero, 'POST', '**/transactionCharactByStep')
 
                         cy.wait(2500)
                         GestorDeTransacciones.AsignacionDCaracteristicaAPaso(
@@ -215,6 +221,15 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
                         // Hacemos clic en Guardar sin interceptar
                         Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+
+                        let nombre = "Asignación de Caracteristicas"
+
+                        Generales.procesarRespuestaYReportarConFrame(alias, {
+                            numero,
+                            describe: `000 -: ${nombre}`,
+                            crud: `${nombre}`,
+                            descripcion: `Transacción: ${codigoTX} - Caracteristica: ${item.caracteristica}`
+                        })
                     });
                 }).then(() => {
                 // Esperamos un tiempo para que la operación se complete

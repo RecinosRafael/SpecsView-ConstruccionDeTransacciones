@@ -25,9 +25,11 @@ describe("Prueba unitaria del Crud envio de transacción ...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('envioTransacciones').then((data) => {
-            cy.wrap(data.agregar).each((item) => {
+        cy.readFile('./JsonData/envioTransacciones.json').then((data) => {
+            cy.wrap(data.agregar).each((item, index) => {
                 cy.log(`Insertando código: ${item.correlativo}`)
+                const numero = index + 1
+                cy.log(`Insertando registro #${numero}: ${item.correlativo}`)
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
@@ -66,12 +68,31 @@ describe("Prueba unitaria del Crud envio de transacción ...", () =>{
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/transactionSendSpec').as('guardar')
+                //cy.intercept('POST', '**/transactionSendSpec').as('guardar')
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/transactionSendSpec')
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Envío de Transacciones"
 
-                cy.wait('@guardar').then((interception) => {
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `000 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Transacción: ${item.transaccion} - Correlativo: ${item.correlativo}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
+                /*cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
                     if (status === 200 || status === 201) {
                         cy.log('Registro insertado correctamente')
@@ -82,7 +103,7 @@ describe("Prueba unitaria del Crud envio de transacción ...", () =>{
                         Generales.BtnCancelarRegistro()
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
                     }
-                })
+                })*/
             })
         })
     })

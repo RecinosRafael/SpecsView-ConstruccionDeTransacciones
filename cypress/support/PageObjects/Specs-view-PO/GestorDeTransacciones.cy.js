@@ -699,10 +699,10 @@ AsignacionDCaracteristicaAPasoB(paso, caracteristica, tamanioLetra, visualizar, 
     ) {
         cy.log("Definición de un paso de la trx");
 
-        cy.xpath(
+        /*cy.xpath(
             "//div[@role='tab' and @aria-selected='true']//button[contains(@class,'add-button')]"
         ).click({force: true});
-        cy.wait(1500);
+        cy.wait(1500);*/
 
         cy.xpath(
             "//mat-form-field[.//mat-label[normalize-space()='Nombre']]//input"

@@ -65,7 +65,7 @@ describe("Prueba unitaria del Crud Division Geografica...", () =>{
 
                 Generales.procesarRespuestaYReportar(alias, {
                     numero,
-                    describe: `002 -: ${nombre} `,
+                    describe: `000 -: ${nombre} `,
                     crud: `${nombre} `,
                     descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
                 });

@@ -111,13 +111,33 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                 //Intercept backend
                 //cy.intercept('POST', '**/dataType').as('guardar')
 
-                const alias = `guardar-${numero}`;
-                cy.intercept('POST', '**/dataType').as(alias);
+                //const alias = `guardar-${numero}`;
+                //cy.intercept('POST', '**/dataType').as(alias);
+
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/dataType');
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Tipo de Dato"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `002 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
                 // Esperar respuesta y decidir estado
-                cy.wait(`@${alias}`).then((interception) => {
+                /*cy.wait(`@${alias}`).then((interception) => {
                     const status = interception.response.statusCode;
                     let estado = 'fallida';
                     let mensaje = '';
@@ -163,10 +183,10 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                                 });
                             } else {
                                 cy.log('Modal ya cerrado');
-                            }
-                        });
+                            
+                        });}
                     });
-                });
+                });*/
 
 
 

@@ -19,12 +19,13 @@ describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
             Cypress.env('PASS')
         )
 
-        cy.fixture('detalleReglas').as('dataDetalleReglas')
+        //cy.fixture('detalleReglas').as('dataDetalleReglas')
 
     })
 
     beforeEach(() => {
         Generales.IrAPantalla('rulesSpec')
+        cy.readFile('./JsonData/detalleReglas.json').as('dataDetalleReglas')
     })
 
     it("Agregar registros a sub nivel", function () {
@@ -39,6 +40,8 @@ describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
             return acc
         }, {})
 
+        let numero = 0
+
         cy.wrap(Object.keys(agrupadas)).each((nombreRegla) => {
             cy.log('Procesando Regla con nombre: ' + nombreRegla)
 
@@ -47,8 +50,21 @@ describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
             Generales.NavegacionSubMenu('Detalle de reglas')
 
             return cy.wrap(agrupadas[nombreRegla]).each((registro) => {
+                numero++
+
+                cy.get('body').then(($body) => {
+                if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                    cy.log('Formulario abierto detectado, cerrando...')
+                    Generales.BtnCancelarRegistro()
+                    }
+                })
+
                 Generales.BtnAgregarRegistroSubnivel()
-                cy.log("y el agregar que pedo")
+
+                cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
+                .should('be.visible')
+
+                //cy.log("y el agregar que pedo")
               //  const pais = registro.valorPais || registro.nombre
                 Reglas.DetalleReglas(
                     registro.correlativo,
@@ -58,7 +74,28 @@ describe("Prueba unitaria del submenu del Crud Reglas...", () =>{
                     registro.operadorLogico,
                     registro.tipoExpresion )
 
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/rulesDetail')    
+
             Generales.BtnAceptarRegistro();
+
+            let nombre = "Detalle de Reglas"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `021.1 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Correlativo: ${registro.correlativo}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
             cy.wait(2000)
             return cy.get('body').then(($body) => {
                 // Buscar específicamente el snackbar de error

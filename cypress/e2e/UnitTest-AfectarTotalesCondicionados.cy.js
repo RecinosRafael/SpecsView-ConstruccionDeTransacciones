@@ -18,11 +18,12 @@ describe("Prueba unitaria del submenu del Crud AccionesCondicionadas...", () =>{
             Cypress.env('PASS')
         )
         
-        cy.fixture('afectaTotalesCondicionados').as('afectarTotalesCondicionados')
+        //cy.fixture('afectaTotalesCondicionados').as('afectarTotalesCondicionados')
     })
 
     beforeEach(() => {
         Generales.IrAPantalla('conditionedActions')
+        cy.readFile('./JsonData/afectaTotalesCondicionados.json').as('afectarTotalesCondicionados')
     })
 
     it("Agregar registros a sub nivel", function () {
@@ -57,6 +58,8 @@ describe("Prueba unitaria del submenu del Crud AccionesCondicionadas...", () =>{
             return acc
         }, {})
 
+        let numero = 0
+
         // Iterar sobre las claves del objeto agrupado
         cy.wrap(Object.keys(agrupadas)).each((key) => {
             const grupo = agrupadas[key]
@@ -74,7 +77,20 @@ describe("Prueba unitaria del submenu del Crud AccionesCondicionadas...", () =>{
             
             // Agregar cada registro del grupo
             return cy.wrap(grupo.registros).each((registro) => {
+                numero++
+
+                cy.get('body').then(($body) => {
+                if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                    cy.log('Formulario abierto detectado, cerrando...')
+                    Generales.BtnCancelarRegistro()
+                    }
+                })
+
                 Generales.BtnAgregarRegistroSubnivel()
+
+                cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
+                .should('be.visible')
+
                 cy.log(`📝 Agregando registro - Correlativo: ${registro.correlativo}, Caracteristica: ${registro.caracteristica}`)
                 
                 AccionCondicionada.ACAfecTotalCon(
@@ -86,7 +102,19 @@ describe("Prueba unitaria del submenu del Crud AccionesCondicionadas...", () =>{
                     registro.afectar
                 )
 
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/affectConditionedTotals')
+
                 Generales.BtnAceptarRegistro()
+
+                let nombre = "Afectar totales Condicionados"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `022.1 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Correlativo: ${registro.correlativo} - Árbol raíz: ${registro.arbolRaiz}`
+                })
+
                 cy.wait(2000)
                 
                 return cy.get('body').then(($body) => {

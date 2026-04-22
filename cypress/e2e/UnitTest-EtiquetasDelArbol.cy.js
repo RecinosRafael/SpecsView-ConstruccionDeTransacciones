@@ -22,14 +22,10 @@ describe("Prueba unitaria del Crud Etiquetas del árbol...", () =>{
       
         const folderPath = 'capturas';
         cy.task('deleteAllFiles', folderPath);
-
-    
     })
     
-
     beforeEach(() => {
-        Generales.IrAPantalla('treeLabels')
-        
+        Generales.IrAPantalla('treeLabels') 
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
@@ -37,10 +33,8 @@ describe("Prueba unitaria del Crud Etiquetas del árbol...", () =>{
             cy.wrap(data.agregar).each((item, index) => {
                 cy.log(`Insertando registro con nombre: ${item.nombre}`)
 
-
                     const numero = index + 1;
                     cy.log(`Insertando registro #${numero}: ${item.nombre}`);
-
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
@@ -60,14 +54,25 @@ describe("Prueba unitaria del Crud Etiquetas del árbol...", () =>{
                 // Llenar datos
                 etiquetasDelArbol.EtiqeutasArbol(item)
 
-                const alias = `guardar-${numero}`;
-                cy.intercept('POST', '**/treeLabels').as(alias);
+                //const alias = `guardar-${numero}`;
+                //cy.intercept('POST', '**/treeLabels').as(alias);
+
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/treeLabels')
+
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Etiquetas del Arbol"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: ``,
+                    crud: ``,
+                    descripcion: ``
+                })
 
                     // Esperar respuesta y decidir estado
-                    cy.wait(`@${alias}`).then((interception) => {
+                    /*cy.wait(`@${alias}`).then((interception) => {
                         const status = interception.response.statusCode;
                         let estado = 'fallida';
                         let mensaje = '';
@@ -116,7 +121,7 @@ describe("Prueba unitaria del Crud Etiquetas del árbol...", () =>{
                                 }
                             });
                         });
-                    });
+                    });*/
 
                 })
             })

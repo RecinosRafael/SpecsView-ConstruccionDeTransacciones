@@ -19,17 +19,18 @@ describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
             Cypress.env('PASS')
         )
 
-        cy.fixture('detalleDeFormato').as('dataDetalleFromato')
+        //cy.fixture('detalleDeFormato').as('dataDetalleFromato')
 
     })
 
     beforeEach(() => {
         Generales.IrAPantalla('format')
+        cy.readFile('./JsonData/detalleDeFormato.json').as('dataDetalleFormato')
     })
 
     it("Agregar registros a sub nivel", function () {
 
-        const datos = this.dataDetalleFromato.agregar
+        const datos = this.dataDetalleFormato.agregar
 
         const agrupadas = datos.reduce((acc, item) => {
             if (!acc[item.codigoFormato]) {
@@ -39,6 +40,8 @@ describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
             return acc
         }, {})
 
+        let numero = 0
+
         cy.wrap(Object.keys(agrupadas)).each((codigoFormato) => {
             cy.log('Procesando Regla con nombre: ' + codigoFormato)
 
@@ -47,8 +50,20 @@ describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
             Generales.NavegacionSubMenu('Detalle de Formato')
 
             return cy.wrap(agrupadas[codigoFormato]).each((registro) => {
+                numero++
+
+                cy.get('body').then(($body) => {
+                if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                    cy.log('Formulario abierto detectado, cerrando...')
+                    Generales.BtnCancelarRegistro()
+                    }
+                })
+
                 Generales.BtnAgregarRegistroSubnivel()
-                cy.log("y el agregar que pedo")
+
+                cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
+                .should('be.visible')
+                //cy.log("y el agregar que pedo")
                 //  const pais = registro.valorPais || registro.nombre
                 DetalleFormatos.DetalleFormato(
                     //
@@ -73,7 +88,28 @@ describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
                     registro.valorTipoExpresion
                 )
 
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/formatDetail')
+
                 Generales.BtnAceptarRegistro();
+
+                let nombre = "Detalles de Formato"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `015.1 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Correlativo: ${registro.correlativo} - Descripcion: ${registro.descripcion}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
                 cy.wait(2000)
                 return cy.get('body').then(($body) => {
                     // Buscar específicamente el snackbar de error
@@ -119,9 +155,4 @@ describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
             })
         })
     })
-
-
-
 })
-
-

@@ -29,8 +29,8 @@ describe("Prueba unitaria del Crud Tipo de rama o agencia...", () =>{
         cy.readFile('./JsonData/tipoRamaAgencia.json').then((dataTipoRamaAgencia) => {
             cy.wrap(dataTipoRamaAgencia.agregar).each((item, index) => {
                 cy.log(`Insertando código: ${item.codigo}`)
-
-                const numero = index + 1;
+                const numero = index + 1
+                cy.log(`Insertando registro #${numero}: ${item.codigo}`)
 
                 cy.get('body').then(($body) => {
                     if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
@@ -50,13 +50,33 @@ describe("Prueba unitaria del Crud Tipo de rama o agencia...", () =>{
                 )
 
                 //Intercept backend
-                const alias = `guardar-${numero}`;
-                cy.intercept('POST', '**/typeTreebranch').as(alias);
+                //const alias = `guardar-${numero}`;
+                //cy.intercept('POST', '**/typeTreebranch').as(alias);
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/typeTreebranch')
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Tipo de Rama o Agencia"
+
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `014 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
                 // Esperar respuesta y decidir estado
-                cy.wait(`@${alias}`).then((interception) => {
+                /*cy.wait(`@${alias}`).then((interception) => {
                     const status = interception.response.statusCode;
                     let estado = 'fallida';
                     let mensaje = '';
@@ -105,7 +125,7 @@ describe("Prueba unitaria del Crud Tipo de rama o agencia...", () =>{
                             }
                         });
                     });
-                });
+                });*/
 
 
             })

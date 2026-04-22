@@ -19,12 +19,13 @@ describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
             Cypress.env('PASS')
         )
 
-        cy.fixture('totalesACuadrar').as('dataTotalesACuadrar')
+        //cy.fixture('totalesACuadrar').as('dataTotalesACuadrar')
 
     })
 
     beforeEach(() => {
         Generales.IrAPantalla('totalCashier')
+        cy.readFile('./JsonData/totalesACuadrar.json').as('dataTotalesACuadrar')
     })
 
     it("Agregar registros a sub nivel Totales A cuadrar", function () {
@@ -39,6 +40,8 @@ describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
             return acc
         }, {})
 
+        let numero = 0
+
         cy.wrap(Object.keys(agrupadas)).each((codigoTotCaj) => {
             cy.log('Procesando Regla con nombre: ' + codigoTotCaj)
 
@@ -47,14 +50,48 @@ describe("Prueba unitaria del submenu del Crud Denominaciones...", () =>{
             Generales.NavegacionSubMenu('Totales a Cuadrar')
 
             return cy.wrap(agrupadas[codigoTotCaj]).each((registro) => {
+                numero++ 
+
+                cy.get('body').then(($body) => {
+                if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                    cy.log('Formulario abierto detectado, cerrando...')
+                    Generales.BtnCancelarRegistro()
+                    }
+                })
+
                 Generales.BtnAgregarRegistroSubnivel()
+
+                cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
+                .should('be.visible')
+
                 //  const pais = registro.valorPais || registro.nombre
                 TotalesACuadrar.TotalesCuadra(
                     registro.tipoCajero,
                     registro.cuadraEfectivo
                 )
 
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/totalsToSquare')
+
                 Generales.BtnAceptarRegistro();
+
+                let nombre = "Totales a Cuadrar"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `017.1 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Tipo de Cajero: ${registro.tipoCajero}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
                 cy.wait(2000)
                 return cy.get('body').then(($body) => {
                     // Buscar específicamente el snackbar de error

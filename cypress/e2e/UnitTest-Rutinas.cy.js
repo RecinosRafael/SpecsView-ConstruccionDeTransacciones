@@ -25,9 +25,11 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('rutinas').then((dataRutinas) => {
-            cy.wrap(dataRutinas.agregar).each((item) => {
+        cy.readFile('./JsonData/rutinas.json').then((dataRutinas) => {
+            cy.wrap(dataRutinas.agregar).each((item, index) => {
                 cy.log(`Insertando código: ${item.codigo}`)
+                const numero = index + 1;
+                cy.log(`Insertando registro #${numero}: ${item.codigo}`);
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
@@ -70,12 +72,32 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/routine').as('guardar')
+                //cy.intercept('POST', '**/routine').as('guardar')
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/routine');
+
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Rutinas"
 
-                cy.wait('@guardar').then((interception) => {
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `016 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
+                /*cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
                     if (status === 200 || status === 201) {
                         cy.log('Registro insertado correctamente')
@@ -86,7 +108,7 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
                         Generales.BtnCancelarRegistro()
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
                     }
-                })
+                })*/
             })
         })
     })

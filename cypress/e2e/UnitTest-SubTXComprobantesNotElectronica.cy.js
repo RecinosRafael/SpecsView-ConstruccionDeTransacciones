@@ -20,12 +20,15 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('subTxTipoComprobantesNotElectronica').as('data');
+        //cy.fixture('subTxTipoComprobantesNotElectronica').as('data');
+        cy.readFile('./JsonData/subTxTipoComprobantesNotElectronica.json').as('data');
     });
 
     it("Agregar múltiples registros dinámicamente", function() {
         cy.log('Datos cargados:', JSON.stringify(this.data));
         
+        let numero = 0
+
         cy.wrap(this.data.agregar).each((item) => {
             cy.then(() => {
                 // Limpiar logs de Cypress (opcional)
@@ -54,6 +57,11 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     Generales.BtnIframe("Notificaciones electrónicas", { timeout: 10000, skipContext: true }, 'div[role="tab"]', true);
                     cy.wait(1500)
                     Generales.BtnIframe("Agregar", { timeout: 10000, force: true, skipContext: true }, 'add-button');                    GestorDeTransacciones.ComprobantesImpresion(item);
+                    
+                    numero++
+
+                    const alias = Generales.interceptar('guardar', numero, 'POST', '**/formatsPrintTransaction/managePrintFormat')
+
                     GestorDeTransacciones.ComprobantesNotElectronica(
                        //tipoFormato, comprobante, verComprobante, seNotificaMedio, esMandatorio, notificaComprobante
                         item.tipoFormato, item.comprobante, item.verComprobante, item.seNotificaMedio, 
@@ -61,6 +69,15 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     );
                     // Hacemos clic en Guardar sin interceptar
                     Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+
+                    let nombre = "Notificación Electrónica"
+
+                        Generales.procesarRespuestaYReportarConFrame(alias, {
+                            numero,
+                            describe: `019.11 -: ${nombre}`,
+                            crud: `${nombre}`,
+                            descripcion: `Transacción: ${item.codigoTX} - Comprobante: ${item.comprobante}`
+                        })
                 }); // Salimos del iframe
 
             // Esperamos un tiempo para que la operación se complete (ajusta según sea necesario)

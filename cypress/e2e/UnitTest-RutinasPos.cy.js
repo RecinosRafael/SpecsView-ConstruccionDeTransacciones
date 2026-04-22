@@ -22,7 +22,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('rutinaPos').as('data');
+        //cy.fixture('rutinaPos').as('data');
+        cy.readFile('./JsonData/rutinaPos.json').as('data');
     });
 
 
@@ -38,6 +39,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
             return acc
         }, {})
 
+        let numero = 0
 
         cy.wrap(Object.keys(agrupadas)).each((codigoTRX) => {
             cy.log('Procesando Tx: ' + codigoTRX)
@@ -78,6 +80,10 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                         Generales.agregarRutinaTRX("pos")
                         cy.wait(3000);
 
+                        numero++
+
+                        const alias = Generales.interceptar('guardar', numero, 'POST', '**/transactionFlowRoutine')
+
                         GestorDeTransacciones.RutinasTRX(
                             item.rutina,
                             item.estado,
@@ -92,6 +98,15 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                         cy.xpath("//button[.//mat-icon[text()='check']]")
                             .scrollIntoView({ duration: 500 })
                             .click({ force: true });
+
+                        let nombre = "Rutina POS"
+
+                        Generales.procesarRespuestaYReportarConFrame(alias, {
+                            numero,
+                            describe: `019.5 -: ${nombre}`,
+                            crud: `${nombre}`,
+                            descripcion: `Transacción: ${codigoTRX} - Paso: ${item.paso || 'desconocido'} - Rutina: ${item.rutina}`
+                        })    
 
                     });
                 }).then(() => {

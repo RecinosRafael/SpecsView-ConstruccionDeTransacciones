@@ -36,10 +36,8 @@ describe("Prueba unitaria del Crud Valores Globales...", () =>{
         cy.readFile('./JsonData/valorGlobal.json').then((data) => {
             cy.wrap(data.agregar).each((item, index) => {
                 cy.log(`Insertando registro con codigo: ${item.codigo}`)
-
-
-                    const numero = index + 1;
-                    cy.log(`Insertando registro #${numero}: ${item.codigo}`);
+                const numero = index + 1;
+                cy.log(`Insertando registro #${numero}: ${item.codigo}`);
 
 
                 //Asegurar estado limpio antes de comenzar
@@ -60,14 +58,32 @@ describe("Prueba unitaria del Crud Valores Globales...", () =>{
                 // Llenar datos
                 ValorGlobal.ValoresGlobales(item)
 
-                const alias = `guardar-${numero}`;
-                cy.intercept('POST', '**/globalValues').as(alias);
+                //const alias = `guardar-${numero}`;
+                //cy.intercept('POST', '**/globalValues').as(alias);
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/globalValues')
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Valores Globales"
 
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `000 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Tipo: ${item.tipo}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
                     // Esperar respuesta y decidir estado
-                    cy.wait(`@${alias}`).then((interception) => {
+                    /*cy.wait(`@${alias}`).then((interception) => {
                         const status = interception.response.statusCode;
                         let estado = 'fallida';
                         let mensaje = '';
@@ -116,7 +132,7 @@ describe("Prueba unitaria del Crud Valores Globales...", () =>{
                                 }
                             });
                         });
-                    });
+                    });*/
 
                 })
             })

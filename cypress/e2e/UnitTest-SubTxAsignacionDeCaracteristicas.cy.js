@@ -23,7 +23,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('asignacionDeCaracteristicas').as('data');
+        //cy.fixture('asignacionDeCaracteristicas').as('data');
+        cy.readFile('./JsonData/asignacionDeCaracteristicas.json').as('data');
     });
 
     it("Agregar múltiples registros dinámicamente", function() {
@@ -80,6 +81,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                             cy.log(`Paso "${pasoRequerido}" ya está seleccionado, se omite clic.`);
                         }
 
+                        const alias = Generales.interceptar('guardar', numero, 'POST', '**/transactionCharactByStep')
+
                         GestorDeTransacciones.AsignacionDCaracteristicaAPasoB(
                             item.paso,
                             item.caracteristica,
@@ -100,6 +103,15 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
                         // Hacemos clic en Guardar sin interceptar
                         Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+
+                        let nombre = "Asignación de Caracteristicas"
+
+                        Generales.procesarRespuestaYReportarConFrame(alias, {
+                            numero,
+                            describe: `000 -: ${nombre}`,
+                            crud: `${nombre}`,
+                            descripcion: `Transacción: ${codigoTX} - Caracteristica: ${item.caracteristica}`
+                        })
                     });
                 }).then(() => {
                 // Esperamos un tiempo para que la operación se complete

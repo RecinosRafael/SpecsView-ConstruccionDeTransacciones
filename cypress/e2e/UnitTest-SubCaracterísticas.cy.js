@@ -19,12 +19,13 @@ describe("Prueba unitaria del submenu del Crud Sub Características...", () =>{
             Cypress.env('PASS')
         )
         
-        cy.fixture('subCaracteristicas').as('subCaracteristicas')
+        //cy.fixture('subCaracteristicas').as('subCaracteristicas')
 
     })
 
     beforeEach(() => {
         Generales.IrAPantalla('characteristicSpec')
+        cy.readFile('./JsonData/subCaracteristicas.json').as('subCaracteristicas')
     })
 
     it("Agregar registros a sub nivel", function () {
@@ -39,6 +40,8 @@ describe("Prueba unitaria del submenu del Crud Sub Características...", () =>{
             return acc
         }, {})
 
+        let numero = 0
+
         cy.wrap(Object.keys(agrupadas)).each((codigo) => {
             cy.log('Procesando subCaracteristicas con codigo: ' + codigo)
 
@@ -47,7 +50,20 @@ describe("Prueba unitaria del submenu del Crud Sub Características...", () =>{
             Generales.NavegacionSubMenu('Sub Características')
 
             return cy.wrap(agrupadas[codigo]).each((registro) => {
+                numero++
+
+                cy.get('body').then(($body) => {
+                if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
+                    cy.log('Formulario abierto detectado, cerrando...')
+                    Generales.BtnCancelarRegistro()
+                    }
+                })
+                
                 Generales.BtnAgregarRegistroSubnivel()
+
+                cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
+                .should('be.visible')
+
                 CamposDeLaTransaccion.SubCaracteristicas(
                 //correlativo, subCaracteristica, campoTotalizable, TipoOperacion, campoMandatorio, campoVisualizable, campoProtegido
                     registro.correlativo, 
@@ -59,7 +75,27 @@ describe("Prueba unitaria del submenu del Crud Sub Características...", () =>{
                     registro.campoProtegido
                 )
 
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/subCharacteristicSpec')
+
             Generales.BtnAceptarRegistro();
+
+                let nombre = "Sub-campos de Transacción"
+
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `014.2 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Correlativo: ${registro.correlativo} - Sub-característica: ${registro.subCaracteristica}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
             cy.wait(2000)
             return cy.get('body').then(($body) => {
                 // Buscar específicamente el snackbar de error

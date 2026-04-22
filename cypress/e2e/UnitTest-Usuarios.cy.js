@@ -308,11 +308,30 @@ describe("Suite de pruebas Opción Usuario", () => {
                         }
 
                         // 3. Enviar y capturar respuesta
-                        const alias = `guardar-${numero}`;
-                        cy.intercept('POST', '**/user').as(alias);
+                        //const alias = `guardar-${numero}`;
+                        //cy.intercept('POST', '**/user').as(alias);
+                        const alias = Generales.interceptar('guardar', numero, 'POST', '**/user')
+                        
                         Generales.BtnAceptarRegistro();
 
-                        cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
+                        let nombre = "Usuarios"
+                
+                        Generales.procesarRespuestaYReportar(alias, {
+                            numero,
+                            describe: `012 -: ${nombre}`,
+                            crud: `${nombre}`,
+                            descripcion: `Código: ${item.codigo} - Nombre: ${item.usuario}`
+                        })
+
+                        cy.get('body').then(($body) => {
+                            const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                            if (modalAbierto) {
+                                cy.log('Modal sigue abierto cerrando manualmente');
+                                Generales.BtnCancelarRegistro();
+                                cy.wait(500);
+                            }
+                        });
+                        /*cy.wait(`@${alias}`, { timeout: 10000 }).then((interception) => {
                             const status = interception.response.statusCode;
                             let estado = 'fallida';
                             let mensaje = '';
@@ -352,7 +371,7 @@ describe("Suite de pruebas Opción Usuario", () => {
                                     }
                                 });
                             });
-                        });
+                        });*/
                     });
                 });
                 cy.wait(1000);

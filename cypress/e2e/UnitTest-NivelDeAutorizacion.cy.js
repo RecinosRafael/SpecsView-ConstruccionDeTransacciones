@@ -36,10 +36,8 @@ describe("Prueba unitaria del Crud Nivel De Autorizacion...", () =>{
         cy.readFile('./JsonData/nivelDeAutorizacion.json').then((data) => {
             cy.wrap(data.agregar).each((item, index) => {
                 cy.log(`Insertando registro con nombre: ${item.nombre}`)
-
-
-                    const numero = index + 1;
-                    cy.log(`Insertando registro #${numero}: ${item.nombre}`);
+                const numero = index + 1;
+                cy.log(`Insertando registro #${numero}: ${item.nombre}`);
 
 
                 //Asegurar estado limpio antes de comenzar
@@ -60,14 +58,31 @@ describe("Prueba unitaria del Crud Nivel De Autorizacion...", () =>{
                 // Llenar datos
                 nivelDeAutorizacion.NivelesDeAutorizacion(item)
 
-                const alias = `guardar-${numero}`;
-                cy.intercept('POST', '**/authLevel').as(alias);
+                //const alias = `guardar-${numero}`;
+                //cy.intercept('POST', '**/authLevel').as(alias);
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/authLevel')
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Nivel de Autorización"
+                
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `000 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                })
 
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
                     // Esperar respuesta y decidir estado
-                    cy.wait(`@${alias}`).then((interception) => {
+                    /*cy.wait(`@${alias}`).then((interception) => {
                         const status = interception.response.statusCode;
                         let estado = 'fallida';
                         let mensaje = '';
@@ -116,7 +131,7 @@ describe("Prueba unitaria del Crud Nivel De Autorizacion...", () =>{
                                 }
                             });
                         });
-                    });
+                    });*/
 
                 })
             })

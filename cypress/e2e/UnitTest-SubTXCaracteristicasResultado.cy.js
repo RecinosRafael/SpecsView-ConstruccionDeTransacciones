@@ -22,7 +22,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('subTxCaracteristicResult').as('data');
+        //cy.fixture('subTxCaracteristicResult').as('data');
+        cy.readFile('./JsonData/subTxCaracteristicResult.json').as('data');
     });
 
     it("Agregar múltiples registros dinámicamente", function() {
@@ -37,6 +38,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
             return acc
         }, {})
 
+        let numero = 0
 
         cy.wrap(Object.keys(agrupadas)).each((codigoTX) => {
             cy.log('Procesando Tx: ' + codigoTX)
@@ -64,6 +66,12 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     return cy.wrap(agrupadas[codigoTX]).each((item) => {
                     Generales.abrirPanel("Características del resultado", {timeout: 20000, force: true});
                     cy.wait(500)
+
+                    numero++
+
+                    const alias = Generales.interceptar('guardar', numero, 'POST', '**/resultCharacteristic/dynamicUpdate')
+
+
                     GestorDeTransacciones.CaracteristicaResultado(
                        //caracteristica, caracteristicaOperar, operacioncaracteristicaOperar
                       
@@ -71,6 +79,15 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     );
                     // Hacemos clic en Guardar sin interceptar
                     Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+
+                    let nombre = "Características del resultado"
+
+                        Generales.procesarRespuestaYReportarConFrame(alias, {
+                            numero,
+                            describe: `019.8 -: ${nombre}`,
+                            crud: `${nombre}`,
+                            descripcion: `Transacción: ${codigoTX} - Característica: ${item.caracteristica} - Opera: ${item.caracteristicaOperar}`
+                        })
                 }); // Salimos del iframe
             }).then(() => {
 

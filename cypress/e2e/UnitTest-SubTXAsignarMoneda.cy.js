@@ -22,12 +22,15 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('subTxAsignacionMoneda').as('data');
+        //cy.fixture('subTxAsignacionMoneda').as('data');
+        cy.readFile('./JsonData/subTxAsignacionMoneda.json').as('data');
     });
 
     it("Agregar múltiples registros dinámicamente", function() {
         cy.log('Datos cargados:', JSON.stringify(this.data));
         
+        let numero = 0
+
         cy.wrap(this.data.agregar).each((item) => {
             cy.then(() => {
                 // // Limpiar logs de Cypress (opcional)
@@ -54,12 +57,26 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     Generales.abrirPanel("Opciones", {timeout: 20000, force: true});
                     Generales.abrirPanel("Totales a Afectar", {timeout: 20000, force: true});
                     Generales.abrirPanel("Asignación de moneda", {timeout: 20000, force: true})   
+                    
+                    numero++
+
+                    const alias = Generales.interceptar('guardar', numero, 'PATCH', '**/transactionSpec/*')
+                    
                     GestorDeTransacciones.AsignarMoneda(
                        //formaAfectarTotales, metodoAsignacionMoneda, correlativoMoneda                      
                         item.formaAfectarTotales, item.metodoAsignacionMoneda, item.correlativoMoneda                       
                     );
                     // Hacemos clic en Guardar sin interceptar
                     Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+
+                    let nombre = "Asignación de Moneda"
+
+                        Generales.procesarRespuestaYReportarConFrame(alias, {
+                            numero,
+                            describe: `019.6 -: ${nombre}`,
+                            crud: `${nombre}`,
+                            descripcion: `Transacción: ${item.codigoTX} - Forma afectar: ${item.formaAfectarTotales} - Método asignación: ${item.metodoAsignacionMoneda}`
+                        })
                 }); // Salimos del iframe
 
             // Esperamos un tiempo para que la operación se complete (ajusta según sea necesario)

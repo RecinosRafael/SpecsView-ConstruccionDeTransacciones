@@ -22,7 +22,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('subTxAfectaTotales').as('data');
+        //cy.fixture('subTxAfectaTotales').as('data');
+        cy.readFile('./JsonData/subTxAfectaTotales.json').as('data');
     });
 
     it("Agregar múltiples registros dinámicamente", function() {
@@ -37,6 +38,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
             return acc
         }, {})
 
+        let numero = 0
 
         cy.wrap(Object.keys(agrupadas)).each((codigoTX) => {
             cy.log('Procesando Tx: ' + codigoTX)
@@ -64,13 +66,28 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     return cy.wrap(agrupadas[codigoTX]).each((item) => {
                     Generales.abrirPanel("Totales a Afectar", {timeout: 20000, force: true});
                     cy.wait(500)
+
+                    numero++
+
+                    const alias = Generales.interceptar('guardar', numero, 'POST', '**/totalCashierAffect')
+
                     GestorDeTransacciones.TotalesAfectar(
                        //caracteristica, totalCajero, operacion, exp1, operacion2, exp2
                        
-                        item.caracteristica, item.totalCajero, item.operacion,  item.exp1, item.operacion2, item.exp2                       
+                        //item.caracteristica, item.totalCajero, item.operacion,  item.exp1, item.operacion2, item.exp2                       
+                        item.caracteristica, item.arbolRaiz, item.totalCajero, item.operacion, item.exp1, item.operacion2, item.exp2
                     );
                     // Hacemos clic en Guardar sin interceptar
                     Generales.BtnIframe('Guardar', { timeout: 10000, force: true, skipContext: true });
+
+                    let nombre = "Totales a Afectar"
+
+                        Generales.procesarRespuestaYReportarConFrame(alias, {
+                            numero,
+                            describe: `019.7 -: ${nombre}`,
+                            crud: `${nombre}`,
+                            descripcion: `Transacción: ${item.codigoTX} - Característica: ${item.caracteristica} - Total Cajero: ${item.totalCajero}`
+                        })
                 }); // Salimos del iframe
             }).then(() => {
 

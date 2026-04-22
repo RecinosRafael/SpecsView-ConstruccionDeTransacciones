@@ -25,9 +25,11 @@ describe("Prueba unitaria del Crud de Productos...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('productos').then((dataProductos) => {
-            cy.wrap(dataProductos.agregar).each((item) => {
+        cy.readFile('./JsonData/productos.json').then((dataProductos) => {
+            cy.wrap(dataProductos.agregar).each((item, index) => {
                 cy.log(`Insertando código: ${item.codigo}`)
+                const numero = index + 1;
+                cy.log(`Insertando registro #${numero}: ${item.codigo}`);
 
                 //Asegurar estado limpio antes de comenzar
                 cy.get('body').then(($body) => {
@@ -57,12 +59,31 @@ describe("Prueba unitaria del Crud de Productos...", () =>{
                 )
 
                 //Intercept backend
-                cy.intercept('POST', '**/products').as('guardar')
+                //cy.intercept('POST', '**/products').as('guardar')
+
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/products')
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Productos"
 
-                cy.wait('@guardar').then((interception) => {
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `005 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Código: ${item.codigo} - Nombre: ${item.nombre}`
+                })
+
+                cy.get('body').then(($body) => {
+                        const modalAbierto = $body.find('h2:contains("Nuevo Registro")').length > 0;
+                        if (modalAbierto) {
+                            cy.log('Modal sigue abierto cerrando manualmente');
+                            Generales.BtnCancelarRegistro();
+                            cy.wait(500);
+                        }
+                });
+
+                /*cy.wait('@guardar').then((interception) => {
                     const status = interception.response.statusCode
                     if (status === 200 || status === 201) {
                         cy.log('Registro insertado correctamente')
@@ -73,7 +94,7 @@ describe("Prueba unitaria del Crud de Productos...", () =>{
                         Generales.BtnCancelarRegistro()
                         cy.contains('h2', 'Nuevo Registro').should('not.exist')
                     }
-                })
+                })*/
             })
         })
     })

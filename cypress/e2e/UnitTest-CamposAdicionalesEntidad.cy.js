@@ -20,8 +20,8 @@ describe("Prueba unitaria del Crud Campos Adicionales Por Entidad...", () =>{
             Cypress.env('PASS')
         )
       
-        const folderPath = 'capturas';
-        cy.task('deleteAllFiles', folderPath);
+        //const folderPath = 'capturas';
+        //cy.task('deleteAllFiles', folderPath);
 
     
     })
@@ -60,14 +60,23 @@ describe("Prueba unitaria del Crud Campos Adicionales Por Entidad...", () =>{
                 // Llenar datos
                 CamposAdicionalesEntidad.CamposAdicionalesEntidad(item)
 
-                const alias = `guardar-${numero}`;
-                cy.intercept('POST', '**/additionalFieldsPerEntity').as(alias);
+                //const alias = `guardar-${numero}`;
+                //cy.intercept('POST', '**/additionalFieldsPerEntity').as(alias);
+
+                const alias = Generales.interceptar('guardar', numero, 'POST', '**/additionalFieldsPerEntity')
 
                 Generales.BtnAceptarRegistro()
 
+                let nombre = "Campos Adicionales por Entidad"
 
+                Generales.procesarRespuestaYReportar(alias, {
+                    numero,
+                    describe: `000 -: ${nombre}`,
+                    crud: `${nombre}`,
+                    descripcion: `Entidad: ${item.entidad} - Caracteristica: ${item.caracteristica}`
+                })
                     // Esperar respuesta y decidir estado
-                    cy.wait(`@${alias}`).then((interception) => {
+                    /*cy.wait(`@${alias}`).then((interception) => {
                         const status = interception.response.statusCode;
                         let estado = 'fallida';
                         let mensaje = '';
@@ -116,7 +125,7 @@ describe("Prueba unitaria del Crud Campos Adicionales Por Entidad...", () =>{
                                 }
                             });
                         });
-                    });
+                    });*/
 
                 })
             })
