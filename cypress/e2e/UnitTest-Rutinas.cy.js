@@ -25,68 +25,45 @@ describe("Prueba unitaria del Crud Tipo de Dato...", () =>{
     })
 
     it("Agregar múltiples registros dinámicamente", () => {
-        cy.fixture('rutinas').then((dataRutinas) => {
+
+        cy.readFile('./JsonData/rutinas.json').then((dataRutinas) => {
             cy.wrap(dataRutinas.agregar).each((item) => {
                 cy.log(`Insertando código: ${item.codigo}`)
 
-                //Asegurar estado limpio antes de comenzar
-                cy.get('body').then(($body) => {
-                    if ($body.find('h2:contains("Nuevo Registro")').length > 0) {
-                        cy.log('Formulario abierto detectado, cerrando...')
-                        Generales.BtnCancelarRegistro()
-                    }
-                })
-
+            // Entrar al iframe y realizar acciones
+            cy.get('iframe.frame', { timeout: 10000 })
+                .its('0.contentDocument.body')
+                .should('not.be.empty')
+                .then(cy.wrap)
+                .within(() => {
                 //Abrir formulario
-                Generales.BtnAgregarRegistro()
+                Generales.BtnIframe('Agregar', { timeout: 10000, force: true, skipContext: true });
+                Rutinas.RutinasIf(item);
+                Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+                cy.wait(1000) // Esperar que se procese el guardado
+                if(item.nombreRecurso !== ""){
+                    Rutinas.rutinasJson(item)
+                }
+                Generales.BtnIframe('atras', { timeout: 10000, force: true, skipContext: true });
+                Generales.BtnIframe('atras', { timeout: 10000, force: true, skipContext: true });
+                }); // Salimos del iframe
 
-                //Validar que el modal realmente abrió
-                cy.contains('h2', 'Nuevo Registro', { timeout: 10000 })
-                    .should('be.visible')
+                
+                // //Intercept backend
+                // cy.intercept('POST', '**/routine').as('guardar')
 
-                // Llenar datos
-                Rutinas.Rutinas(
-                    item.codigo,
-                    item.nombre,
-                    item.nombreRecurso,
-                    item.endpointRutinaRutaComponenteAngular,
-                    item.tipoRutina,
-                    item.capaEjecucion,
-                    item.descripcion,
-                    item.parametros,
-                    item.tipoOperacion,
-                    item.esLogin,
-                    item.formatoEnvio,
-                    item.formatoRecibido,
-                    item.expresion1,
-                    item.operacion,
-                    item.expresion2,
-                    item.tipoExpresion,
-                    item.endpointRutinaSecundario,
-                    item.enviarListaRecursos,
-                    item.ofline,
-                    item.online,
-                    item.noGuardarLOG
-                )
-
-                //Intercept backend
-                cy.intercept('POST', '**/routine').as('guardar')
-
-                Generales.BtnAceptarRegistro()
-
-
-                cy.wait('@guardar').then((interception) => {
-                    const status = interception.response.statusCode
-                    if (status === 200 || status === 201) {
-                        cy.log('Registro insertado correctamente')
-                        // Esperar que el modal desaparezca
-                        cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                    } else {
-                        cy.log(`Error detectado. Status: ${status}`)
-                        Generales.BtnCancelarRegistro()
-                        cy.contains('h2', 'Nuevo Registro').should('not.exist')
-                    }
-                })
+                // cy.wait('@guardar').then((interception) => {
+                //     const status = interception.response.statusCode
+                //     if (status === 200 || status === 201) {
+                //         cy.log('Registro insertado correctamente')
+                //         // Esperar que el modal desaparezca
+                //         cy.contains('h2', 'Nuevo Registro').should('not.exist')
+                //     } else {
+                //         cy.log(`Error detectado. Status: ${status}`)
+                //         Generales.BtnCancelarRegistro()
+                //         cy.contains('h2', 'Nuevo Registro').should('not.exist')
+                //     }
+                // })
             })
         })
     })

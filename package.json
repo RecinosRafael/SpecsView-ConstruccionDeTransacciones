@@ -3,14 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-
     "AllParametrosInicialesQA-R&D": "",
-
     "AllParametrosInicialesImplementacion": " erte",
-
-
-
-
     "test": "echo \"Error: no test specified\" && exit 1",
     "AllParametrosIniciales": "cypress run --spec cypress/e2e/ConstruccionDeTransaccionesInicial.cy.js --browser chrome --env reportName=ReportAlltest-Constructor",
     "BDMysqlPrimerosPasos": "cypress run --spec cypress/e2e/BDMysqlPrimerosPasos.cy.js --browser chrome --env reportName=Report-BDMysqlPrimerosPasos",
@@ -77,14 +71,12 @@
     "ValoresCaracteristicas": "cypress run --spec cypress/e2e/UnitTest-ValoresCaracteristicas.cy.js --browser chrome --env reportName=Report-ValoresCaracteristicas",
     "ValoresGoblales": "cypress run --spec cypress/e2e/UnitTest-ValoresGoblales.cy.js --browser chrome --env reportName=Report-ValoresGoblales",
     "AgregarCamposAdicionales": "cypress run --spec cypress/e2e/UnitTestAgregarCamposAdicionales.cy.js --browser chrome --env reportName=Report-UnitTestAgregarCamposAdicionales"
-
   },
   "keywords": [],
   "author": "Rafael Recinos",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "cypress": "^15.12.0",
     "dependencies": "^0.0.1",
     "oracledb": "^6.10.0",
     "xpath": "^0.0.34"
@@ -92,6 +84,7 @@
   "devDependencies": {
     "@4tw/cypress-drag-drop": "^2.3.1",
     "@cypress/xpath": "^2.0.3",
+    "cypress": "^15.14.1",
     "cypress-file-upload": "^5.0.8",
     "cypress-mochawesome-reporter": "^4.0.2",
     "cypress-real-events": "^1.15.0",

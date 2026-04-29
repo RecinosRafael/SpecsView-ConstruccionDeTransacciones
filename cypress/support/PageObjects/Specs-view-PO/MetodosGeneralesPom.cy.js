@@ -4924,6 +4924,288 @@ IngresarFecha(fecha, nombreCampo, opciones = {}) {
             buscarRecursivo();
         });
     }
+
+    //metodo combobox con seleccion multiple
+    seleccionarOpcionesMultiples(opciones, labelText, opcionesConfig = {}) {
+        const {
+            ignorarTildes = true,
+            ignorarMayusculas = true,
+            ignorarEspacios = true,
+            timeout = 10000,
+            force = false,
+            deseleccionarPrimero = true,
+            skipContext = false
+        } = opcionesConfig;
+
+        let opcionesArray = [];
+        if (opciones) {
+            if (Array.isArray(opciones)) {
+                opcionesArray = opciones.map(o => String(o).trim()).filter(o => o);
+            } else if (typeof opciones === 'string') {
+                const trimmed = opciones.trim();
+                if (trimmed !== '' && trimmed !== '{}') {
+                    let inner = trimmed;
+                    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+                        inner = trimmed.slice(1, -1);
+                    }
+                    opcionesArray = inner.split(',').map(s => s.trim()).filter(s => s);
+                }
+            } else if (typeof opciones === 'object' && opciones !== null) {
+                const firstString = Object.values(opciones).find(v => typeof v === 'string');
+                if (firstString) {
+                    return this.seleccionarOpcionesMultiples(firstString, labelText, opcionesConfig);
+                }
+            }
+        }
+
+        if (opcionesArray.length === 0) {
+            cy.log(`⏭️ No hay opciones para seleccionar en "${labelText}" -> omitiendo`);
+            return;
+        }
+
+        cy.log(`🔍 Seleccionando opciones: [${opcionesArray.join(', ')}] en combo múltiple "${labelText}"`);
+
+        const normalizarTexto = (texto) => {
+            if (!texto) return texto;
+            let resultado = String(texto);
+            if (ignorarTildes) resultado = resultado.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            if (ignorarMayusculas) resultado = resultado.toLowerCase();
+            if (ignorarEspacios) resultado = resultado.trim().replace(/\s+/g, ' ');
+            return resultado;
+        };
+
+        const ejecutarSeleccion = () => {
+            const labelsArray = Array.isArray(labelText) ? labelText : [labelText];
+            let $mejorCampo = null;
+            let mejorPuntaje = -1;
+            let mejorCoincidencia = '';
+
+            cy.get('mat-form-field:has(mat-select)', { timeout }).then($formFields => {
+                const $camposAEvaluar = $formFields.filter(':visible').length ? $formFields.filter(':visible') : $formFields;
+                $camposAEvaluar.each((index, field) => {
+                    const $field = Cypress.$(field);
+                    const $label = $field.find('mat-label, label, .mat-label, .mat-form-field-label');
+                    if ($label.length) {
+                        const textoLabel = $label.first().text().trim();
+                        const textoLabelNorm = normalizarTexto(textoLabel);
+                        for (let labelBuscado of labelsArray) {
+                            const labelBuscadoNorm = normalizarTexto(labelBuscado);
+                            let puntaje = 0;
+                            if (textoLabelNorm === labelBuscadoNorm) puntaje = 100;
+                            else if (textoLabelNorm.replace(/\s*\*\s*/g, '') === labelBuscadoNorm) puntaje = 90;
+                            else if (textoLabelNorm.startsWith(labelBuscadoNorm + ' ')) puntaje = 80;
+                            else if (textoLabelNorm.match(new RegExp(`\\b${labelBuscadoNorm}\\b`))) puntaje = 70;
+                            else if (textoLabelNorm.includes(labelBuscadoNorm)) puntaje = 50;
+                            else if (labelBuscadoNorm.includes(textoLabelNorm)) puntaje = 30;
+                            if (puntaje > mejorPuntaje) {
+                                mejorPuntaje = puntaje;
+                                $mejorCampo = $field;
+                                mejorCoincidencia = textoLabel;
+                            }
+                        }
+                    }
+                });
+
+                if (!$mejorCampo || mejorPuntaje < 50) {
+                    throw new Error(`❌ No se encontró campo con label que coincida con "${labelsArray.join('", "')}"`);
+                }
+
+                cy.log(`✅ Mejor coincidencia: "${mejorCoincidencia}" (puntaje: ${mejorPuntaje})`);
+                cy.wrap($mejorCampo).scrollIntoView({ offset: { top: -100, left: 0 }, duration: 300 });
+                cy.wrap($mejorCampo).find('mat-select').as('select');
+
+                cy.get('@select').then($select => {
+                    const valorActual = $select.find('.mat-select-value-text span, .mat-select-min-line').first().text().trim();
+                    const actualNormalizado = normalizarTexto(valorActual);
+                    const deseadoNormalizado = opcionesArray.map(o => normalizarTexto(o)).sort().join(',');
+                    if (actualNormalizado === deseadoNormalizado) {
+                        cy.log(`⏭️ Las opciones ya están seleccionadas correctamente: "${valorActual}"`);
+                        return;
+                    }
+                });
+
+                // Abrir el combo
+                cy.get('@select').click({ force });
+                cy.get('.mat-mdc-select-panel', { timeout }).should('be.visible');
+                cy.wait(300);
+
+                if (deseleccionarPrimero) {
+                    cy.then(() => {
+                        const $selected = Cypress.$('.mat-mdc-select-panel mat-option[aria-selected="true"]');
+                        if ($selected.length) {
+                            cy.log(`🔍 Desmarcando ${$selected.length} opción(es) seleccionada(s)...`);
+                            cy.wrap($selected).each($opt => {
+                                if (!$opt.hasClass('mdc-list-item--disabled')) {
+                                    cy.wrap($opt).click({ force });
+                                }
+                            });
+                        } else {
+                            cy.log('ℹ️ No hay opciones seleccionadas para desmarcar');
+                        }
+                    });
+                }
+
+                // Seleccionar las opciones deseadas
+                opcionesArray.forEach(opcion => {
+                    cy.get('.mat-mdc-select-panel mat-option')
+                        .not('.mdc-list-item--disabled')
+                        .filter((idx, el) => normalizarTexto(Cypress.$(el).text().trim()) === normalizarTexto(opcion))
+                        .then($opciones => {
+                            if ($opciones.length) {
+                                cy.wrap($opciones[0]).scrollIntoView({ block: 'center', duration: 200 }).click({ force });
+                            } else {
+                                throw new Error(`❌ No se encontró la opción "${opcion}" en el combo`);
+                            }
+                        });
+                });
+
+                // ✅ CERRAR EL COMBO: Intentar con backdrop (fuerza bruta)
+
+                cy.get('.cdk-overlay-backdrop', { timeout: 5000 }).click({ force: true });
+
+                // cy.get('.cdk-overlay-backdrop').then($backdrop => {
+                //     if ($backdrop.length && $backdrop.is(':visible')) {
+                //         cy.wrap($backdrop).click({ force: true });
+                //         cy.log('✅ Backdrop clickeado para cerrar combo');
+                //     } else {
+                //         // Fallback: enviar Escape al documento
+                //         cy.document().then(doc => {
+                //             const escEvent = new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, bubbles: true });
+                //             doc.dispatchEvent(escEvent);
+                //             cy.log('✅ Enviado evento Escape al documento');
+                //         });
+                //     }
+                // });
+                cy.wait(300); // esperar cierre
+                cy.log(`✅ Seleccionados ${opcionesArray.length} opción(es): ${opcionesArray.join(', ')}`);
+            });
+        };
+
+        if (skipContext) {
+            ejecutarSeleccion();
+        } else if (this._ejecutarEnContexto) {
+            this._ejecutarEnContexto(ejecutarSeleccion);
+        } else {
+            ejecutarSeleccion();
+        }
+
+        if (this.esperarQueSpinnerDesaparezca) {
+            this.esperarQueSpinnerDesaparezca({ timeout: 10000 });
+        }
+        cy.wait(500);
+    }
+    //metodo para subir archivos
+    subirArchivo(rutaArchivo, textoZona, opciones = {}) {
+        const {
+            timeout = 10000,
+            force = true,
+            action = 'select',
+            skipContext = false
+        } = opciones;
+
+        if (!rutaArchivo) {
+            cy.log('⏭️ Ruta de archivo vacía, se omite');
+            return;
+        }
+
+        cy.log(`📁 Subiendo archivo: "${rutaArchivo}" en zona con texto: "${textoZona}"`);
+
+        const ejecutar = () => {
+            const textos = Array.isArray(textoZona) ? textoZona : [textoZona];
+
+            // Esperar a que aparezca el contenedor de carga
+            cy.contains('.upload-zone', textos[0], { timeout }).should('be.visible').then($contenedor => {
+                // Buscar el input file dentro del contenedor
+                const $input = $contenedor.find('input[type="file"]');
+                if ($input.length) {
+                    cy.wrap($input).selectFile(rutaArchivo, { force, action });
+                    cy.log(`✅ Archivo "${rutaArchivo}" subido correctamente`);
+                } else {
+                    // Fallback: buscar input file en el documento
+                    cy.get('input[type="file"]', { timeout }).then($inputs => {
+                        if ($inputs.length) {
+                            cy.wrap($inputs[0]).selectFile(rutaArchivo, { force, action });
+                            cy.log(`✅ Archivo "${rutaArchivo}" subido usando input file genérico`);
+                        } else {
+                            throw new Error(`No se encontró input file para la zona con texto "${textos.join(', ')}"`);
+                        }
+                    });
+                }
+            });
+        };
+
+        if (skipContext) {
+            ejecutar();
+        } else if (this._ejecutarEnContexto) {
+            this._ejecutarEnContexto(ejecutar);
+        } else {
+            ejecutar();
+        }
+
+        cy.wait(1000);
+        if (this.esperarQueSpinnerDesaparezca) {
+            this.esperarQueSpinnerDesaparezca({ timeout: 10000 });
+        }
+    }
+    //metodo para json de rutinas de variables mapeadas
+    mapearVariablesJSON(variablesMapeadas, opciones = {}) {
+        const {
+            nombreVariableLabel = 'Nombre de variable',
+            descripcionLabel = 'Descripción',
+            botonGuardarText = 'Guardar',
+            timeout = 10000
+        } = opciones;
+
+        if (!variablesMapeadas || variablesMapeadas.length === 0) {
+            cy.log('⏭️ No hay variables para mapear');
+            return;
+        }
+
+        cy.log(`🔄 Mapeando ${variablesMapeadas.length} variable(s) JSON...`);
+
+        const procesar = (index) => {
+            if (index >= variablesMapeadas.length) {
+                cy.log('✅ Todas las variables fueron mapeadas correctamente');
+                return;
+            }
+
+            const { variableMapeada, variableMapeadaNombre, descripcionVariable } = variablesMapeadas[index];
+            cy.log(`📌 (${index + 1}/${variablesMapeadas.length}) Click en "${variableMapeada}" → nuevo nombre: "${variableMapeadaNombre}"`);
+
+            // 1. Click en el nombre de la variable dentro del JSON viewer
+            cy.get(`.json-viewer .jk:contains("${variableMapeada}")`, { timeout })
+                .should('be.visible')
+                .click({ force: true });
+
+            // 2. Esperar popup
+            cy.get('.key-popup', { timeout }).should('be.visible');
+
+            // 3. Llenar campo "Nombre de variable"
+            this.llenarCampoIframe(variableMapeadaNombre, nombreVariableLabel, { skipContext: true, force: true, limpiar: true });
+
+            // 4. Llenar campo "Descripción" si existe
+            if (descripcionVariable) {
+                this.llenarCampoIframe(descripcionVariable, descripcionLabel, { skipContext: true, force: true, limpiar: true });
+            }
+
+            // 5. Hacer clic en Guardar
+            cy.contains('.key-popup button', botonGuardarText).should('be.visible').click({ force: true });
+
+            // 6. Cerrar popup y continuar
+            cy.get('.key-popup', { timeout }).should('not.exist');
+            cy.wait(500);
+            procesar(index + 1);
+        };
+
+        procesar(0);
+    }
+
+
+
+
+
+
+
 }
 
 export default MetodosGeneralesPomCy;

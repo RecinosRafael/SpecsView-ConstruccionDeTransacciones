@@ -1,5 +1,53 @@
+
+import metodosGeneralesPomCy from "./MetodosGeneralesPom.cy.js";
+import '@4tw/cypress-drag-drop';
 require('cypress-xpath');
+
 class RutinasPomCy{
+
+    constructor() {
+        this.Generales = new metodosGeneralesPomCy();
+    }
+
+    RutinasIf(data){
+        //Nueva rutina
+        this.Generales.llenarCampoIframe(data.codigo, "Código", {skipContext: true, force: true });
+        this.Generales.llenarCampoIframe(data.nombre, "Nombre", {skipContext: true });
+        this.Generales.llenarCampoIframe(data.nombreRecurso, "Nombre del Recurso", {skipContext: true, force: true });
+        this.Generales.seleccionarComboIframe(data.tipoRutina, "Tipo de rutina", {skipContext: true, force: true});
+        this.Generales.llenarCampoIframe(data.endpointRutinaRutaComponenteAngular, "Endpoint de la rutina, o Ruta componente Angular", {skipContext: true, force: true });
+        this.Generales.seleccionarComboIframe(data.capaEjecucion, "Capa de Ejecución", {skipContext: true, force: true });
+        this.Generales.seleccionarComboIframe(data.tipoOperacion, "Tipo de operación", {skipContext: true, force: true });  
+        this.Generales.seleccionarComboIframe(data.formatoEnvio, "Formato de envío", {skipContext: true, force: true });        
+        this.Generales.seleccionarComboIframe(data.formatoRecibido, "Formato de recibido", {skipContext: true, force: true });        
+        if(data.esLogin){
+            this.Generales.slideToggleIframe(data.esLogin, "Es Login", {skipContext: true, force: true });   
+            cy.wait(1500)
+            this.Generales.llenarCampoIframe(data.nombreUsuario, "Nombre de usuario", {skipContext: true, force: true });
+            this.Generales.llenarCampoIframe(data.passwordUsuario, "Contraseña", {skipContext: true, force: true });
+            this.Generales.llenarCampoIframe(data.tokenAsignado, "Token asignado", {skipContext: true, force: true });    
+        }
+        this.Generales.llenarCampoIframe(data.expresion1, "Expresión 1", {skipContext: true, force: true });        
+        this.Generales.seleccionarComboIframe(data.operacion, "Operación", {skipContext: true, force: true });        
+        this.Generales.llenarCampoIframe(data.expresion2, "Expresión 2", {skipContext: true, force: true });
+        this.Generales.seleccionarComboIframe(data.tipoExpresion, "Tipo de expresión", {skipContext: true, force: true });        
+        //Opciones avanzadas
+        this.Generales.slideToggleIframe(data.enviarListaRecursos, "Enviar lista de recursos", {skipContext: true, force: true });
+        this.Generales.slideToggleIframe(data.noGuardaLog, "No guardar log", {skipContext: true, force: true });
+        this.Generales.seleccionarOpcionesMultiples(data.modosEnLosQueSeEjecuta, 'Modos en los que no se ejecuta', { skipContext: true, deseleccionarPrimero: true });     
+        this.Generales.llenarCampoIframe(data.parametros, "Parámetros", {skipContext: true, force: true });
+        this.Generales.llenarCampoIframe(data.descripcion, "Descripción", {skipContext: true, force: true });
+        this.Generales.llenarCampoIframe(data.endpointRutinaSecundario, "Endpoint de la rutina (Secundario)", {skipContext: true, force: true });
+    }
+
+    rutinasJson(data){
+
+        this.Generales.subirArchivo(data.rutaJson, 'Arrastra tu archivo JSON o haz clic para seleccionar');
+        this.Generales.BtnIframe('Aceptar', { timeout: 10000, force: true, skipContext: true });
+        cy.wait(1000)
+        this.Generales.mapearVariablesJSON(data.variablesMapeadas);
+    }
+    
 
     Rutinas(codigo, nombre, nombreRecurso, endpointRutinaRutaComponenteAngular, tipoRutina, capaEjecucion, descripcion, parametros, tipoOperacion, esLogin, formatoEnvio,
             formatoRecibido, expresion1, operacion, expresion2, tipoExpresion, endpointRutinaSecundario, enviarListaRecursos, ofline, online, noGuardarLOG) {
