@@ -7,6 +7,7 @@
       "estado": "Lanzado",
       "correlativo": "1",
       "requiereLogin": false,
+      "rutinaLogin": false,
       "descripcion": "",
       "fechaInicio": "01/01/2026",
       "fechaFin": "",

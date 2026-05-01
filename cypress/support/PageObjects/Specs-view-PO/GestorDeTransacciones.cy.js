@@ -751,7 +751,34 @@ AsignacionDCaracteristicaAPasoB(paso, caracteristica, tamanioLetra, visualizar, 
     }
 
 
+    POSConsultarFirma(data){
+        this.Generales.seleccionarComboIframe(data.reglaNegocio, "Regla de negocio", { timeout: 10000,  skipContext: true, force: true })
+        this.Generales.seleccionarComboIframe(data.estado, "Estado", { skipContext: true, force: true })
+        this.Generales.llenarCampoIframe(data.correlativo, "Correlativo", { skipContext: true, force: true })
+        this.Generales.IngresarFechaIframe(data.fechaInicio, "Fecha de Inicio", { skipContext: true });
+        this.Generales.IngresarFechaIframe(data.fechaFin, "Fecha de Fin", { skipContext: true });
+        this.Generales.seleccionarComboIframe(data.cuenta, "Cuenta", { skipContext: true, force: true });
+        this.Generales.seleccionarComboIframe(data.monto, "Monto", { skipContext: true, force: true });
+    }
+    
+    POSSolicitarAutorizacion(data){
+        this.Generales.seleccionarComboIframe(data.reglaNegocio, "Regla de negocio", { timeout: 10000,  skipContext: true, force: true })
+        this.Generales.seleccionarComboIframe(data.estado, "Estado", { skipContext: true, force: true })
+        this.Generales.llenarCampoIframe(data.correlativo, "Correlativo", { skipContext: true, force: true })
+        this.Generales.IngresarFechaIframe(data.fechaInicio, "Fecha de Inicio", { skipContext: true });
+        this.Generales.IngresarFechaIframe(data.fechaFin, "Fecha de Fin", { skipContext: true });
+        this.Generales.seleccionarComboIframe(data.permiso, "Permiso", { skipContext: true, force: true });
+    }
 
+    POSMensajeUsuarioCondicionado(data){
+        this.Generales.seleccionarComboIframe(data.reglaNegocio, "Regla de negocio", { timeout: 10000,  skipContext: true, force: true })
+        this.Generales.seleccionarComboIframe(data.estado, "Estado", { skipContext: true, force: true, forzarSeleccion: true  })
+        this.Generales.llenarCampoIframe(data.correlativo, "Correlativo", { skipContext: true, force: true, forzarSeleccion: true  })
+        this.Generales.IngresarFechaIframe(data.fechaInicio, "Fecha de Inicio", { skipContext: true });
+        this.Generales.IngresarFechaIframe(data.fechaFin, "Fecha de Fin", { skipContext: true });
+        this.Generales.llenarCampoIframe(data.mensajeUsuario, "Mensaje a Usuario", { skipContext: true, force: true });
+        this.Generales.seleccionarComboIframe(data.tipoMensaje, "Tipo de mensaje", { skipContext: true, force: true, forzarSeleccion: true });
+    }
 
     RutinasTRX(rutina, estado, correlativo, requiereLogin, descripcion, fechaInicio, fechaFin, paremetros){
         this.Generales.seleccionarComboIframe(rutina, "Rutina", { timeout: 10000,  skipContext: true, force: true })

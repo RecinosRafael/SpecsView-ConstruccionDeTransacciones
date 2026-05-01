@@ -1,0 +1,26 @@
+{
+  "agregar": [
+    {
+      "codigoTRX": "700",
+      "paso": "Registro cuenta",
+      "reglaNegocio": "siempre se cumple",
+      "estado": "Rechazado",
+      "correlativo": "21",
+      "fechaInicio": "01/01/2026",
+      "fechaFin": "01/01/2027",
+      "mensajeUsuario": "mensaje de prueba 1",
+      "tipoMensaje": "Bloqueante"
+    },
+    {
+      "codigoTRX": "700",
+      "paso": "Registro cuenta",
+      "reglaNegocio": "siempre se cumple",
+      "estado": "Rechazado",
+      "correlativo": "33",
+      "fechaInicio": "01/01/2026",
+      "fechaFin": "01/01/2027",
+      "mensajeUsuario": "mensaje de prueba 2",
+      "tipoMensaje": "Informativo"
+    }
+  ]
+}

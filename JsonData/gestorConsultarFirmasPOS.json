@@ -1,0 +1,26 @@
+{
+  "agregar": [
+    {
+      "codigoTRX": "700",
+      "paso": "Confirmación transacción",
+      "reglaNegocio": "Con Libreta",
+      "estado": "En estudio",
+      "correlativo": "1",
+      "fechaInicio": "01/01/2026",
+      "fechaFin": "",
+      "cuenta": "Número de cuenta",
+      "monto": "Total"
+    },
+    {
+      "codigoTRX": "700",
+      "paso": "Confirmación transacción",
+      "reglaNegocio": "Con Libreta",
+      "estado": "En estudio",
+      "correlativo": "2",
+      "fechaInicio": "01/01/2026",
+      "fechaFin": "4/2/2027",
+      "cuenta": "Número de cuenta",
+      "monto": "Cheques del exterior"
+    }
+  ]
+}

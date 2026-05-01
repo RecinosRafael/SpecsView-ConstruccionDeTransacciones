@@ -1,0 +1,24 @@
+{
+  "agregar": [
+    {
+      "codigoTRX": "700",
+      "paso": "Registro cuenta",
+      "reglaNegocio": "Afectación efectivo trx recibidas",
+      "estado": "Lanzado",
+      "correlativo": "21",
+      "fechaInicio": "01/01/2026",
+      "fechaFin": "",
+      "permiso": "ACTIVAR FIRMA"
+    },
+    {
+      "codigoTRX": "700",
+      "paso": "Registro cuenta",
+      "reglaNegocio": "Afectación efectivo trx recibidas",
+      "estado": "Lanzado",
+      "correlativo": "33",
+      "fechaInicio": "01/01/2026",
+      "fechaFin": "01/01/2027",
+      "permiso": "ACTIVAR FIRMA"
+    }
+  ]
+}
