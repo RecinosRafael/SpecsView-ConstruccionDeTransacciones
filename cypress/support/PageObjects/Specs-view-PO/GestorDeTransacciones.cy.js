@@ -780,17 +780,44 @@ AsignacionDCaracteristicaAPasoB(paso, caracteristica, tamanioLetra, visualizar, 
         this.Generales.seleccionarComboIframe(data.tipoMensaje, "Tipo de mensaje", { skipContext: true, force: true, forzarSeleccion: true });
     }
 
-    RutinasTRX(rutina, estado, correlativo, requiereLogin, descripcion, fechaInicio, fechaFin, paremetros){
-        this.Generales.seleccionarComboIframe(rutina, "Rutina", { timeout: 10000,  skipContext: true, force: true })
-        this.Generales.seleccionarComboIframe(estado, "Estado", { timeout: 10000, skipContext: true, force: true })
-        this.Generales.llenarCampoIframe(correlativo, "Correlativo", { timeout: 10000, skipContext: true, force: true })
-        this.Generales.slideToggleIframe(requiereLogin, "Requiere Login", { timeout: 10000, skipContext: true, force: true });
-        this.Generales.llenarDescripcionIframe(descripcion, "Descripción", { timeout: 10000, skipContext: true, force: true });
-        this.Generales.IngresarFechaIframe(fechaInicio, "Fecha de Inicio", { timeout: 10000, skipContext: true });
-        this.Generales.IngresarFechaIframe(fechaFin, "Fecha de Fin", { timeout: 10000, skipContext: true });
-        this.Generales.llenarCampoIframe(paremetros, "Parámetros", { timeout: 10000, skipContext: true, force: true });
+    POSRutinasTRX(data){
+        this.Generales.seleccionarComboIframe(data.rutina, "Rutina", { skipContext: true, force: true })
+        this.Generales.seleccionarComboIframe(data.estado, "Estado", { skipContext: true, force: true })
+        this.Generales.llenarCampoIframe(data.correlativo, "Correlativo", { skipContext: true, force: true })
+        this.Generales.slideToggleIframe(data.requiereLogin, "Requiere Login", { skipContext: true, force: true });
+        if (data.requiereLogin) {
+            this.Generales.slideToggleIframe(data.rutinaLogin, "Rutina Login", { skipContext: true, force: true });
+        }   
+        this.Generales.llenarDescripcionIframe(data.descripcion, "Descripción", { skipContext: true, force: true });
+        this.Generales.IngresarFechaIframe(data.fechaInicio, "Fecha de Inicio", { skipContext: true });
+        this.Generales.IngresarFechaIframe(data.fechaFin, "Fecha de Fin", { skipContext: true });
+        this.Generales.llenarCampoIframe(data.paremetros, "Parámetros", { skipContext: true, force: true });
     }
 
+    POSCambiarAtributo(data){
+        this.Generales.seleccionarComboIframe(data.reglaNegocio, "Regla de negocio", { timeout: 10000,  skipContext: true, force: true })
+        this.Generales.seleccionarComboIframe(data.estado, "Estado", { skipContext: true, force: true })
+        this.Generales.llenarCampoIframe(data.correlativo, "Correlativo", { skipContext: true, force: true })
+        this.Generales.IngresarFechaIframe(data.fechaInicio, "Fecha de Inicio", { skipContext: true });
+        this.Generales.IngresarFechaIframe(data.fechaFin, "Fecha de Fin", { skipContext: true });
+        // Agregar listado de campos
+        for (let i = 0; i < data.listadoCampos.length; i++) {
+            this.Generales.ClickPorTexto('Agregar', 'button', 'mat-mdc-raised-button');
+            this.Generales.llenarCampoReadonlySinClick(data.listadoCampos[i].expDefinirCampo, "Expresión para definir campo", { skipContext: true, force: true });
+            this.Generales.llenarCampoReadonlySinClick(data.listadoCampos[i].expForzarValor, "Expresión para forzar valor", { skipContext: true, force: true });        
+            this.Generales.seleccionarComboIframe(data.listadoCampos[i].tamanoLetra, "Tamaño de letra", { skipContext: true, force: true, forzarSeleccion: true });
+            this.Generales.insertarColor(data.listadoCampos[i].color, 'Color', { skipContext: true });
+            this.Generales.seleccionarRadioPorLabel(data.listadoCampos[i].negrita, "Negrita",  { skipContext: true, force: true });
+            this.Generales.seleccionarRadioPorLabel(data.listadoCampos[i].proteger, "Proteger",  { skipContext: true, force: true });
+            this.Generales.seleccionarRadioPorLabel(data.listadoCampos[i].obligatorio, "Obligatorio",  { skipContext: true, force: true });
+            this.Generales.seleccionarRadioPorLabel(data.listadoCampos[i].vizualizar, "Visualizar",  { skipContext: true, force: true });
+            this.Generales.ClickPorTexto('Guardar', 'button', 'mat-mdc-outlined-button');
+        }
+    }
+
+    ActivarFirmaEnPaso(data){
+        this.Generales.slideToggleIframe(data.mostrarFirma, "Mostrar firmas",  { timeout: 10000, skipContext: true, force: true });
+    }
 
 }
 export default GestorPomCy;

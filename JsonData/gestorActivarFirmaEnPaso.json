@@ -1,0 +1,14 @@
+{
+  "agregar": [
+    {
+      "codigoTRX": "600",
+      "paso": "Paso 1",
+      "mostrarFirma":true
+    },
+    {
+      "codigoTRX": "620",
+      "paso": "Capturar Cuenta",
+      "mostrarFirma":false
+    }
+  ]
+}

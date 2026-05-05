@@ -2,18 +2,35 @@
   "agregar": [
     {
       "codigoTRX": "700",
+      "paso": "Confirmación transacción",
+      "reglaNegocio": "siempre se cumple",
+      "estado": "Obsoleto",
+      "correlativo": "11",
+      "fechaInicio": "01/01/2026",
+      "fechaFin": "01/01/2027",
+      "listadoCampos": [
+        { "expDefinirCampo": "C(6)", "tamanoLetra":"12", 
+        "expForzarValor": "C(11)", "color": "#FF5733", "negrita": "Si",
+        "proteger": "Si", "obligatorio": "Si", "vizualizar": "Si"},    
+        { "expDefinirCampo": "CS(6)", "tamanoLetra":"16", 
+        "expForzarValor": "USRN", "color": "#00FF00", "negrita": "No",
+        "proteger": "No", "obligatorio": "No", "vizualizar": "No"}    
+      ]
+    },
+    {
+      "codigoTRX": "600",
       "paso": "Paso 1",
       "reglaNegocio": "siempre se cumple",
       "estado": "Obsoleto",
-      "correlativo": "1",
+      "correlativo": "11",
       "fechaInicio": "01/01/2026",
-      "fechaFin": "",
+      "fechaFin": "01/01/2027",
       "listadoCampos": [
-        { "expDefinirCampo": "C(6)", "tamanoLetra":"12", 
-        "expForzarValor": "C(11)", "color": "", "negrita": "Si",
+        { "expDefinirCampo": "VG(6)", "tamanoLetra":"12", 
+        "expForzarValor": "C(11)", "color": "#FF5733", "negrita": "Si",
         "proteger": "Si", "obligatorio": "Si", "vizualizar": "Si"},    
         { "expDefinirCampo": "CS(6)", "tamanoLetra":"16", 
-        "expForzarValor": "USRN", "color": "", "negrita": "No",
+        "expForzarValor": "USRN", "color": "#00FF00", "negrita": "No",
         "proteger": "No", "obligatorio": "No", "vizualizar": "No"}    
       ]
     }

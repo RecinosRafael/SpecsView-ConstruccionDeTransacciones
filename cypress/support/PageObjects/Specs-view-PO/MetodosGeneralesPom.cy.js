@@ -137,167 +137,78 @@ class MetodosGeneralesPomCy{
         }
     }
 
-    //     BtnIframe(textoBoton, opciones = {}, filtroClase = null, porTexto = false) {
-//     const {
-//         timeout = 10000,
-//         force = false,
-//         scrollBehavior = 'center',
-//         ensureScrollable = true,
-//         offsetTop = -100,
-//         ignorarBackdrop = true,
-//         skipContext = false,
-//         spinnerTimeout = 30000,
-//         esperarAparicionSpinner = false
-//     } = opciones;
-
-//     const ejecutar = () => {
-//         if (textoBoton == null || (typeof textoBoton === 'string' && textoBoton.trim() === '')) {
-//             cy.log(`⏭️ Texto de botón vacío o nulo, se omite clic.`);
-//             return;
-//         }
-
-//         if (porTexto) {
-//             // Búsqueda por texto visible (para tabs, botones, etc.)
-//             cy.log(`🔍 Buscando elemento con texto visible: "${textoBoton}"`);
-//             let selector = filtroClase ? `${filtroClase}:contains("${textoBoton}")` : `:contains("${textoBoton}")`;
-//             cy.get(selector, { timeout })
-//                 .first()
-//                 .scrollIntoView({
-//                     duration: 300,
-//                     easing: 'linear',
-//                     offset: { top: offsetTop, left: 0 },
-//                     ensureScrollable: ensureScrollable
-//                 })
-//                 .click({ force })
-//                 .then(() => {
-//                     cy.log(`✅ Clic en elemento con texto "${textoBoton}"`);
-//                     if (this.esperarQueSpinnerDesaparezca) {
-//                         this.esperarQueSpinnerDesaparezca({
-//                             timeout: spinnerTimeout,
-//                             esperarAparicion: esperarAparicionSpinner,
-//                             skipContext: skipContext
-//                         });
-//                     }
-//                 });
-//         } else {
-//             // Lógica actual con XPath para tooltips
-//             cy.log(`🔍 Buscando elemento con tooltip: "${textoBoton}" usando XPath`);
-
-//             const normalizarParaXPath = (texto) => {
-//                 return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-//             };
-
-//             const textoNormalizado = normalizarParaXPath(textoBoton);
-//             const textoSeguro = textoNormalizado.replace(/'/g, "&apos;");
-
-//             let xpath = `//*[@aria-describedby=//div[contains(@class,'cdk-describedby-message-container')]//div[translate(translate(text(), 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = translate(translate('${textoSeguro}', 'ÁÉÍÓÚÜáéíóúü', 'AEIOUuaeiouu'), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')]/@id]`;
-
-//             // Si se proporciona un filtro de clase, lo agregamos
-//             if (filtroClase) {
-//                 if (typeof filtroClase === 'string') {
-//                     xpath = xpath.replace('/*', `/*[contains(@class, '${filtroClase}')]`);
-//                     cy.log(`🔍 Filtrando por clase: ${filtroClase}`);
-//                 }
-//             }
-
-//             cy.log(`XPath final: ${xpath}`);
-
-//             cy.xpath(xpath, { timeout })
-//                 .first()
-//                 .scrollIntoView({
-//                     duration: 300,
-//                     easing: 'linear',
-//                     offset: { top: offsetTop, left: 0 },
-//                     ensureScrollable: ensureScrollable
-//                 })
-//                 .click({ force })
-//                 .then(() => {
-//                     cy.log(`✅ Clic en elemento con tooltip "${textoBoton}"`);
-//                     if (this.esperarQueSpinnerDesaparezca) {
-//                         this.esperarQueSpinnerDesaparezca({
-//                             timeout: spinnerTimeout,
-//                             esperarAparicion: esperarAparicionSpinner,
-//                             skipContext: skipContext
-//                         });
-//                     }
-//                 });
-//         }
-//     };
-
-//     if (skipContext) {
-//         ejecutar();
-//     } else if (this._ejecutarEnContexto) {
-//         this._ejecutarEnContexto(ejecutar);
-//     } else {
-//         ejecutar();
-//     }
-// }
-
-clickTooltipButton(textoBoton, opciones = {}) {
-    const {
-        timeout = 10000,
-        force = false,
-        scrollBehavior = 'center',
-        ensureScrollable = true,
-        offsetTop = -100,
-        skipContext = false,
-        spinnerTimeout = 30000,
-        esperarAparicionSpinner = false
-    } = opciones;
-
-    if (!textoBoton || textoBoton.trim() === '') {
-        cy.log(`⏭️ Texto de tooltip vacío, se omite clic.`);
-        return;
+    ClickPorTexto(label, tag = "button", clase = "mat-mdc-menu-item") {
+        const normalizar = (t) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const labelNorm = normalizar(label).replace(/'/g, "&apos;");
+        const xpath = `//${tag}[contains(@class,'${clase}') and contains(translate(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜÑ', 'abcdefghijklmnopqrstuvwxyzáéíóúüñ'), 'áéíóúüñ', 'aeiouun'), '${labelNorm}')]`;
+        cy.xpath(xpath).click({ force: true });
     }
 
-    const normalizar = (texto) => {
-        return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    };
-    const textoNormalizado = normalizar(textoBoton);
+    clickTooltipButton(textoBoton, opciones = {}) {
+        const {
+            timeout = 10000,
+            force = false,
+            scrollBehavior = 'center',
+            ensureScrollable = true,
+            offsetTop = -100,
+            skipContext = false,
+            spinnerTimeout = 30000,
+            esperarAparicionSpinner = false
+        } = opciones;
 
-    cy.log(`🔍 Buscando tooltip con texto: "${textoBoton}"`);
+        if (!textoBoton || textoBoton.trim() === '') {
+            cy.log(`⏭️ Texto de tooltip vacío, se omite clic.`);
+            return;
+        }
 
-    // 1. Buscar el div del tooltip dentro del contenedor oculto, por su texto
-    cy.get('#cdk-describedby-message-container', { timeout })
-        .should('exist')
-        .then($container => {
-            // Buscar el div cuyo texto coincide (normalizado)
-            let tooltipId = null;
-            const $divs = $container.find('div');
-            for (let i = 0; i < $divs.length; i++) {
-                const $div = Cypress.$(($divs[i]));
-                const tooltipText = $div.text().trim();
-                if (normalizar(tooltipText) === textoNormalizado) {
-                    tooltipId = $div.attr('id');
-                    cy.log(`✅ Tooltip encontrado con ID: ${tooltipId} (texto: "${tooltipText}")`);
-                    break;
-                }
-            }
+        const normalizar = (texto) => {
+            return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        };
+        const textoNormalizado = normalizar(textoBoton);
 
-            if (!tooltipId) {
-                // Listar tooltips disponibles para depuración
-                const textos = $divs.map((i, el) => Cypress.$(el).text().trim()).get();
-                cy.log(`❌ No se encontró tooltip con texto "${textoBoton}". Disponibles: ${JSON.stringify(textos)}`);
-                throw new Error(`Tooltip no encontrado: "${textoBoton}"`);
-            }
+        cy.log(`🔍 Buscando tooltip con texto: "${textoBoton}"`);
 
-            // 2. Buscar el botón que tenga aria-describedby = tooltipId
-            cy.get(`[aria-describedby="${tooltipId}"]`, { timeout })
-                .should('be.visible')
-                .scrollIntoView({ duration: 300, offset: { top: offsetTop, left: 0 }, ensureScrollable })
-                .click({ force })
-                .then(() => {
-                    cy.log(`✅ Clic en botón con tooltip "${textoBoton}"`);
-                    if (this.esperarQueSpinnerDesaparezca) {
-                        this.esperarQueSpinnerDesaparezca({
-                            timeout: spinnerTimeout,
-                            esperarAparicion: esperarAparicionSpinner,
-                            skipContext: skipContext
-                        });
+        // 1. Buscar el div del tooltip dentro del contenedor oculto, por su texto
+        cy.get('#cdk-describedby-message-container', { timeout })
+            .should('exist')
+            .then($container => {
+                // Buscar el div cuyo texto coincide (normalizado)
+                let tooltipId = null;
+                const $divs = $container.find('div');
+                for (let i = 0; i < $divs.length; i++) {
+                    const $div = Cypress.$(($divs[i]));
+                    const tooltipText = $div.text().trim();
+                    if (normalizar(tooltipText) === textoNormalizado) {
+                        tooltipId = $div.attr('id');
+                        cy.log(`✅ Tooltip encontrado con ID: ${tooltipId} (texto: "${tooltipText}")`);
+                        break;
                     }
-                });
-        });
-}
+                }
+
+                if (!tooltipId) {
+                    // Listar tooltips disponibles para depuración
+                    const textos = $divs.map((i, el) => Cypress.$(el).text().trim()).get();
+                    cy.log(`❌ No se encontró tooltip con texto "${textoBoton}". Disponibles: ${JSON.stringify(textos)}`);
+                    throw new Error(`Tooltip no encontrado: "${textoBoton}"`);
+                }
+
+                // 2. Buscar el botón que tenga aria-describedby = tooltipId
+                cy.get(`[aria-describedby="${tooltipId}"]`, { timeout })
+                    .should('be.visible')
+                    .scrollIntoView({ duration: 300, offset: { top: offsetTop, left: 0 }, ensureScrollable })
+                    .click({ force })
+                    .then(() => {
+                        cy.log(`✅ Clic en botón con tooltip "${textoBoton}"`);
+                        if (this.esperarQueSpinnerDesaparezca) {
+                            this.esperarQueSpinnerDesaparezca({
+                                timeout: spinnerTimeout,
+                                esperarAparicion: esperarAparicionSpinner,
+                                skipContext: skipContext
+                            });
+                        }
+                    });
+            });
+    }
 
 
     // BtnAgregarRegistrosIF() {
@@ -4062,7 +3973,40 @@ IngresarFecha(fecha, nombreCampo, opciones = {}) {
     }
 
 
+seleccionarRadioPorLabel(opcionTexto, nombreGrupo, opciones = {}) {
+    const {
+        timeout = 10000,
+        force = false,
+        skipContext = false
+    } = opciones;
 
+    cy.log(`🔍 Seleccionando radio: grupo="${nombreGrupo}", opción="${opcionTexto}"`);
+
+    const ejecutar = () => {
+        // 1. Localizar el grupo de radios por su label visible
+        const xpathGrupo = `//app-input-radio-button[.//label[@class='label' and normalize-space()='${nombreGrupo}']]//mat-radio-group`;
+        
+        cy.xpath(xpathGrupo, { timeout })
+          .should('exist')
+          .then($grupo => {
+              // 2. Dentro del grupo, buscar el input del radio con el texto visible deseado
+              const xpathRadio = `.//mat-radio-button[.//label[@class='mdc-label' and normalize-space()='${opcionTexto}']]//input[@type='radio']`;
+              // Usar cy.xpath con contexto
+              cy.xpath(xpathRadio, { context: $grupo[0], timeout })
+                .should('exist')
+                .then($input => {
+                    if ($input.is(':checked')) {
+                        cy.log(`⏭️ El radio "${opcionTexto}" ya estaba seleccionado en grupo "${nombreGrupo}"`);
+                        return;
+                    }
+                    cy.wrap($input).check({ force });
+                    cy.log(`✅ Radio "${opcionTexto}" seleccionado en grupo "${nombreGrupo}"`);
+                });
+          });
+    };
+
+    this._ejecutarEnContexto(ejecutar, skipContext);
+}
 
     seleccionarRadio(valor, opciones = {}) {
         const {
@@ -5338,10 +5282,60 @@ IngresarFecha(fecha, nombreCampo, opciones = {}) {
         procesar(0);
     }
 
+    insertarColor(colorHex, labelText = 'Color', opciones = {}) {
+        const {
+            timeout = 10000,
+            force = true,
+            skipContext = false
+        } = opciones;
 
+        if (!colorHex) {
+            cy.log('⏭️ Color vacío, omitiendo');
+            return;
+        }
 
+        let valorColor = String(colorHex).trim();
+        if (!valorColor.startsWith('#')) {
+            valorColor = '#' + valorColor;
+        }
 
+        cy.log(`🎨 Insertando color "${valorColor}" en campo "${labelText}"`);
 
+        const ejecutar = () => {
+            // Buscar el label (puede estar dentro de app-input-color)
+            cy.contains('mat-label, label', labelText, { timeout })
+                .should('exist')
+                .then($label => {
+                    // Estrategia: el input tipo color está al mismo nivel que el label o en el mismo contenedor
+                    // Buscamos el input dentro del mismo contenedor flex (el div padre)
+                    const $input = $label.closest('.d-flex, div, app-input-color')
+                        .find('input[type="color"]');
+                    
+                    if ($input.length === 0) {
+                        throw new Error(`No se encontró input[type="color"] asociado al label "${labelText}"`);
+                    }
+
+                    cy.wrap($input).scrollIntoView({ duration: 300, offset: { top: -50 } });
+                    cy.wait(200);
+
+                    // Asignar el valor directamente
+                    cy.wrap($input).invoke('val', valorColor).trigger('input', { force });
+                    cy.wrap($input).trigger('change', { force });
+
+                    cy.log(`✅ Color "${valorColor}" insertado`);
+                });
+        };
+
+        if (skipContext) {
+            ejecutar();
+        } else if (this._ejecutarEnContexto) {
+            this._ejecutarEnContexto(ejecutar);
+            cy.wait(500);
+        } else {
+            ejecutar();
+            cy.wait(500);
+        }
+    }
 
 
 }

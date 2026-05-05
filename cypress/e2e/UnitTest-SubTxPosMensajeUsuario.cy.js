@@ -72,7 +72,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                             null, false, contexto
                         );                        
                         cy.wait(500);
-                        cy.xpath("//button[contains(@class,'mat-mdc-menu-item') and contains(., 'Mensaje a usuario condicionado')]").click({ force: true });
+
+                        Generales.ClickPorTexto("Mensaje a usuario condicionado");
 
                         GestorDeTransacciones.POSMensajeUsuarioCondicionado(item);
 

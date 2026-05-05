@@ -22,7 +22,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.fixture('rutinaPos').as('data');
+        cy.readFile('./JsonData/gestorRutinaPos.json').as('data');
     });
 
 
@@ -65,29 +65,17 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                     return cy.wrap(agrupadas[codigoTRX]).each((item) => {
                         Generales.abrirPanel("Opciones", {timeout: 20000, force: true});
                         cy.wait(500)
-
-                        // 🔴 USAR EL NUEVO MÉTODO PARA SELECCIONAR EL PASO
-                        if (item.paso) {
-                            Generales.seleccionarPaso(item.paso, { timeout: 10000, skipContext: true, force: true });
-                        } else {
-                            // Fallback al método anterior si no hay paso en el JSON
-                            Generales.BtnIframe("Cuenta", { timeout: 10000, force: true, skipContext: true });
-                        }
-
+                        Generales.BtnIframe(item.paso, { timeout: 10000, force: true, skipContext: true });
                         cy.wait(500)
-                        Generales.agregarRutinaTRX("pos")
-                        cy.wait(3000);
+                        const contexto = "//mat-expansion-panel-header[.//h2[contains(text(),'Rutinas o acciones POS')]]";
+                        Generales.BtnIframe('Agregar', { timeout: 10000, force: true, skipContext: true }, 
+                            null, false, contexto
+                        );                        
+                        cy.wait(500);
+                        
+                        Generales.ClickPorTexto("Crear rutina");
 
-                        GestorDeTransacciones.RutinasTRX(
-                            item.rutina,
-                            item.estado,
-                            item.correlativo,
-                            item.requiereLogin,
-                            item.descripcion,
-                            item.fechaInicio,
-                            item.fechaFin,
-                            item.paremetros
-                        );
+                        GestorDeTransacciones.POSRutinasTRX(item);
 
                         cy.xpath("//button[.//mat-icon[text()='check']]")
                             .scrollIntoView({ duration: 500 })

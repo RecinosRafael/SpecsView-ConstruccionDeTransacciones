@@ -72,7 +72,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                             null, false, contexto
                         );                        
                         cy.wait(500);
-                        cy.xpath("//button[contains(@class,'mat-mdc-menu-item') and contains(., 'Consultar firmas')]").click({ force: true });
+                        
+                        Generales.ClickPorTexto('Consultar firmas');
 
                         GestorDeTransacciones.POSConsultarFirma(item);
 

@@ -22,7 +22,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
     beforeEach(function() {
         Generales.IrAPantalla('transactionManager');
-        cy.readFile('./JsonData/gestorCambiarAtributosCampoPOS.json').as('data');
+        cy.readFile('./JsonData/gestorActivarFirmaEnPaso.json').as('data');
     });
 
 
@@ -67,20 +67,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                         cy.wait(500)
                         Generales.BtnIframe(item.paso, { timeout: 10000, force: true, skipContext: true });
                         cy.wait(500)
-                        const contexto = "//mat-expansion-panel-header[.//h2[contains(text(),'Rutinas o acciones POS')]]";
-                        Generales.BtnIframe('Agregar', { timeout: 10000, force: true, skipContext: true }, 
-                            null, false, contexto
-                        );                        
-                        cy.wait(500);
-                        
-                        Generales.ClickPorTexto('Cambiar atributos del campo');                       
-
-                        GestorDeTransacciones.POSCambiarAtributo(item);
-
-                        cy.xpath("//button[.//mat-icon[text()='check']]")
-                            .scrollIntoView({ duration: 500 })
-                            .click({ force: true });
-
+                        GestorDeTransacciones.ActivarFirmaEnPaso(item);
                     });
                 }).then(() => {
 

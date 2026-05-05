@@ -72,7 +72,8 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
                             null, false, contexto
                         );                        
                         cy.wait(500);
-                        cy.xpath("//button[contains(@class,'mat-mdc-menu-item') and contains(., 'Solicitar autorización')]").click({ force: true });
+                        
+                        Generales.ClickPorTexto("Solicitar autorización");
 
                         GestorDeTransacciones.POSSolicitarAutorizacion(item);
 
