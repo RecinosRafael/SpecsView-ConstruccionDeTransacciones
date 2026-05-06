@@ -29,6 +29,7 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
     it("Agregar múltiples registros dinámicamente", function() {
 
         const datos = this.data.agregar
+        let numero = 0
 
         const agrupadas = datos.reduce((acc, item) => {
             if (!acc[item.codigoTRX]) {
@@ -77,10 +78,22 @@ describe("Prueba unitaria del Crud Gestor de Transacciones ...", function() {
 
                         GestorDeTransacciones.POSRutinasTRX(item);
 
+                        numero++
+                        const alias = Generales.interceptar('guardar', numero, 'POST', '**/transactionFlowRoutine')
+
                         cy.xpath("//button[.//mat-icon[text()='check']]")
                             .scrollIntoView({ duration: 500 })
                             .click({ force: true });
 
+                        let nombre = "POS Rutina"
+
+                        Generales.procesarRespuestaYReportarConFrame(alias, {
+                            numero,
+                            describe: `000 -: ${nombre}`,
+                            crud: `${nombre}`,
+                            descripcion: `Codigo TRX: ${codigoTRX} - Rutina: ${item.rutina} - Estado: ${item.estado}`
+                        })   
+                        
                     });
                 }).then(() => {
 
